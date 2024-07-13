@@ -2701,6 +2701,7 @@ void CL_RemovePlayer(INT32 playernum, kickreason_t reason)
 			nodeingame[node] = false;
 			Net_CloseConnection(node);
 			ResetNode(node);
+			UnmutePlayerFromChat(node);
 		}
 	}
 
@@ -3611,6 +3612,7 @@ void SV_ResetServer(void)
 	memset(playerdelaytable, 0, sizeof playerdelaytable);
 
 	ClearAdminPlayers();
+	ClearMutedPlayers();
 	Schedule_Clear();
 	Automate_Clear();
 	K_ClearClientPowerLevels();
@@ -3716,6 +3718,7 @@ void D_QuitNetGame(void)
 
 	D_CloseConnection();
 	ClearAdminPlayers();
+	ClearMutedPlayers(); // RadioRacers - self-explanatory.
 	Schedule_Clear();
 	Automate_Clear();
 	K_ClearClientPowerLevels();
