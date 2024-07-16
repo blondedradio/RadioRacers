@@ -374,6 +374,11 @@ void K_ApplyStun(player_t *player, mobj_t *inflictor, mobj_t *source, INT32 dama
 
 boolean K_CanSuperTransfer(player_t *player);
 
+// RadioRacers: This only works for single-player, no splitscreen. But it can be adapted to work WITH splitscreen easily.
+extern boolean localPlayerJustRingBoosted;
+extern boolean localPlayerJustBootyBounced;
+extern boolean localPlayerJustWavedashed;
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

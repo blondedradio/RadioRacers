@@ -6661,7 +6661,7 @@ void M_DrawKickHandler(void)
 
 	V_DrawFixedPatch(0, 0, FRACUNIT, 0, W_CachePatchName("MENUHINT", PU_CACHE), NULL);
 	// RadioRacers: Draw a different title depending on the kick menu purpose
-	char *kickMenuTitle = NULL;
+	const char *kickMenuTitle = NULL;
 	switch(playerkickmenu.purpose) {
 		case PKM_KICK:
 			kickMenuTitle = (playerkickmenu.adminpowered)
