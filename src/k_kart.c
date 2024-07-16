@@ -90,6 +90,11 @@ void K_PopBubbleShield(player_t *player)
 	player->bubbledrag = false;
 }
 
+// RadioRacers: Hacky ways of checking for events the exact FRAME that they happen
+boolean localPlayerJustRingBoosted = false; 	// The second your Ring Boost (TM) timer starts
+boolean localPlayerJustBootyBounced = false; 	// The second you start a fastfall bounce
+boolean localPlayerJustWavedashed = false;		// The few seconds or so your wavedash starts
+
 boolean K_ThunderDome(void)
 {
 	if (K_CanChangeRules(true))
@@ -13211,6 +13216,12 @@ static void K_KartDrift(player_t *player, boolean onground)
 						)
 					);
 
+					// RadioRacers: .. right around here.
+					if (P_IsMachineLocalPlayer(player) && !localPlayerJustWavedashed)
+					{
+						localPlayerJustWavedashed = true;
+					}
+
 					K_SpawnDriftBoostExplosion(player, 0);
 				}
 				S_StopSoundByID(player->mo, sfx_waved1);
@@ -14252,6 +14263,11 @@ boolean K_FastFallBounce(player_t *player)
 		else
 		{
 			S_StartSound(player->mo, sfx_ffbonc);
+			// RadioRacers: .. right around here.
+			if (P_IsMachineLocalPlayer(player) && !localPlayerJustBootyBounced)
+			{
+				localPlayerJustBootyBounced = true;
+			}
 		}
 
 		if (player->mo->eflags & MFE_UNDERWATER)
@@ -16346,6 +16362,12 @@ void K_MoveKartPlayer(player_t *player, boolean onground)
 			}
 		}
 
+	}
+
+	// RadioRacers: Really gross.
+	if (P_IsMachineLocalPlayer(player) && localPlayerJustWavedashed)
+	{
+		localPlayerJustWavedashed = false;
 	}
 
 	K_KartDrift(player, onground);
