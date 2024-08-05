@@ -607,13 +607,7 @@ static void PR_ApplyProfile_Settings(profile_t *p, UINT8 playernum)
 	CV_StealthSetValue(&cv_descriptiveinput[playernum], p->descriptiveinput);
 	CV_StealthSetValue(&cv_autoring[playernum], p->autoring);
 	CV_StealthSetValue(&cv_rumble[playernum], p->rumble);
-
-	/**
-	 * RadioRacers - FOV CVAR INFO
-	 * 
-	 * Check cvars.cpp for information.
-	 */
-	// CV_StealthSetValue(&cv_fov[playernum], p->fov);
+	CV_StealthSetValue(&cv_fov[playernum], p->fov);
 
 	// set controls...
 	G_ApplyControlScheme(playernum, p->controls);
