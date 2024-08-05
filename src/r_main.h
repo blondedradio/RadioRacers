@@ -141,7 +141,6 @@ extern consvar_t cv_drawtimer;
 extern consvar_t cv_debugfonts;
 extern consvar_t cv_vorpal;
 
-extern consvar_t cv_translucenthud;
 // debugging
 
 typedef enum {
