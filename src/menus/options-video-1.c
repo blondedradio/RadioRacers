@@ -12,6 +12,7 @@
 #include "../k_menu.h"
 #include "../v_video.h" // cv_globalgamma
 #include "../r_fps.h" // fps cvars
+#include "../r_main.h"
 
 // options menu
 menuitem_t OPTIONS_Video[] =
