@@ -374,6 +374,26 @@ void K_ApplyStun(player_t *player, mobj_t *inflictor, mobj_t *source, INT32 dama
 
 boolean K_CanSuperTransfer(player_t *player);
 
+fixed_t K_GetGradingFactorAdjustment(player_t *player);
+fixed_t K_GetGradingFactorMinMax(player_t *player, boolean max);
+UINT16 K_GetEXP(player_t *player);
+
+UINT32 K_GetNumGradingPoints(void);
+
+boolean K_LegacyRingboost(const player_t *player);
+
+void K_BotHitPenalty(player_t *player);
+
+boolean K_IsPickMeUpItem(mobjtype_t type);
+
+boolean K_TryPickMeUp(mobj_t *m1, mobj_t *m2, boolean allowHostile);
+
+fixed_t K_TeamComebackMultiplier(player_t *player);
+
+void K_ApplyStun(player_t *player, mobj_t *inflictor, mobj_t *source, INT32 damage, UINT8 damagetype);
+
+boolean K_CanSuperTransfer(player_t *player);
+
 // RadioRacers: This only works for single-player, no splitscreen. But it can be adapted to work WITH splitscreen easily.
 extern boolean localPlayerJustBootyBounced;
 extern boolean localPlayerJustWavedashed;
