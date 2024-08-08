@@ -615,6 +615,19 @@ static inline void P_DeviceRumbleTick(void)
 			{
 				low = high = 65536 / 2;
 			}
+			else if (
+				RR_ShouldUseMoreRumbleEvents() && 
+				(rumbleEvent = RR_GetRumbleEvent(player)) != 0
+			)
+			{
+				low = high =  RR_GetRumbleStrength(rumbleEvent);
+
+				// RadioRacers: Really gross.
+				if (P_IsMachineLocalPlayer(player) && localPlayerWavedashClickTimer > 0)
+				{
+					localPlayerWavedashClickTimer--;
+				}
+			}
 			else if (player->sneakertimer > (sneakertime-(TICRATE/2)) || player->panelsneakertimer > (sneakertime-(TICRATE/2)) || player->weaksneakertimer > (sneakertime-(TICRATE/2)))
 			{
 				low = high = 65536 / (3+player->numsneakers+player->numpanelsneakers+player->numweaksneakers);
@@ -623,14 +636,6 @@ static inline void P_DeviceRumbleTick(void)
 				&& P_IsObjectOnGround(player->mo) && player->speed != 0)
 			{
 				low = high = 65536 / 32;
-			}
-			else if (
-				RR_ShouldUseMoreRumbleEvents() && 
-				(rumbleEvent = RR_GetRumbleEvent(player)) != 0
-			)
-			{
-				low = high =  RR_GetRumbleStrength(rumbleEvent);
-
 			}
 		}
 
