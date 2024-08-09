@@ -58,6 +58,7 @@
 #include "music.h"
 
 #include "v_draw.hpp"
+#include "radioracers/rr_cvar.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_main.h"
@@ -789,10 +790,23 @@ void Y_PlayerStandingsDrawer(y_data_t *standings, INT32 xoffset)
 				else
 				{
 					charcolormap = R_GetTranslationColormap(players[pnum].skin, static_cast<skincolornum_t>(players[pnum].skincolor), GTC_CACHE);
-					V_DrawMappedPatch(x+14, y-5, 0,
-						R_CanShowSkinInDemo(players[pnum].skin) ?
-						faceprefix[players[pnum].skin][FACE_MINIMAP] : kp_unknownminimap,
-						charcolormap);
+					
+					if (cv_hud_usehighresportraits.value) {
+						V_DrawFixedPatch(
+							(x+14) << FRACBITS, (y-4) << FRACBITS,
+							(3*FRACUNIT)/4,
+							0,
+							R_CanShowSkinInDemo(pnum) ?
+							faceprefix[players[pnum].skin][FACE_RANK] : kp_unknownminimap,
+							charcolormap
+						);
+					} else {
+						V_DrawMappedPatch(x+14, y-5, 0,
+							R_CanShowSkinInDemo(players[pnum].skin) ?
+							faceprefix[players[pnum].skin][FACE_MINIMAP] : kp_unknownminimap,
+							charcolormap); 
+					}
+
 				}
 			}
 
