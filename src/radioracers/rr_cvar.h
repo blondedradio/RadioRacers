@@ -25,6 +25,19 @@ extern "C" {
 extern consvar_t cv_votesnitch;         // Vote Snitch
 extern consvar_t cv_ringsonplayer;      // Rings drawn on player
 extern consvar_t cv_rouletteonplayer;   // Item/Ring Roulette drawn on player
+extern consvar_t cv_applylocalencore;    // Clientside encore palettes
+extern consvar_t cv_applyhaki;           // Observation Haki mode
+extern consvar_t cv_customemeraldhud;    // Alternate Emerald display for Battle Mode
+extern consvar_t cv_spheremeteronplayer; // Blue Sphere meter drawn on player
+
+void KartLocalEncore_OnChange(void);
+void KartHaki_OnChange(void);
+/**
+ * Checks if either the encoremode flag or the clientside flag is on
+ * \sa cv_applylocalencore encoremode
+ */
+extern boolean shouldApplyEncore(void);
+extern boolean shouldUseHaki(void);
 
 // Extra customization
 extern consvar_t cv_ringbox_roulette_player_scale;
@@ -48,6 +61,7 @@ extern consvar_t cv_hud_hidecountdown; // Hide the bigass letters at the start o
 extern consvar_t cv_hud_hideposition;  // Hide the bigass position bulbs at the start of the race
 extern consvar_t cv_hud_hidelapemblem; // Hide the bigass lap emblem when you start a new lap
 extern consvar_t cv_hud_usehighresportraits; // Draw higher-res portraits in the minirankings
+extern consvar_t cv_holdbuttonforscoreboard; // Restore SRB2Kart behaviour when viewing in-game scoreboards
 
 void RumbleEvents_OnChange(void);
 void Roulette_OnChange(void);

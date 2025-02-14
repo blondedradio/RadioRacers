@@ -65,6 +65,9 @@
 #include "y_inter.h" // Y_PlayerStandingsDrawer
 #include "g_party.h"
 
+// RadioRacers
+#include "radioracers/rr_cvar.h" // cv_holdbuttonforscoreboard
+
 // coords are scaled
 #define HU_INPUTX 0
 #define HU_INPUTY 0
@@ -1044,17 +1047,23 @@ void HU_Ticker(void)
 	hu_tick &= 7; // currently only to blink chat input cursor
 
 	// Rankings
-	if (G_PlayerInputDown(0, gc_rankings, 0))
-	{
-		if (!hu_holdscores)
+	if (!cv_holdbuttonforscoreboard.value){
+		// Vanilla behaviour
+		if (G_PlayerInputDown(0, gc_rankings, 0))
 		{
-			hu_showscores ^= true;
+			if (!hu_holdscores)
+			{
+				hu_showscores ^= true;
+			}
+			hu_holdscores = true;
 		}
-		hu_holdscores = true;
-	}
-	else
-	{
-		hu_holdscores = false;
+		else
+		{
+			hu_holdscores = false;
+		}
+	} else {
+		// RadioRacers: SRB2Kart behaviour
+		hu_showscores = G_PlayerInputDown(0, gc_rankings, 0) && !chat_on;
 	}
 
 	hu_keystrokes = false;

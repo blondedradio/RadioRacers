@@ -890,7 +890,7 @@ extern struct maplighting
 extern UINT8 numlaps;
 extern UINT8 gamespeed;
 extern boolean franticitems;
-extern boolean encoremode, prevencoremode;
+extern boolean encoremode, prevencoremode, localencore, hakimode; // RadioRacers: localencore, hakimode
 extern boolean g_teamplay;
 extern boolean g_duelpermitted;
 

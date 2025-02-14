@@ -59,6 +59,7 @@
 
 #include "radioracers/rr_cvar.h"
 #include "radioracers/rr_hud.h"
+#include "radioracers/rr_util.h"
 
 //{ 	Patch Definitions
 static patch_t *kp_nodraw;
@@ -2543,17 +2544,18 @@ static void K_drawKartSlotMachine(void)
 		localcolor[1] = SKINCOLOR_WHITE;
 
 		// This looks kinda wild with the white-background patch.
-		/*
+		// RadioRacers: and that's why I'm re-enabling it
+		
 		switch (stplyr->ringboxaward)
 		{
 			case 5: // JACKPOT!
-				localcolor[1] = K_RainbowColor(leveltime);
+				localcolor[1] = static_cast<skincolornum_t>(K_RainbowColor(leveltime));
 				break;
 			default:
 				localcolor[1] = SKINCOLOR_WHITE;
 				break;
 		}
-		*/
+		
 	}
 
 	// pain and suffering defined below
@@ -4690,6 +4692,68 @@ static void K_DrawLivesDigits(INT32 x, INT32 y, INT32 width, INT32 flags, patch_
 	V_DrawScaledPatch(x, y, flags, font[stplyr->lives % 10]);
 }
 
+// RadioRacers: Split K_drawKartSpeedometer functionality into different util functions, for reusability
+static UINT8 K_GetKartSpeedometerLabel()
+{
+	UINT8 labeln = 0;
+
+	if (!stplyr->exiting) // Keep the same speed value as when you crossed the finish line!
+	{
+		switch (cv_kartspeedometer.value)
+		{
+			case 1: // Sonic Drift 2 style percentage
+			default:
+				labeln = 0;
+				break;
+			case 2: // Kilometers
+				labeln = 1;
+				break;
+			case 3: // Miles
+				labeln = 2;
+				break;
+			case 4: // Fracunits
+				labeln = 3;
+				break;
+		}
+	}
+
+	return labeln;
+}
+
+static void K_GetKartSpeedometerNumbers(uint8_t numbers[3])
+{
+	static fixed_t convSpeed;
+
+	if (!stplyr->exiting) // Keep the same speed value as when you crossed the finish line!
+	{
+		switch (cv_kartspeedometer.value)
+		{
+			case 1: // Sonic Drift 2 style percentage
+			default:
+				convSpeed = (stplyr->speed * 100) / K_GetKartSpeed(stplyr, false, true); // Based on top speed!
+				break;
+			case 2: // Kilometers
+				convSpeed = FixedDiv(FixedMul(stplyr->speed, 142371), mapobjectscale) / FRACUNIT; // 2.172409058
+				break;
+			case 3: // Miles
+				convSpeed = FixedDiv(FixedMul(stplyr->speed, 88465), mapobjectscale) / FRACUNIT; // 1.349868774
+				break;
+			case 4: // Fracunits
+				convSpeed = FixedDiv(stplyr->speed, mapobjectscale) / FRACUNIT; // 1.0. duh.
+				break;
+		}
+	}
+
+	// Don't overflow
+	// (negative speed IS really high speed :V)
+	if (convSpeed > 999 || convSpeed < 0)
+		convSpeed = 999;
+
+	numbers[0] = ((convSpeed / 100) % 10);
+	numbers[1] = ((convSpeed / 10) % 10);
+	numbers[2] = (convSpeed % 10);
+}
+
 static void K_drawRingCounter(boolean gametypeinfoshown)
 {
 	const boolean uselives = G_GametypeUsesLives();
@@ -4874,6 +4938,7 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 	else
 	{
 		const boolean DRAW_RINGS_ON_PLAYER = cv_ringsonplayer.value == 1;
+		const BOOLEAN DRAW_SPEEDO_ON_PLAYER = false;  //TODO: Replace with actual cvar check
 		INT32 ringcounterflags = V_HUDTRANS|V_SLIDEIN|splitflags;
 		INT32 RINGC_X = LAPS_X;
 
@@ -4932,9 +4997,19 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 		// If the cvar isn't active AND we're using lives..
 		INT32 ringstickerwidth = (uselives && !DRAW_RINGS_ON_PLAYER) ? (stplyr->lives >= 10 ? 70 : 64) : 33;
 
+		if (DRAW_RINGS_ON_PLAYER && DRAW_SPEEDO_ON_PLAYER) 
+		{
+			// Speedometer has a width of 42, add some extra pixels for padding
+			ringstickerwidth += 42;
+			RINGC_X += 24;
+		}
+
 		// Rings
+		int RINGC_STICKER_X = RINGC_X + 7;
+		if (DRAW_RINGS_ON_PLAYER && DRAW_SPEEDO_ON_PLAYER)
+			RINGC_STICKER_X = (RINGC_X - 42) +7;
 		using srb2::Draw;
-		Draw(RINGC_X+7, fy+1)
+		Draw(RINGC_STICKER_X, fy+1)
 			.flags(ringcounterflags)
 			.align(Draw::Align::kCenter)
 			.width(ringstickerwidth)
@@ -5005,6 +5080,21 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 		if (stplyr->superringdisplay)
 		{
 			greyout = V_HUDTRANSHALF;
+		}
+
+		// Speedometer
+		if (DRAW_SPEEDO_ON_PLAYER)
+		{
+			uint8_t speedometer_numbers[3];
+			K_GetKartSpeedometerNumbers(speedometer_numbers);
+			// int ringtext_x = ((stplyr->hudrings < 0) ? RINGC_X+29+0 : RINGC_X+23+3) + 10;
+			int ringtext_x = RINGC_X - 42;
+
+			using srb2::Draw;
+			V_DrawScaledPatch(ringtext_x+7, fy, V_HUDTRANS|splitflags, kp_facenum[speedometer_numbers[0]]);
+			V_DrawScaledPatch(ringtext_x+13, fy, V_HUDTRANS|splitflags, kp_facenum[speedometer_numbers[1]]);
+			V_DrawScaledPatch(ringtext_x+19, fy, V_HUDTRANS|splitflags, kp_facenum[speedometer_numbers[2]]);
+			V_DrawScaledPatch(ringtext_x+29, fy, V_HUDTRANS|splitflags, kp_speedometerlabel[K_GetKartSpeedometerLabel()]);
 		}
 
 		// Lives
@@ -6578,6 +6668,16 @@ static void K_drawKartMinimap(void)
 
 		workingPic = kp_wouldyoustillcatchmeifiwereaworm;
 	}
+
+	// RadioRacers: By default, the minimap would only use st_translucency if splitscreen was on.
+	// see: dofade
+
+	minimaptrans = FixedMul(minimaptrans, (st_translucency * FRACUNIT) / 10);
+
+	if (!minimaptrans)
+		return;
+
+	minimaptrans = ((10-minimaptrans)<<V_ALPHASHIFT);
 
 	// Really looking forward to never writing this loop again
 	UINT8 bestplayer = MAXPLAYERS;

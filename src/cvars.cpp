@@ -505,10 +505,17 @@ consvar_t stereoreverse = Player("stereoreverse", "Off").on_off();
 /**
  * RadioRacers: cvars for custom miscellanous functionalities
  */
-// How is this basic accessibility option missing from the game? Apalling.
+// Backport of accessibility option from SRB2Kart.
 consvar_t cv_translucenthud = Player("translucenthud", "10").min_max(0, 10);
+
 // Vote Snitch
 consvar_t cv_votesnitch = Player("votesnitch", "On").on_off();
+
+// Local Encore Mode Palettes
+consvar_t cv_applylocalencore = Player("localencore", "Off").values({{0, "Off"}, {1, "On"}}).dont_save().onchange_noinit(KartLocalEncore_OnChange);
+
+// Observation Haki
+consvar_t cv_applyhaki = Player("hakimode", "Off").values({{0, "Off"}, {1, "On"}}).dont_save().onchange_noinit(KartHaki_OnChange);
 
 // Rumble Events
 consvar_t cv_morerumbleevents = Player("morerumbleevents", "On").on_off().onchange(RumbleEvents_OnChange);
@@ -565,6 +572,8 @@ consvar_t cv_hud_hideposition = Player("hideposition", "No").yes_no();
 consvar_t cv_hud_hidelapemblem = Player("hidelapemblem", "No").yes_no();
 // Draw high-res portraits in the minirankings
 consvar_t cv_hud_usehighresportraits = Player("usehighresportraits", "Yes").yes_no();
+// Restore SRB2Kart behaviour when viewing in-game rankings (i.e. having to hold the button)
+consvar_t cv_holdbuttonforscoreboard = Player("holdbuttonforscoreboard", "No").yes_no();
 //
 // Server local, also available on dedicated servers.
 // Usually saved, not sycned though...

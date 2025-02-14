@@ -57,6 +57,8 @@
 #include "thread.hpp"
 #include "../cxxutil.hpp"
 
+#include "../radioracers/rr_cvar.h"
+
 using namespace srb2::acs;
 
 /*--------------------------------------------------
@@ -1849,7 +1851,7 @@ bool CallFunc_EncoreMode(ACSVM::Thread *thread, const ACSVM::Word *argV, ACSVM::
 	(void)argV;
 	(void)argC;
 
-	thread->dataStk.push(encoremode);
+	thread->dataStk.push(shouldApplyEncore());
 	return false;
 }
 

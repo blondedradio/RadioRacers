@@ -4745,8 +4745,10 @@ void M_DrawOptionsColorProfile(void)
 
 void M_DrawOptionsMovingButton(void)
 {
+	const boolean isRadio = OPTIONS_MainDef.lastOn == OPTIONS_MainDef.numitems-1;
+
 	patch_t *butt = W_CachePatchName("OPT_BUTT", PU_CACHE);
-	UINT8 *c = R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_PLAGUE, GTC_CACHE);
+	UINT8 *c = R_GetTranslationColormap(TC_RAINBOW, isRadio ? SKINCOLOR_MUSTARD : SKINCOLOR_PLAGUE, GTC_CACHE);
 	fixed_t t = M_DueFrac(optionsmenu.topt_start, M_OPTIONS_OFSTIME);
 	fixed_t z = Easing_OutSine(M_DueFrac(optionsmenu.offset.start, M_OPTIONS_OFSTIME), optionsmenu.offset.dist * FRACUNIT, 0);
 	fixed_t tx = Easing_OutQuad(t, optionsmenu.optx * FRACUNIT, optionsmenu.toptx * FRACUNIT) + z;
@@ -4786,6 +4788,8 @@ void M_DrawOptions(void)
 	patch_t *buttback = W_CachePatchName("OPT_BUTT", PU_CACHE);
 
 	UINT8 *c = NULL;
+	UINT8 *patch_colormap = NULL;
+	UINT8 *text_colormap = NULL;
 
 	for (i=0; i < currentMenu->numitems; i++)
 	{
@@ -4793,6 +4797,8 @@ void M_DrawOptions(void)
 		fixed_t px = x - tx;
 		INT32 tflag = 0;
 
+		// RadioRacers: BRANDING
+		const boolean isRadio = (i == (currentMenu->numitems - 1));
 		if (i == itemOn)
 			c = R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_PLAGUE, GTC_CACHE);
 		else
@@ -4800,10 +4806,23 @@ void M_DrawOptions(void)
 
 		if (currentMenu->menuitems[i].status & IT_TRANSTEXT)
 			tflag = V_TRANSLUCENT;
+		
+		if (isRadio)
+		{
+			UINT16 color = SKINCOLOR_MUSTARD;
+			UINT16 patch_color = SKINCOLOR_BLACK;
+			if (i == itemOn) {
+				tflag |= V_STRINGDANCE;
+				color = SKINCOLOR_YELLOW;
+				patch_color = SKINCOLOR_YELLOW;
+			}
+			patch_colormap = R_GetTranslationColormap(TC_RAINBOW, patch_color, GTC_CACHE);
+			text_colormap = R_GetTranslationColormap(TC_RAINBOW, color, GTC_CACHE);
+		}
 
 		if (!(menutransition.tics != menutransition.dest && i == itemOn))
 		{
-			V_DrawFixedPatch(px, py, FRACUNIT, 0, buttback, c);
+			V_DrawFixedPatch(px, py, FRACUNIT, 0, buttback, isRadio ? patch_colormap : c);
 
 			const char *s = currentMenu->menuitems[i].text;
 			fixed_t w = V_StringScaledWidth(
@@ -4821,7 +4840,7 @@ void M_DrawOptions(void)
 				FRACUNIT,
 				FRACUNIT,
 				tflag,
-				(i == itemOn ? c : NULL),
+				isRadio ? text_colormap : (i == itemOn ? c : NULL),
 				GM_FONT,
 				s
 			);
