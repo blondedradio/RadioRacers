@@ -14,10 +14,132 @@
 #include "../../d_main.h"
 #include "../../v_video.h"
 
-// Main
-menuitem_t OPTIONS_RadioRacersMenu[] =
+// HUD Options - Race
+static menuitem_t OPTIONS_RadioRacersHudRace[] =
 {
+	{IT_HEADER, "Hide HUD Elements", NULL,
+		NULL, {NULL}, 0, 0},
+            
+	{IT_STRING | IT_CVAR, "Hide POSITION!!!", "Hide the POSITION!!! graphics at the beginning of a race.",
+		NULL, {.cvar = &cv_hud_hideposition}, 0, 0},
 
+	{IT_STRING | IT_CVAR, "Hide Lap Emblem", "Hide the Lap Emblem when you begin a new lap.",
+		NULL, {.cvar = &cv_hud_hidelapemblem}, 0, 0}
+};
+
+static menu_t OPTIONS_RadioRacersHudRaceDef = 
+{
+	sizeof (OPTIONS_RadioRacersHudRace) / sizeof (menuitem_t),
+	&OPTIONS_RadioRacersHudDef,
+	0,
+	OPTIONS_RadioRacersHudRace,
+	48, 80,
+	SKINCOLOR_SUNSLAM, 0,
+	MBF_DRAWBGWHILEPLAYING,
+	NULL,
+	2, 5,
+	M_DrawGenericOptions,
+	M_DrawOptionsCogs,
+	M_OptionsTick,
+	NULL,
+	NULL,
+	NULL,
+};
+
+// HUD Options - Battle
+static menuitem_t OPTIONS_RadioRacersHudBattle[] =
+{
+	{IT_HEADER, "Placeholder", NULL,
+		NULL, {NULL}, 0, 0},
+};
+
+
+static menu_t OPTIONS_RadioRacersHudBattleDef =
+{
+	sizeof (OPTIONS_RadioRacersHudBattle) / sizeof (menuitem_t),
+	&OPTIONS_RadioRacersHudDef,
+	0,
+	OPTIONS_RadioRacersHudBattle,
+	48, 80,
+	SKINCOLOR_SUNSLAM, 0,
+	MBF_DRAWBGWHILEPLAYING,
+	NULL,
+	2, 5,
+	M_DrawGenericOptions,
+	M_DrawOptionsCogs,
+	M_OptionsTick,
+	NULL,
+	NULL,
+	NULL,
+};
+
+// HUD
+menuitem_t OPTIONS_RadioRacersHud[] =
+{	
+	{IT_STRING | IT_SUBMENU, "Race..", "Extended HUD options for Races.",
+		NULL, {.submenu = &OPTIONS_RadioRacersHudRaceDef}, 0, 0},
+
+	{IT_STRING | IT_SUBMENU, "Battle..", "Extended HUD options for Battle Mode.",
+		NULL, {.submenu = &OPTIONS_RadioRacersHudBattleDef}, 0, 0},
+
+	{IT_SPACE | IT_NOTHING, NULL,  NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_HEADER, "General Options", NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Hold Rankings Button", "Press and hold the rankings button to view the rankings, just like in SRB2Kart.",
+		NULL, {.cvar = &cv_holdbuttonforscoreboard}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle the RING COUNTER's HUD position.",
+		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
+	
+	{IT_STRING | IT_CVAR, "Use Higher Resolution Portraits", "Draw higher resolution portraits in the minirankings.",
+		NULL, {.cvar = &cv_hud_usehighresportraits}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Hide Countdown", "Hide the countdown graphics at the beginning of a race.",
+		NULL, {.cvar = &cv_hud_hidecountdown}, 0, 0},   
+
+	{IT_HEADER, "Roulette Options", NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Roulette Layout", "Change the HUD layout for drawing the item/ring roluette.",
+		NULL, {.cvar = &cv_rouletteonplayer}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Ring Roulette Scale", "Choose a scale to draw the RING ROULETTE at.",
+		NULL, {.cvar = &cv_ringbox_roulette_player_scale}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Ring Roulette Position", "Choose where the RING ROULETTE should be positioned.",
+		NULL, {.cvar = &cv_ringbox_roulette_player_position}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Item Roulette Scale", "Choose a scale to draw the ITEM ROULETTE at.",
+		NULL, {.cvar = &cv_item_roulette_player_scale}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Item Roulette Position", "Choose where the ITEM ROULETTE should be positioned.",
+		NULL, {.cvar = &cv_item_roulette_player_position}, 0, 0},     
+};
+
+menu_t OPTIONS_RadioRacersHudDef = {
+	sizeof (OPTIONS_RadioRacersHud) / sizeof (menuitem_t),
+	&OPTIONS_RadioRacersMenuDef,
+	0,
+	OPTIONS_RadioRacersHud,
+	48, 80,
+	SKINCOLOR_SUNSLAM, 0,
+	MBF_DRAWBGWHILEPLAYING,
+	NULL,
+	2, 5,
+	M_DrawGenericOptions,
+	M_DrawOptionsCogs,
+	M_OptionsTick,
+	Roulette_OnChange,
+	NULL,
+	NULL,
+};
+
+// Gameplay
+static menuitem_t OPTIONS_RadioRacersGameplay[] =
+{
 	{IT_HEADER, "Controller Rumble", NULL,
 		NULL, {NULL}, 0, 0},
 
@@ -46,34 +168,39 @@ menuitem_t OPTIONS_RadioRacersMenu[] =
 		NULL, {.cvar = &cv_rr_rumble_wavedash}, 0, 0},
 };
 
-// HUD
-menuitem_t OPTIONS_RadioRacersHud[] =
-{	
-	{IT_HEADER, "Custom HUD Options", NULL,
-		NULL, {NULL}, 0, 0},
-	
-	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle between the Vanilla and Custom HUD layout.",
-		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
-
-	{IT_HEADER, "Hide HUD Elements", NULL,
-		NULL, {NULL}, 0, 0},
-    
-	{IT_STRING | IT_CVAR, "Hide Countdown", "Hide the countdown graphics at the beginning of a race.",
-		NULL, {.cvar = &cv_hud_hidecountdown}, 0, 0},
-        
-	{IT_STRING | IT_CVAR, "Hide POSITION!!!", "Hide the POSITION!!! graphics at the beginning of a race.",
-		NULL, {.cvar = &cv_hud_hideposition}, 0, 0},
-
-	{IT_STRING | IT_CVAR, "Hide Lap Emblem", "Hide the Lap Emblem when you begin a new lap.",
-		NULL, {.cvar = &cv_hud_hidelapemblem}, 0, 0}
+static menu_t OPTIONS_RadioRacersGameplayDef = {
+	sizeof (OPTIONS_RadioRacersGameplay) / sizeof (menuitem_t),
+	&OPTIONS_RadioRacersMenuDef,
+	0,
+	OPTIONS_RadioRacersGameplay,
+	48, 80,
+	SKINCOLOR_SUNSLAM, 0,
+	MBF_DRAWBGWHILEPLAYING,
+	NULL,
+	2, 5,
+	M_DrawGenericOptions,
+	M_DrawOptionsCogs,
+	M_OptionsTick,
+	RumbleEvents_OnChange,
+	NULL,
+	NULL,
 };
 
+// Fun features
+static menuitem_t OPTIONS_RadioRacersFun[] =
+{
+	{IT_STRING | IT_CVAR, "Enable Encore Palettes", "Toggle encore palettes clientside for levels, if available.",
+		NULL, {.cvar = &cv_applylocalencore}, 0, 0},
 
-menu_t OPTIONS_RadioRacersHudDef = {
-	sizeof (OPTIONS_RadioRacersHud) / sizeof (menuitem_t),
-	&OPTIONS_HUDDef,
+	{IT_STRING | IT_CVAR, "Observation Haki", "Apply a grayscale filter to the level, keeping important elements in colour.",
+		NULL, {.cvar = &cv_applyhaki}, 0, 0},
+};
+
+static menu_t OPTIONS_RadioRacersFunDef = {
+	sizeof (OPTIONS_RadioRacersFun) / sizeof (menuitem_t),
+	&OPTIONS_RadioRacersMenuDef,
 	0,
-	OPTIONS_RadioRacersHud,
+	OPTIONS_RadioRacersFun,
 	48, 80,
 	SKINCOLOR_SUNSLAM, 0,
 	MBF_DRAWBGWHILEPLAYING,
@@ -87,6 +214,28 @@ menu_t OPTIONS_RadioRacersHudDef = {
 	NULL,
 };
 
+// Main
+menuitem_t OPTIONS_RadioRacersMenu[] =
+{
+	{IT_STRING | IT_SUBMENU, "HUD..", "Extended options for the HUD.",
+		NULL, {.submenu = &OPTIONS_RadioRacersHudDef}, 0, 0},
+
+	{IT_STRING | IT_SUBMENU, "Gameplay..", "Gameplay-enhancing options.",
+		NULL, {.submenu = &OPTIONS_RadioRacersGameplayDef}, 0, 0},
+
+	{IT_STRING | IT_SUBMENU, "\\(^_^)/", "Fun stuff!",
+		NULL, {.submenu = &OPTIONS_RadioRacersFunDef}, 0, 0},
+
+	{IT_SPACE | IT_NOTHING, NULL,  NULL,
+		NULL, {NULL}, 0, 0},
+	
+	{IT_HEADER, "Netplay", NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Vote Snitch", "Show players who initiated and cast votes in the chatbox.",
+		NULL, {.cvar = &cv_votesnitch}, 0, 0},
+};
+
 void RumbleEvents_OnChange(void)
 {
 	if (con_startup) return;
@@ -94,7 +243,27 @@ void RumbleEvents_OnChange(void)
 	UINT16 newstatus = (cv_morerumbleevents.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
 
 	for (int i = 2; i < 9; i++) {
-		OPTIONS_RadioRacersMenu[i].status = newstatus;
+		OPTIONS_RadioRacersGameplay[i].status = newstatus;
+	}
+
+	if (!cv_morerumbleevents.value)
+	{
+		if (localPlayerWavedashClickTimer > 0)
+			localPlayerWavedashClickTimer = 0;
+
+		if (localPlayerJustBootyBounced)
+			localPlayerJustBootyBounced = false;
+	}
+}
+
+void Roulette_OnChange(void)
+{
+	if (con_startup) return;
+
+	UINT16 newstatus = (cv_rouletteonplayer.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
+
+	for (int i = 10; i < 14; i++) {
+		OPTIONS_RadioRacersHud[i].status = newstatus;
 	}
 }
 

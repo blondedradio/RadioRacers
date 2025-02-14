@@ -49,6 +49,8 @@
 #include "i_time.h"
 #include "v_draw.hpp"
 
+#include "radioracers/rr_cvar.h"
+
 using namespace srb2;
 
 // Each screen is [vid.width*vid.height];
@@ -408,7 +410,7 @@ const char *GetPalette(void)
 	}
 
 	if (gamestate == GS_LEVEL)
-		return R_GetPalname((encoremode ? mapheaderinfo[gamemap-1]->encorepal : mapheaderinfo[gamemap-1]->palette));
+		return R_GetPalname((shouldApplyEncore() ? mapheaderinfo[gamemap-1]->encorepal : mapheaderinfo[gamemap-1]->palette));
 
 	return "PLAYPAL";
 }
