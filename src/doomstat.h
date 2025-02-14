@@ -857,7 +857,7 @@ extern INT16 scramblecount; //for CTF team scramble
 extern UINT8 numlaps;
 extern UINT8 gamespeed;
 extern boolean franticitems;
-extern boolean encoremode, prevencoremode;
+extern boolean encoremode, prevencoremode, localencore, hakimode; // RadioRacers: localencore, hakimode
 
 extern tic_t wantedcalcdelay;
 extern tic_t itemCooldowns[NUMKARTITEMS - 1];

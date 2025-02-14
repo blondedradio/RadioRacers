@@ -1,9 +1,37 @@
 {
-    "files.associations": {
-        "d_main.h": "c",
-        "rr_menu.h": "c",
-        "command.h": "c",
-        "rr_cvar.h": "c",
-        "i_time.h": "c"
-    }
+  "cmake.configureSettings": {
+    "CMAKE_TOOLCHAIN_FILE": "C:/Users/SURANI-PC/vcpkg/scripts/buildsystems/vcpkg.cmake",
+    "VCPKG_HOST_TRIPLET": "x86-mingw-static",
+    "VCPKG_TARGET_TRIPLET": "x86-mingw-static",
+    "SRB2_CONFIG_DEV_BUILD" : false
+  },
+  "cmake.environment": {
+    "VCPKG_ROOT": "C:/Users/SURANI-PC/vcpkg"
+  },
+  "cmake.buildDirectory": "${workspaceFolder}/build-vscode",
+  "cmake.debugConfig": {
+    "miDebuggerPath": "C:\\msys64\\usr\\bin\\gdb.exe",
+    "args": ["-noexchndl", "-win", "-home", "W:\\Games\\PC\\rrdebug", "-skipintro", "-server", "-warp", "meadow", "-gametype", "battle", "+cheats", "1", "+battletest", "1"],
+    "cwd": "W:/Games/PC/rrdebug",
+    "environment": [
+      {
+        "name": "RINGRACERSWADDIR",
+        "value": "W:/Games/PC/rrdebug"
+      },
+    ]
+  },
+  "cmake.useCMakePresets": "never",
+  "cmake.cmakePath": "C:/msys64/mingw32/bin/cmake.exe",
+  "cmake.generator": "Ninja",
+
+    // "cmake.cmakePath": "C:/msys64/mingw32/bin/cmake.exe",
+    // "cmake.configureSettings": {
+    //   "CMAKE_AR": "C:/msys64/mingw32/bin/ar.exe",
+      // "CMAKE_MAKE_PROGRAM": "C:/msys64/usr/bin/make.exe",
+    //   "CMAKE_PREFIX_PATH": "C:/msys64/mingw32",
+    //   "CMAKE_COLOR_DIAGNOSTICS": "ON"
+    // },
+    // "cmake.environment": {
+    //   "PATH": "C:\\msys64\\mingw32\\bin;C:\\msys64\\usr\\bin;${env:PATH}"
+    // },
 }

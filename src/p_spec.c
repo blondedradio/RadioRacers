@@ -53,6 +53,8 @@
 #include "music.h"
 #include "k_battle.h" // battleprisons
 
+#include "radioracers/rr_cvar.h"
+
 // Not sure if this is necessary, but it was in w_wad.c, so I'm putting it here too -Shadow Hog
 #include <errno.h>
 
@@ -6741,7 +6743,7 @@ void P_InitSpecials(void)
 {
 	mapheader_lighting_t *lighting = &mapheaderinfo[gamemap-1]->lighting;
 
-	if (encoremode
+	if (shouldApplyEncore()
 #ifdef DEVELOP
 			&& cv_kartencoremap.value
 #endif
