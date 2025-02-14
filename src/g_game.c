@@ -291,6 +291,8 @@ UINT8 numlaps; // Removed from Cvar hell
 UINT8 gamespeed; // Game's current speed (or difficulty, or cc, or etc); 0 for easy, 1 for normal, 2 for hard
 boolean encoremode = false; // Encore Mode currently enabled?
 boolean prevencoremode;
+boolean localencore = false; // Local Encore Mode Palettes on?
+boolean hakimode = false; // Observation Haki on?
 boolean franticitems; // Frantic items currently enabled?
 
 // Server wants to enable teams?
