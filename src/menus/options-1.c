@@ -54,7 +54,7 @@ menuitem_t OPTIONS_Main[] =
 #endif
 
 	// RadioRacers is too long :rolling_eyes:
-	{IT_STRING | IT_SUBMENU, "RADIO! Options", "Options controlling any RadioRacers changes.", NULL, {.submenu = &OPTIONS_RadioRacersMenuDef}, 0, 0},
+	{IT_STRING | IT_SUBMENU, "RADIO Options", "\x82RADIO!", NULL, {.submenu = &OPTIONS_RadioRacersMenuDef}, 0, 0},
 };
 
 // For options menu, the 'extra1' field will determine the background colour to use for... the background! (What a concept!)

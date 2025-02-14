@@ -122,6 +122,8 @@
 #include "p_deepcopy.h"
 #include "k_color.h" // K_ColorUsable
 
+#include "radioracers/rr_cvar.h"
+
 // Replay names have time
 #if !defined (UNDER_CE)
 #include <time.h>
@@ -8793,13 +8795,25 @@ boolean P_LoadLevel(boolean fromnetsave, boolean reloadinggamestate)
 
 	if (mapheaderinfo[gamemap-1])
 	{
-		if (encoremode
+		if (shouldApplyEncore()
 #ifdef DEVELOP
 				&& cv_kartencoremap.value
 #endif
 				)
 		{
 			encoreLump = vres_Find(curmapvirt, "ENCORE");
+			if(shouldUseHaki()) {
+				/// -- radio
+				lumpnum_t grayencore = W_GetNumForName("GRAYENCR");
+				virtlump_t* dummy_vlump = static_cast<virtlump_t*>(Z_Malloc(sizeof(virtlump_t), PU_LEVEL, NULL));
+
+				dummy_vlump->size = W_LumpLength(grayencore);
+				memcpy(dummy_vlump->name, W_CheckNameForNum(grayencore), 8);
+				dummy_vlump->name[8] = '\0';  // Ensure null termination
+				dummy_vlump->data = static_cast<UINT8*>(W_CacheLumpNum(grayencore, PU_LEVEL));
+				/// -- radio
+				encoreLump = dummy_vlump;
+			}
 		}
 		else
 		{

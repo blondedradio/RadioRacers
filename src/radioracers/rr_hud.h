@@ -66,6 +66,16 @@ extern vector2_t RR_getRouletteCroppingForRingBox(vector2_t rouletteCrop);
 extern roulette_offset_spacing_t RR_getRouletteSpacingOffsetForKartItem(fixed_t offset);
 extern roulette_offset_spacing_t RR_getRouletteSpacingOffsetForRingBox(fixed_t offset);
 
+/**
+ * Battle HUD 
+ */
+
+/**
+ * Alternate take on the emerald display during Battle Mode.
+ * Draws the Emeralds on the bottom-left of the HUD.
+ */
+extern void RR_drawKartEmeralds(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

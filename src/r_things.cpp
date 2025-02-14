@@ -53,6 +53,9 @@
 #include "k_hitlag.h" // HITLAGJITTERS
 #include "r_fps.h"
 
+// Radio Racers
+#include "radioracers/rr_cvar.h"
+
 #define MINZ (FRACUNIT*4)
 #define BASEYCENTER (BASEVIDHEIGHT/2)
 
@@ -988,8 +991,18 @@ static void R_DrawVisSprite(vissprite_t *vis)
 
 	if (encoremap && !vis->mobj->color && !(vis->mobj->flags & MF_DONTENCOREMAP))
 	{
-		dc.colormap += COLORMAP_REMAPOFFSET;
-		dc.fullbright += COLORMAP_REMAPOFFSET;
+		if (shouldUseHaki()){
+			if (vis->mobj->tracer) {
+				// Exclude maces
+				if (vis->mobj->tracer->type != MT_CUSTOMMACEPOINT) {
+					dc.colormap += COLORMAP_REMAPOFFSET;
+					dc.fullbright += COLORMAP_REMAPOFFSET;
+				}
+			} else {
+				dc.colormap += COLORMAP_REMAPOFFSET;
+				dc.fullbright += COLORMAP_REMAPOFFSET;
+			}
+		} 
 	}
 
 	dc.texturemid = vis->texturemid;
