@@ -525,6 +525,7 @@ consvar_t cv_rr_rumble_drift = Player("rr_rumble_drift", "On").on_off();
 consvar_t cv_rr_rumble_spindash = Player("rr_rumble_spindash", "On").on_off();
 consvar_t cv_rr_rumble_tailwhip = Player("rr_rumble_tailwhip", "On").on_off();
 consvar_t cv_rr_rumble_rings = Player("rr_rumble_rings", "On").on_off();
+consvar_t cv_rr_rumble_spheres = Player("rr_rumble_spheres", "On").on_off();
 consvar_t cv_rr_rumble_wavedash = Player("rr_rumble_wavedash", "On").on_off();
 
 // Rings drawn on player (akin to driftgauge)
@@ -532,6 +533,31 @@ consvar_t cv_ringsonplayer = Player("ringsonplayer", "Vanilla").values({
 	{0, "Vanilla"}, 
 	{1, "Custom"}
 });
+
+// -- Battle
+
+// Blue Sphere meter drawn on player
+consvar_t cv_spheremeteronplayer = Player("spheremeteronplayer", "Vanilla").values({
+	{0, "Vanilla"}, 
+	{1, "Custom"}
+});
+
+// Alterate Emerald display HUD
+consvar_t cv_customemeraldhud = Player("customemeraldhud", "Vanilla").values({
+	{0, "Vanilla"}, 
+	{1, "Minimal"},
+	{2, "Full"}
+});
+
+// Toggle Winner announcement at end of the round
+consvar_t cv_battle_toggle_winner_announcement = Player("bttl_toggle_winner_announcement", "On").on_off();
+
+// Emerald locations on minimap
+consvar_t cv_battle_toggle_emerald_on_minimap = Player("bttl_emerald_on_minimap", "On").on_off();
+consvar_t cv_battle_toggle_ufo_timer_on_minimap = Player("bttl_ufo_timer_on_minimap", "On").on_off();
+
+// Toggle tracking players in the HUD
+consvar_t cv_targetrackplayers = Player("targetrackplayers", "Yes").yes_no();
 
 // Item/Ringbox Roulette drawn on player
 consvar_t cv_rouletteonplayer = Player("rouletteonplayer", "Vanilla").values({

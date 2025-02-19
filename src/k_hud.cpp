@@ -5362,13 +5362,18 @@ static void K_drawBlueSphereMeter(boolean gametypeinfoshown)
 	const UINT8 segColors[] = {73, 64, 52, 54, 55, 35, 34, 33, 202, 180, 181, 182, 164, 165, 166, 153, 152};
 	const UINT8 sphere = std::clamp(static_cast<int>(stplyr->spheres), 0, 40);
 
+	const boolean DRAW_SPHERES_ON_PLAYER = cv_spheremeteronplayer.value == 1;
+	const boolean CUSTOM_EMERALD_HUD = cv_customemeraldhud.value >= 1;
+	const boolean SHOULD_SCALE_METER = (CUSTOM_EMERALD_HUD || DRAW_SPHERES_ON_PLAYER);
+	const fixed_t SPHERE_METER_SCALE = (SHOULD_SCALE_METER) ? (4*FRACUNIT)/5 : FRACUNIT;
+
 	UINT8 numBars = std::min((sphere / 10), +maxBars);
 	UINT8 colorIndex = (sphere * sizeof(segColors)) / (40 + 1);
 	INT32 fx, fy;
 	UINT8 i;
 	INT32 splitflags = V_HUDTRANS|V_SLIDEIN|V_SNAPTOBOTTOM|V_SNAPTOLEFT|V_SPLITSCREEN;
 	INT32 flipflag = 0;
-	INT32 xstep = 15;
+	INT32 xstep = (SHOULD_SCALE_METER) ? 12 : 15;
 
 	// pain and suffering defined below
 	if (r_splitscreen < 2)	// don't change shit for THIS splitscreen.
@@ -5376,32 +5381,69 @@ static void K_drawBlueSphereMeter(boolean gametypeinfoshown)
 		fx = LAPS_X;
 		fy = LAPS_Y-4;
 
-		if (battleprisons)
+		if (DRAW_SPHERES_ON_PLAYER && r_splitscreen == 0)
 		{
-			if (r_splitscreen == 1)
+			vector3_t v;
+			trackingResult_t result;
+
+			splitflags = V_HUDTRANS;
+
+			const boolean doesPlayerHaveMo = !((stplyr->mo == NULL || P_MobjWasRemoved(stplyr->mo)));
+			if (doesPlayerHaveMo)
 			{
-				fy -= 8;
+				v.x = R_InterpolateFixed(stplyr->mo->old_x, stplyr->mo->x);
+				v.y = R_InterpolateFixed(stplyr->mo->old_y, stplyr->mo->y);
+				v.z = R_InterpolateFixed(stplyr->mo->old_z, stplyr->mo->z);
+
+				// Legacy GL perspective
+				v.z += FixedMul(-15*FRACUNIT, stplyr->mo->scale);
+				
+				K_ObjectTracking(&result, &v, false);
+
+				// Add some offset so it's directly below the player (in Software)
+				fy = (result.y / FRACUNIT); 
+				fx = (result.x / FRACUNIT) - ((scaleInt(kp_spheresticker->width, SPHERE_METER_SCALE))/2);
+			} 
+		}
+
+		if (!SHOULD_SCALE_METER) {
+			if (battleprisons)
+			{
+				if (r_splitscreen == 1)
+				{
+					fy -= 8;
+				}
+				else
+				{
+					fy -= 5;
+				}
 			}
-			else
+			else if (r_splitscreen == 1)
 			{
 				fy -= 5;
 			}
-		}
-		else if (r_splitscreen == 1)
-		{
-			fy -= 5;
-		}
 
-		if (gametypeinfoshown)
-		{
-			fy -= 11 + 4;
-		}
-		else
-		{
-			fy += 9;
-		}
+			if (gametypeinfoshown)
+			{
+				fy -= 11 + 4;
+			}
+			else
+			{
+				fy += 9;
+			}
 
-		V_DrawScaledPatch(fx, fy, splitflags|flipflag, kp_spheresticker);
+			V_DrawScaledPatch(fx, fy, splitflags|flipflag, kp_spheresticker);
+		} else {
+			if (r_splitscreen == 0) {
+				const INT32 new_fy = (CUSTOM_EMERALD_HUD && !DRAW_SPHERES_ON_PLAYER) ? fy-17 : fy;
+				V_DrawFixedPatch(
+					((fx)*FRACUNIT), 
+					(new_fy)<<FRACBITS, 
+					SPHERE_METER_SCALE, 
+					splitflags|flipflag, 
+					kp_spheresticker, NULL);
+			}
+		}
 	}
 	else
 	{
@@ -5435,7 +5477,7 @@ static void K_drawBlueSphereMeter(boolean gametypeinfoshown)
 
 	if (r_splitscreen < 2)
 	{
-		fx += 25;
+		fx += (SHOULD_SCALE_METER) ? scaleInt(25, SPHERE_METER_SCALE) : 25;
 	}
 	else
 	{
@@ -5444,11 +5486,22 @@ static void K_drawBlueSphereMeter(boolean gametypeinfoshown)
 
 	for (i = 0; i <= numBars; i++)
 	{
-		UINT8 segLen = (r_splitscreen < 2) ? 10 : 5;
+		int SPHERE_BAR_LENGTH = 10;
+		if (SHOULD_SCALE_METER)
+		{
+			SPHERE_BAR_LENGTH = scaleInt(SPHERE_BAR_LENGTH, SPHERE_METER_SCALE);
+		}
+		UINT8 segLen = (r_splitscreen < 2) ? SPHERE_BAR_LENGTH: 5;
 
 		if (i == numBars)
 		{
 			segLen = (sphere % 10);
+
+			if (SHOULD_SCALE_METER) {
+				if (segLen > SPHERE_BAR_LENGTH) {
+					segLen = SPHERE_BAR_LENGTH;
+				}
+			}
 			if (r_splitscreen < 2)
 				;
 			else
@@ -5463,9 +5516,24 @@ static void K_drawBlueSphereMeter(boolean gametypeinfoshown)
 
 		if (r_splitscreen < 2)
 		{
-			V_DrawFill(fx, fy + 6, segLen, 3, segColors[std::max(colorIndex-1, 0)] | splitflags);
-			V_DrawFill(fx, fy + 7, segLen, 1, segColors[std::max(colorIndex-2, 0)] | splitflags);
-			V_DrawFill(fx, fy + 9, segLen, 3, segColors[colorIndex] | splitflags);
+			INT32 new_fy = fy;
+			int yCoords[3] = {6, 7, 9};
+
+			if (r_splitscreen == 0)
+			{
+				if (SHOULD_SCALE_METER)
+				{
+					yCoords[0] = scaleInt(yCoords[0], SPHERE_METER_SCALE) - 1;
+					yCoords[1] = scaleInt(yCoords[1], SPHERE_METER_SCALE);
+					yCoords[2] = scaleInt(yCoords[2], SPHERE_METER_SCALE);
+
+					if (CUSTOM_EMERALD_HUD && !DRAW_SPHERES_ON_PLAYER)
+						new_fy = fy-17;
+				}
+			}
+			V_DrawFill(fx, new_fy + yCoords[0], segLen, 3, segColors[std::max(colorIndex-1, 0)] | splitflags);
+			V_DrawFill(fx, new_fy + yCoords[1], segLen, 1, segColors[std::max(colorIndex-2, 0)] | splitflags);
+			V_DrawFill(fx, new_fy + yCoords[2], segLen, 3, segColors[colorIndex] | splitflags);
 		}
 		else
 		{
@@ -6430,7 +6498,6 @@ static void K_drawKartMinimapIcon(fixed_t objx, fixed_t objy, INT32 hudx, INT32 
 
 	V_DrawFixedPatch(amxpos, amypos, FRACUNIT, flags, icon, colormap);
 }
-
 static void K_drawKartMinimapDot(fixed_t objx, fixed_t objy, INT32 hudx, INT32 hudy, INT32 flags, UINT8 color, UINT8 size)
 {
 	position_t amnumpos;
@@ -6930,6 +6997,18 @@ static void K_drawKartMinimap(void)
 					workingPic = kp_unknownminimap;
 					colormap = R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(K_RainbowColor(leveltime)), GTC_CACHE);
 				}
+			case MT_MONITOR:
+				if (cv_battle_toggle_emerald_on_minimap.value && Obj_MonitorGetEmerald(mobj) != 0) {
+					workingPic = static_cast<patch_t*>(W_CachePatchName("K_EMERC", GTC_CACHE));
+					colormap = R_GetTranslationColormap(TC_DEFAULT, static_cast<skincolornum_t>(K_GetChaosEmeraldColor(Obj_MonitorGetEmerald(mobj))), GTC_CACHE);
+				}
+				break;
+			case MT_EMERALD:
+				if (cv_battle_toggle_emerald_on_minimap.value) {
+					workingPic = static_cast<patch_t*>(W_CachePatchName("K_EMERC", GTC_CACHE));
+					colormap = R_GetTranslationColormap(TC_DEFAULT, static_cast<skincolornum_t>(mobj->color), GTC_CACHE);
+				}
+				break;
 			default:
 				break;
 		}
@@ -8757,7 +8836,13 @@ void K_drawKartHUD(void)
 				else if ((gametyperules & GTR_POWERSTONES) && !K_PlayerTallyActive(stplyr))
 				{
 					if (!battleprisons)
-						K_drawKartEmeralds();
+					{
+						if (cv_customemeraldhud.value >= 1 && r_splitscreen == 0) {
+							RR_drawKartEmeralds();
+						} else {
+							K_drawKartEmeralds();
+						}
+					}
 				}
 				else if (!islonesome && !K_Cooperative())
 				{

@@ -623,9 +623,15 @@ static inline void P_DeviceRumbleTick(void)
 				low = high =  RR_GetRumbleStrength(rumbleEvent);
 
 				// RadioRacers: Really gross.
-				if (P_IsMachineLocalPlayer(player) && localPlayerWavedashClickTimer > 0)
+				if (P_IsMachineLocalPlayer(player))
 				{
-					localPlayerWavedashClickTimer--;
+					if (localPlayerWavedashClickTimer > 0)
+						localPlayerWavedashClickTimer--;
+
+					if (localPlayerPickupSpheresDelay >= 4)
+						localPlayerPickupSpheresDelay = 4;
+					else
+						localPlayerPickupSpheresDelay++;
 				}
 			}
 			else if (player->sneakertimer > (sneakertime-(TICRATE/2)) || player->panelsneakertimer > (sneakertime-(TICRATE/2)) || player->weaksneakertimer > (sneakertime-(TICRATE/2)))

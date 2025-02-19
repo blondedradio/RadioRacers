@@ -67,6 +67,7 @@
 
 #include "radioracers/rr_cvar.h"
 #include "radioracers/rr_controller.h"
+#include "radioracers/rr_util.h"
 
 // SOME IMPORTANT VARIABLES DEFINED IN DOOMDEF.H:
 // gamespeed is cc (0 for easy, 1 for normal, 2 for hard)
@@ -5231,6 +5232,12 @@ void K_BattleAwardHit(player_t *player, player_t *victim, mobj_t *inflictor, UIN
 		K_EndBattleRound(player);
 
 		mobj_t *source = !P_MobjWasRemoved(inflictor) ? inflictor : player->mo;
+
+		/**
+		 * RadioRacers: The spinning camera at the end of a round is nice. 
+		 * But you don't really know who won until you look at the rankings.
+		 */
+		RR_AnnounceBattleWinner(source->player, BATTLE_WIN_POINTS);
 
 		K_StartRoundWinCamera(
 			victim->mo,
@@ -10653,6 +10660,14 @@ void K_KartPlayerThink(player_t *player, ticcmd_t *cmd)
 	if (player->spheres < 0)
 		player->spheres = 0;
 
+	// RadioRacers: Gross
+	if (P_IsMachineLocalPlayer(player)) {
+		if (localPlayerPickupSpheresDelay >= 4)
+		{
+			localPlayerPickupSpheres = 0;
+		}
+	}
+	
 	if (!(gametyperules & GTR_KARMA) || (player->pflags & PF_ELIMINATED))
 	{
 		player->karmadelay = 0;
