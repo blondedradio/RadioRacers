@@ -33,6 +33,8 @@
 #include "st_stuff.h"
 #include "v_video.h"
 
+#include "radioracers/rr_cvar.h" //cv_targetrackplayers
+
 #ifdef WIN32
 #undef near
 #undef far
@@ -327,6 +329,11 @@ private:
 bool is_player_tracking_target(player_t *player = stplyr)
 {
 	if ((gametyperules & (GTR_BUMPERS|GTR_CLOSERPLAYERS)) != (GTR_BUMPERS|GTR_CLOSERPLAYERS))
+	{
+		return false;
+	}
+
+	if (!cv_targetrackplayers.value)
 	{
 		return false;
 	}
