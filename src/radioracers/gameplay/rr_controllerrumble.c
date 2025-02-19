@@ -20,6 +20,21 @@
 
 int16_t localPlayerWavedashClickTimer = 0;
 boolean localPlayerJustBootyBounced = false;
+UINT8 localPlayerPickupSpheres = 0;
+int16_t localPlayerPickupSpheresDelay = 0;
+
+static boolean RR_RumbleSphereCollected(const player_t *player)
+{    
+    if (!cv_rr_rumble_spheres.value)
+        return false;
+    return (
+        player->mo && 
+        localPlayerPickupSpheres > 0 && 
+        localPlayerPickupSpheres > localPlayerPickupSpheres-1 && 
+        localPlayerPickupSpheres < localPlayerPickupSpheres+1
+    );
+}
+
 
 boolean RR_ShouldUseMoreRumbleEvents(void)
 {
@@ -56,7 +71,7 @@ rumbleevent_e RR_GetRumbleEvent(const player_t* player)
     {
         return EVT_WAVEDASHED;
     }
-    else if (RR_RumbleRingCollected(player) || RR_RumbleRingConsumed(player))
+    else if (RR_RumbleSphereCollected(player) || (RR_RumbleRingCollected(player) || RR_RumbleRingConsumed(player)))
     {
         return EVT_RING;
     }
