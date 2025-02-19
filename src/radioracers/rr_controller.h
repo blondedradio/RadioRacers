@@ -52,6 +52,10 @@ boolean RR_RumbleOverchargingTailWhip(const player_t *player);              // O
 extern boolean localPlayerJustBootyBounced;
 extern int16_t localPlayerWavedashClickTimer;
 
+// mimicking `pickuprings` behaviour
+extern UINT8 localPlayerPickupSpheres; 
+extern int16_t localPlayerPickupSpheresDelay;
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

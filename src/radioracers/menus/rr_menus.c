@@ -18,13 +18,22 @@
 // HUD Options - Race
 static menuitem_t OPTIONS_RadioRacersHudRace[] =
 {
+	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle the RING COUNTER's HUD position.",
+		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
+
+	{IT_SPACE | IT_NOTHING, NULL,  NULL,
+		NULL, {NULL}, 0, 0},
+
 	{IT_HEADER, "Hide HUD Elements", NULL,
 		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Countdown", "Hide the countdown graphics at the beginning of a race.",
+		NULL, {.cvar = &cv_hud_hidecountdown}, 0, 0},   
             
-	{IT_STRING | IT_CVAR, "Hide POSITION!!!", "Hide the POSITION!!! graphics at the beginning of a race.",
+	{IT_STRING | IT_CVAR, "POSITION!!!", "Hide the POSITION!!! graphics at the beginning of a race.",
 		NULL, {.cvar = &cv_hud_hideposition}, 0, 0},
 
-	{IT_STRING | IT_CVAR, "Hide Lap Emblem", "Hide the Lap Emblem when you begin a new lap.",
+	{IT_STRING | IT_CVAR, "Lap Emblem", "Hide the Lap Emblem when you begin a new lap.",
 		NULL, {.cvar = &cv_hud_hidelapemblem}, 0, 0}
 };
 
@@ -50,8 +59,29 @@ static menu_t OPTIONS_RadioRacersHudRaceDef =
 // HUD Options - Battle
 static menuitem_t OPTIONS_RadioRacersHudBattle[] =
 {
-	{IT_HEADER, "Placeholder", NULL,
+	{IT_STRING | IT_CVAR, "Announce Winner", "Show the winner at the end of a Battle round.",
+		NULL, {.cvar = &cv_battle_toggle_winner_announcement}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Sphere Gauge Position", "Toggle the Sphere Gauge's HUD position.",
+		NULL, {.cvar = &cv_spheremeteronplayer}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Emerald HUD", "Toggle an alternate take on the Emerald display in the HUD.",
+		NULL, {.cvar = &cv_customemeraldhud}, 0, 0},
+
+	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
+
+	{IT_HEADER, "Toggle HUD Elements", NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Emeralds", "Show emerald positions in the minimap?",
+		NULL, {.cvar = &cv_battle_toggle_emerald_on_minimap}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Combat UFO Timer", "Show where and how long until the next Combat UFO spawns?",
+		NULL, {.cvar = &cv_battle_toggle_ufo_timer_on_minimap}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Track Players", "Display TARGET markers on the HUD to track players?",
+		NULL, {.cvar = &cv_targetrackplayers}, 0, 0},
 };
 
 
@@ -91,15 +121,9 @@ menuitem_t OPTIONS_RadioRacersHud[] =
 
 	{IT_STRING | IT_CVAR, "Hold Rankings Button", "Press and hold the rankings button to view the rankings, just like in SRB2Kart.",
 		NULL, {.cvar = &cv_holdbuttonforscoreboard}, 0, 0},
-
-	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle the RING COUNTER's HUD position.",
-		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
 	
 	{IT_STRING | IT_CVAR, "Use Higher Resolution Portraits", "Draw higher resolution portraits in the minirankings.",
 		NULL, {.cvar = &cv_hud_usehighresportraits}, 0, 0},
-
-	{IT_STRING | IT_CVAR, "Hide Countdown", "Hide the countdown graphics at the beginning of a race.",
-		NULL, {.cvar = &cv_hud_hidecountdown}, 0, 0},   
 
 	{IT_HEADER, "Roulette Options", NULL,
 		NULL, {NULL}, 0, 0},
@@ -117,7 +141,7 @@ menuitem_t OPTIONS_RadioRacersHud[] =
 		NULL, {.cvar = &cv_item_roulette_player_scale}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Item Roulette Position", "Choose where the ITEM ROULETTE should be positioned.",
-		NULL, {.cvar = &cv_item_roulette_player_position}, 0, 0},     
+		NULL, {.cvar = &cv_item_roulette_player_position}, 0, 0},
 };
 
 menu_t OPTIONS_RadioRacersHudDef = {
@@ -140,15 +164,18 @@ menu_t OPTIONS_RadioRacersHudDef = {
 
 // Gameplay
 static menuitem_t OPTIONS_RadioRacersGameplay[] =
-{
-	{IT_HEADER, "Controller Rumble", NULL,
-		NULL, {NULL}, 0, 0},
-
+{			
 	{IT_STRING | IT_CVAR, "Extended Controller Rumbles", "Toggle the extended controller rumble events.",
 		NULL, {.cvar = &cv_morerumbleevents}, 0, 0},
 
+	{IT_SPACE | IT_NOTHING, NULL,  NULL,
+		NULL, {NULL}, 0, 0},
+
 	{IT_STRING | IT_CVAR, "Rings", "Toggle controller rumble when you pickup and use rings.",
 		NULL, {.cvar = &cv_rr_rumble_rings}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Spheres", "Toggle controller rumble when you pickup any blue spheres.",
+		NULL, {.cvar = &cv_rr_rumble_spheres}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Drift", "Toggle controller rumble when a new drift spark starts.",
 		NULL, {.cvar = &cv_rr_rumble_drift}, 0, 0},
@@ -243,7 +270,7 @@ void RumbleEvents_OnChange(void)
 
 	UINT16 newstatus = (cv_morerumbleevents.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
 
-	for (int i = 2; i < 9; i++) {
+	for (int i = 2; i < 10; i++) {
 		OPTIONS_RadioRacersGameplay[i].status = newstatus;
 	}
 
@@ -254,6 +281,12 @@ void RumbleEvents_OnChange(void)
 
 		if (localPlayerJustBootyBounced)
 			localPlayerJustBootyBounced = false;
+
+		if (localPlayerPickupSpheresDelay >= 4)
+			localPlayerPickupSpheresDelay = 0;
+
+		if (localPlayerPickupSpheres > 0)
+			localPlayerPickupSpheres = 0;
 	}
 }
 
@@ -263,7 +296,7 @@ void Roulette_OnChange(void)
 
 	UINT16 newstatus = (cv_rouletteonplayer.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
 
-	for (int i = 10; i < 14; i++) {
+	for (int i = 8; i < 12; i++) {
 		OPTIONS_RadioRacersHud[i].status = newstatus;
 	}
 }
@@ -281,7 +314,7 @@ menu_t OPTIONS_RadioRacersMenuDef = {
 	M_DrawGenericOptions,
 	M_DrawOptionsCogs,
 	M_OptionsTick,
-	RumbleEvents_OnChange,
+	NULL,
 	NULL,
 	NULL
 };

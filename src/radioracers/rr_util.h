@@ -17,7 +17,14 @@
 extern "C" {
 #endif
 
+typedef enum {
+    BATTLE_WIN_POINTS,
+    BATTLE_WIN_EMERALDS
+} battle_win_type_t;
+
 extern int scaleInt(int value, fixed_t scale);
+extern void RR_HandleBlueSphereRumble(player_t *player);
+extern void RR_AnnounceBattleWinner(player_t *player, battle_win_type_t type);
 
 #ifdef __cplusplus
 } // extern "C"

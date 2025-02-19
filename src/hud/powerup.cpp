@@ -90,7 +90,11 @@ void K_drawKartPowerUps(void)
 	{
 		auto make_drawer = [](int x, int y, Draw::Font font) -> Draw
 		{
-			return Draw(x, y).font(font).align(Draw::Align::kRight).flags(V_SLIDEIN);
+			return Draw(x, y).font(font).align(Draw::Align::kRight)
+				// RadioRacers: interception ...
+				.flags(V_SLIDEIN|V_SNAPTOBOTTOM)
+				.scale(0.8);
+				// ... ends here
 		};
 
 		const int viewnum = R_GetViewNumber();
@@ -99,7 +103,15 @@ void K_drawKartPowerUps(void)
 		switch (r_splitscreen)
 		{
 		case 0:
-			return { make_drawer(307, 58, Draw::Font::kZVote), "PWRU", -17, 7, -35, -1 };
+			/**
+			 * RadioRacers: This SHOULD be gated with a cvar conditional. 
+			 * And it might be in the future.
+			 * But it's such a braindead QOL change that it makes more sense to force it.
+			 * 
+			 * Original line above.
+			 */
+
+			return { make_drawer(175, 190, Draw::Font::kZVote), "PWRU", -13, 7, -28, -1 };
 
 		case 1:
 			return { make_drawer(318, viewnum == 0 ? 58 : 147, Draw::Font::kPing), "PWRS", -9, 6, -19, -1 };
@@ -136,6 +148,10 @@ void K_drawKartPowerUps(void)
 	{
 		i.row.xy(i.spr_x, i.spr_y)
 			.colormap(static_cast<skincolornum_t>(stplyr->skincolor))
+		// RadioRacers: interception ...
+			.scale(0.4)
+			.flags(V_SNAPTOBOTTOM)
+		// ... ends here
 			.patch(fmt::format("{0}{1:c}L{1:c}R", i.sprite, ico.letter()).c_str());
 		i.row.text("{}", (ico.time + (TICRATE / 2)) / TICRATE);
 		i.row = i.row.x(i.shift_x);
