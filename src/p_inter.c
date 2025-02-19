@@ -49,6 +49,12 @@
 #include "m_easing.h"
 #include "k_hud.h" // K_AddMessage
 
+#include "radioracers/rr_util.h"
+
+// CTF player names
+#define CTFTEAMCODE(pl) pl->ctfteam ? (pl->ctfteam == 1 ? "\x85" : "\x84") : ""
+#define CTFTEAMENDCODE(pl) pl->ctfteam ? "\x80" : ""
+
 void P_ForceFeed(const player_t *player, INT32 attack, INT32 fade, tic_t duration, INT32 period)
 {
 	BasicFF_t Basicfeed;
@@ -774,6 +780,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				return;
 
 			P_GivePlayerSpheres(player, 1);
+
+			RR_HandleBlueSphereRumble(player);
 			break;
 
 		// Secret emblem thingy
@@ -1092,6 +1100,9 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 		case MT_AIRIVOBALL:
 		{
 			Obj_IvoBallTouch(special, toucher);
+
+			// RadioRacers: IVOBALL. Not IVOSPHERE. IVOBALL.
+			RR_HandleBlueSphereRumble(player);
 			return;
 		}
 		case MT_PATROLIVOBALL:

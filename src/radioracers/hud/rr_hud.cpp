@@ -24,6 +24,8 @@
 #include "../../screen.h" // BASEVIDHEIGHT, BASEVIDWIDTH
 #include "../../v_video.h" // V_* flags and V_Draw* functions
 #include "../../r_draw.h" // TC_DEFAULT, GTC_CACHE
+#include "../../k_battle.h" // K_NumEmeralds
+#include "../../k_color.h" // K_RainbowColor
 
 #include "../../v_draw.hpp" // srb2:Draw
 
@@ -394,7 +396,10 @@ static void RR_drawCompactEmeraldHud(INT32 flags)
 	}
 }
 
-static void RR_drawEmeraldHud(INT32 flags)
+/**
+ * Draw an expanded version of the emerald display HUD.
+ */
+static void RR_drawEmeraldHudFull(INT32 flags)
 {
     static patch_t *kp_chaosemerald = static_cast<patch_t*>(W_CachePatchName("EMRCA0", GTC_CACHE));
     static patch_t *kp_chaosemeraldoverlay = static_cast<patch_t*>(W_CachePatchName("EMRCB0", GTC_CACHE));
@@ -405,7 +410,7 @@ static void RR_drawEmeraldHud(INT32 flags)
     INT32 i = 0;
     INT32 emeraldGap = 0;
     INT32 emeraldGapAdd = 10;
-
+    
     // Firstly, draw the sticker/badge
     using srb2::Draw;
 	Draw(LAPS_X+12, starty-14).flags(flags).align(Draw::Align::kCenter).width(75).sticker();
@@ -434,32 +439,143 @@ static void RR_drawEmeraldHud(INT32 flags)
 			}
 		} else {
             // If they don't have it, draw a placeholder.
-			V_DrawTinyMappedPatch(
-				startx + emeraldGap, starty,
-				V_HUDTRANS|flags,
-				kp_chaosemeraldoverlay, R_GetTranslationColormap(TC_DEFAULT, emeraldColor, GTC_CACHE)
-			);
+            V_DrawTinyMappedPatch(
+                startx + emeraldGap, starty,
+                V_HUDTRANS|flags,
+                kp_chaosemeraldoverlay, R_GetTranslationColormap(TC_DEFAULT, emeraldColor, GTC_CACHE)
+            );
 		}
 		emeraldGap += emeraldGapAdd;
 	}
 }
 
-// extern void RR_drawKartEmeralds(void)
-// {
-//     INT32 splitflags = V_SLIDEIN|V_SNAPTOBOTTOM|V_SNAPTOLEFT;
-//     const boolean DRAW_SPHERES_ON_PLAYER = cv_spheremeteronplayer.value == 1;
+/**
+ * Draw a minimal version of the emerald display HUD, akin to the bumpers and score graphic.
+ */
+static void RR_drawEmeraldHudMinimal(INT32 flags)
+{
+    const uint8_t numEmeralds = K_NumEmeralds(stplyr);
+    const boolean isAboutToWin = numEmeralds >= 6;
+    static patch_t *kp_chaosemerald = static_cast<patch_t*>(W_CachePatchName("EMRCA0", GTC_CACHE));
 
-//     /**
-//      * If the player wants the blue sphere meter drawn on top of them,
-//      * there's a huge gap on the bottom-left of the HUD.
-//      * 
-//      * If so, draw the emeralds there.
-//      * If not, still draw the emeralds there, BUT, draw it slightly smaller.
-//      */
-//     if (DRAW_SPHERES_ON_PLAYER) {
-//         RR_drawEmeraldHud(splitflags);
-//     } else {
-//         RR_drawCompactEmeraldHud(splitflags);
-//     }
+    INT32 startx = LAPS_X + 19;
+    INT32 starty = BASEVIDHEIGHT - 29;
+    
+    // Firstly, draw the sticker/badge
+    K_DrawSticker(LAPS_X+12, starty-14, 38, flags, false);
+    using srb2::Draw;
+    Draw row = Draw(LAPS_X+36, starty-16)
+        .flags(flags)
+        .font(Draw::Font::kThinTimer);
 
-// }
+    if (isAboutToWin && leveltime % 8 < 4)
+    {
+        row = row.colorize(SKINCOLOR_TANGERINE);
+    }
+    row.text("{:02}", numEmeralds);
+    
+    // Second, draw the emerald alongside the player's total count
+    skincolornum_t emeraldColor2 = static_cast<skincolornum_t>(SKINCOLOR_CHAOSEMERALD1);
+    V_DrawTinyMappedPatch(
+        startx+5, starty-2,
+        V_HUDTRANS|flags,
+        kp_chaosemerald, R_GetTranslationColormap(TC_DEFAULT, emeraldColor2, GTC_CACHE)
+    );
+
+    if (isAboutToWin && leveltime & 1) {
+        V_DrawTinyMappedPatch(
+            startx+5, starty-2,
+            V_HUDTRANS|V_ADD|flags,
+            kp_chaosemerald, R_GetTranslationColormap(TC_DEFAULT, emeraldColor2, GTC_CACHE)
+        );
+    }
+    
+}
+
+static void RR_drawEmeraldHud(INT32 flags)
+{
+    static patch_t *kp_chaosemerald = static_cast<patch_t*>(W_CachePatchName("EMRCA0", GTC_CACHE));
+    static patch_t *kp_chaosemeraldoverlay = static_cast<patch_t*>(W_CachePatchName("EMRCB0", GTC_CACHE));
+
+    INT32 startx = LAPS_X + 19;
+    INT32 starty = BASEVIDHEIGHT - 29;
+
+    INT32 i = 0;
+    INT32 emeraldGap = 0;
+    INT32 emeraldGapAdd = 10;
+
+
+    const uint8_t numEmeralds = K_NumEmeralds(stplyr);
+    INT32 sticker_width = 20 + (5 * numEmeralds);
+    
+    // Firstly, draw the sticker/badge
+    K_DrawSticker(LAPS_X+12, starty-14, sticker_width, flags, false);
+    using srb2::Draw;
+	// Draw(LAPS_X+12, starty-14).flags(flags).align(Draw::Align::kCenter).width(20).sticker(); // 75
+    Draw row = Draw(LAPS_X+14, starty-16).flags(flags).font(Draw::Font::kThinTimer);
+    row.text("{:02}", numEmeralds);
+
+    // Secondly, loop over all the potential emeralds a player can get (i.e. seven.)
+    for (i = 0; i < 7; i++)
+	{
+		UINT32 emeraldFlag = (1 << i);
+		skincolornum_t emeraldColor = static_cast<skincolornum_t>(SKINCOLOR_CHAOSEMERALD1 + i);
+
+        // Does the player have THIS specific emerald?
+		if (stplyr->emeralds & emeraldFlag)
+		{
+			V_DrawTinyMappedPatch(
+				startx + emeraldGap, starty,
+				V_HUDTRANS|flags,
+				kp_chaosemerald, R_GetTranslationColormap(TC_DEFAULT, emeraldColor, GTC_CACHE)
+			);
+
+			if (leveltime & 1) {
+				V_DrawTinyMappedPatch(
+					startx + emeraldGap, starty,
+					V_HUDTRANS|V_ADD|flags,
+					kp_chaosemeraldoverlay, R_GetTranslationColormap(TC_DEFAULT, emeraldColor, GTC_CACHE)
+				);
+			}
+		} else {
+            // If they don't have it, draw a placeholder.
+            if (i == numEmeralds+1) {
+                V_DrawTinyMappedPatch(
+                    startx + emeraldGap, starty,
+                    V_HUDTRANS|flags,
+                    kp_chaosemeraldoverlay, R_GetTranslationColormap(TC_DEFAULT, emeraldColor, GTC_CACHE)
+                );
+            }
+		}
+		emeraldGap += emeraldGapAdd;
+	}
+}
+
+// Just two layouts for now
+typedef enum {
+    MINIMAL = 0,
+    FULL,
+    MAX_EMERALD_LAYOUTS
+} CustomEmeraldDrawType;
+
+static void (*drawEmeraldLayout[MAX_EMERALD_LAYOUTS])(INT32) = {RR_drawEmeraldHudMinimal, RR_drawEmeraldHudFull};
+extern void RR_drawKartEmeralds(void)
+{
+    INT32 splitflags = V_SLIDEIN|V_SNAPTOBOTTOM|V_SNAPTOLEFT;
+    const boolean DRAW_SPHERES_ON_PLAYER = cv_spheremeteronplayer.value == 1;
+
+    /**
+     * If the player wants the blue sphere meter drawn on top of them,
+     * there's a huge gap on the bottom-left of the HUD.
+     * 
+     * If so, draw the emeralds there.
+     * If not, still draw the emeralds there, BUT, draw it slightly smaller.
+     */
+
+    if (DRAW_SPHERES_ON_PLAYER) {
+        drawEmeraldLayout[cv_customemeraldhud.value - 1](splitflags);
+    } else {
+        RR_drawCompactEmeraldHud(splitflags);
+    }
+
+}

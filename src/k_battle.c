@@ -35,6 +35,8 @@
 #include "k_endcam.h"
 #include "p_tick.h"
 
+#include "radioracers/rr_util.h"
+
 #define BARRIER_MIN_RADIUS (768 * mapobjectscale)
 
 // Battle overtime info
@@ -269,6 +271,12 @@ void K_CheckEmeralds(player_t *player)
 
 	if (!P_MobjWasRemoved(player->mo))
 	{
+		/**
+		 * RadioRacers: The spinning camera at the end of a round is nice. 
+		 * But you don't really know who won until you look at the rankings.
+		 */
+		RR_AnnounceBattleWinner(player, BATTLE_WIN_EMERALDS);
+
 		K_StartRoundWinCamera(
 			player->mo,
 			player->angleturn + ANGLE_180,
