@@ -6,9 +6,10 @@
 // terms of the GNU General Public License, version 2.
 // See the 'LICENSE' file for more details.
 //-----------------------------------------------------------------------------
-/// \file radioracers/menu/rr_hud.c
+/// \file radioracers/menu/rr_hud.cpp
 
 #include <math.h>
+#include <deque>
 
 #include "../../doomstat.h" // r_splitscreen
 #include "../../doomdef.h" // SKINCOLOR_CHAOSEMERALD*
@@ -26,6 +27,7 @@
 #include "../../r_draw.h" // TC_DEFAULT, GTC_CACHE
 #include "../../k_battle.h" // K_NumEmeralds
 #include "../../k_color.h" // K_RainbowColor
+#include "../../z_zone.h" // Z_Realloc
 
 #include "../../v_draw.hpp" // srb2:Draw
 
@@ -37,6 +39,9 @@
 
 #define LAPS_X 9				
 #define LAPS_Y (BASEVIDHEIGHT - 29)
+
+int chat_log_offset[CHAT_BUFSIZE];
+int chat_mini_log_offset[8];
 
 typedef struct 
 {
@@ -578,4 +583,221 @@ extern void RR_drawKartEmeralds(void)
         RR_drawCompactEmeraldHud(splitflags);
     }
 
+}
+
+/**
+ * Chat HUD
+ */
+
+/** Do Radio-related functions for the chatbox, in here. */
+void RR_DoChatStuff(chat_box_parameters_t parameters) {
+    INT32 boxw = cv_chatwidth.value;
+    INT16 chatx = parameters.x, y = parameters.y;
+    INT16 typelines = parameters.typelines;
+    CONST INT32 charheight = parameters.charheight;
+
+    // Is the player trying to quick-select an emote?
+    if (is_emote_preview_on) {
+		RR_DrawChatEmotePreview(chatx, (y-1) + (typelines*charheight), boxw);
+	}
+
+    // Is the player trying to select an emote from the menu?
+	if (is_emote_menu_on) {
+		RR_DrawChatEmoteMenu(chatx + boxw + 4, (y-1) + (typelines*charheight));
+	} else {
+        V_DrawStretchyFixedPatch(
+            (chatx + boxw + 4) << FRACBITS,
+            ((y-10) + (typelines*charheight)) << FRACBITS,
+            FRACUNIT/3,
+            FRACUNIT/3,
+            V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+            static_cast<patch_t*>(W_CachePatchName(
+                "EMENUEND", PU_HUDGFX
+            )),
+            NULL
+        );
+    }
+}
+
+/**
+ * Race HUD
+ */
+
+struct PlayerFinishTicker {
+    std::string position;
+    boolean is_local_player;
+    int x;
+};
+
+static std::deque<PlayerFinishTicker> playerFinishTickerQueue;
+static boolean drawLapFlagAtStart = false;
+
+#define offscreen_offset() \
+    ((vid.width/vid.dupx) - BASEVIDWIDTH)/ 2
+#define offscreen_right_offset() \
+    BASEVIDWIDTH + (offscreen_offset()) + 2
+
+void RR_addPlayerToFinshTicker(player_t *player)
+{    
+    // https://www.mathsisfun.com/numbers/cardinal-ordinal-chart.html
+    auto position_string = [](UINT8 position) -> std::string {
+        if (position % 10 == 1 && position % 100 != 11)
+            return std::to_string(position) + "st";
+        if (position % 10 == 2 && position % 100 != 12)
+            return std::to_string(position) + "nd";
+        if (position % 10 == 3 && position % 100 != 13)
+            return std::to_string(position) + "rd";
+        
+        return std::to_string(position) + "th";
+    };
+
+    /**
+     * TODO: 
+     *  * Handle player ties
+     *  * Rare spectate case (just check player flags)
+     */
+    playerFinishTickerQueue.push_back(
+        {
+            M_GetText(va("%s \x86%s", position_string(player->position).c_str(), player_names[player-players])),
+            P_IsMachineLocalPlayer(player),
+            offscreen_right_offset() // Start just off-screen to the right
+        }
+    );
+}
+
+void RR_ridersFinishTick(void)
+{
+    if (playerFinishTickerQueue.empty()) return;
+    
+    // Move over to the left
+    playerFinishTickerQueue.front().x -= 2;
+
+    auto string_width = [](std::string string) -> INT32 
+    {
+        return V_ThinStringWidth(string.c_str(), 0);
+    };
+
+    /**
+     * Once the player at the front of the queue passes
+     * the middle of the screen, start drawing the next player who finished.
+     */
+    for (size_t i = 1; i < playerFinishTickerQueue.size(); ++i) {
+        const INT32 padding = string_width(playerFinishTickerQueue[i-1].position) + 25;
+
+        if (playerFinishTickerQueue[i].x - playerFinishTickerQueue[i-1].x >= padding)
+            playerFinishTickerQueue[i].x -= 2;
+    }
+
+    const INT32 OFFSCREEN_X = 0 - offscreen_offset() - string_width(
+        playerFinishTickerQueue.front().position.c_str()
+    );
+
+    // Once the player at the front of the queue is offscreen to the left, pop them
+    if (playerFinishTickerQueue.front().x <= OFFSCREEN_X) {
+        playerFinishTickerQueue.pop_front();
+
+        if (drawLapFlagAtStart)
+            drawLapFlagAtStart = false;
+    }
+}
+
+static const int FINISH_TICKER_Y = 45;
+/**
+ * Draw the finish line ticker, like in Sonic Riders.
+ * You know...
+ */
+void RR_drawRidersFinishTicker(void)
+{
+    if (playerFinishTickerQueue.empty()) return;
+
+    patch_t *lapFlag = static_cast<patch_t*>(W_CachePatchName("K_SPTLAP", GTC_CACHE));
+
+    for (size_t i = 0; i < playerFinishTickerQueue.size(); ++i) {
+        PlayerFinishTicker &player = playerFinishTickerQueue[i];
+
+        INT32 flags = V_20TRANS;
+
+        if (player.is_local_player)
+        {
+            flags = V_YELLOWMAP|V_10TRANS;
+        }
+
+        if (i == 0 && drawLapFlagAtStart)
+        {
+            V_DrawMappedPatch(
+                player.x - 15,
+                FINISH_TICKER_Y,
+                0,
+                lapFlag,
+                NULL
+            );
+        }
+        
+        V_DrawThinString(player.x, FINISH_TICKER_Y, flags, player.position.c_str());
+    }
+}
+
+/**
+ * Empty the queue!
+ */
+void RR_resetRidersFinishTicker(void)
+{
+    playerFinishTickerQueue.clear();
+    drawLapFlagAtStart = true;
+}
+
+/**
+ * Emote stuff
+ */
+
+lumpnum_t getEmoteAtlasFrame(int atlas_id) {
+    return EMOTE_ATLASES[atlas_id]->atlas_lump;
+}
+
+emote_atlas_coordinates_t getEmoteAtlasCoordinates(emote_t* emote, float scale)
+{
+    const int atlas_id = emote->atlas_id;
+    INT32 height = EMOTE_ATLASES[atlas_id]->height;
+    INT32 width = EMOTE_ATLASES[atlas_id]->width;
+    
+    return {
+        FloatToFixed(scale * ((emote->atlas_column) * width)),
+        FloatToFixed(scale * ((emote->atlas_row) * height))
+    };
+}
+
+lumpnum_t getEmoteFrame(emote_t* emote) {
+    if (emote->atlas_id != -1) {
+        return getEmoteAtlasFrame(emote->atlas_id);
+    }
+    size_t& frame = emoteFrameMap[emote];
+    tic_t& lastUpdate = emoteLastUpdate[emote];
+
+    if (paused)
+        return emote->frames[frame];
+
+    if ((INT32)(leveltime - lastUpdate) >= emote->frame_delay) {
+        frame = (frame + 1) % emote->frame_count;
+        lastUpdate = leveltime;
+    }
+
+    return emote->frames[frame];
+}
+
+lumpnum_t getChatEmoteFrame(emote_t* emote) {
+    if (emote->atlas_id != -1) {
+        return getEmoteAtlasFrame(emote->atlas_id);
+    }
+    size_t& frame = chatEmoteFrameMap[emote];
+    tic_t& lastUpdate = chatEmoteLastUpdate[emote];
+
+    if (paused)
+        return emote->frames[frame];
+
+    if ((INT32)(gametic - lastUpdate) >= emote->frame_delay) {
+        frame = (frame + 1) % emote->frame_count;
+        lastUpdate = gametic;
+    }
+
+    return emote->frames[frame];
 }

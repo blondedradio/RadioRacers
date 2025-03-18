@@ -10,6 +10,7 @@
 
 #include "../rr_menu.h"
 #include "../rr_cvar.h"
+#include "../rr_setup.h"
 
 #include "../../d_main.h"
 #include "../../v_video.h"
@@ -221,7 +222,17 @@ static menuitem_t OPTIONS_RadioRacersFun[] =
 
 	{IT_STRING | IT_CVAR, "Observation Haki", "Apply a grayscale filter to the level, keeping important elements in colour.",
 		NULL, {.cvar = &cv_applyhaki}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Riders Finish Line Ticker", "Show a finish line ticker, like in Sonic Riders!",
+		NULL, {.cvar = &cv_show_riders_finish_ticker}, 0, 0},
 };
+
+void RadioFunMenu_Init(void)
+{
+	if (!radioracers_usehakiencore) {
+		OPTIONS_RadioRacersFun[1].status = IT_GRAYEDOUT;	
+	}
+}
 
 static menu_t OPTIONS_RadioRacersFunDef = {
 	sizeof (OPTIONS_RadioRacersFun) / sizeof (menuitem_t),
@@ -236,7 +247,7 @@ static menu_t OPTIONS_RadioRacersFunDef = {
 	M_DrawGenericOptions,
 	M_DrawOptionsCogs,
 	M_OptionsTick,
-	NULL,
+	RadioFunMenu_Init,
 	NULL,
 	NULL,
 };
@@ -255,6 +266,12 @@ menuitem_t OPTIONS_RadioRacersMenu[] =
 
 	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
+		
+	{IT_HEADER, "Chat", NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Emotes", "My nigga, you know what this is",
+		NULL, {.cvar = &cv_chat_emotes}, 0, 0},
 	
 	{IT_HEADER, "Netplay", NULL,
 		NULL, {NULL}, 0, 0},
