@@ -93,6 +93,7 @@
 #include "r_debug.hpp"
 #include "k_director.h"
 #include "m_pw.h"
+#include "radioracers/rr_setup.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_main.h" // 3D View Rendering
@@ -1277,6 +1278,9 @@ void D_ClearState(void)
 	G_SetGamestate(GS_NULL);
 	wipegamestate = GS_NULL;
 
+	// RADIO:
+	RR_CleanupEmoteFrames();
+
 	demo.waitingfortally = false;
 }
 
@@ -1397,13 +1401,9 @@ static boolean AddIWAD(void)
 	}
 }
 
-// RadioRacers: Custom optional addons for miscelleanous additions
-boolean found_radioracers;
-boolean radioracers_usemuteicons = false;
 static void IdentifyVersion(void)
 {
 	const char *srb2waddir = NULL;
-	found_radioracers = false;
 
 #if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (HAVE_SDL)
 	// change to the directory where 'bios.pk3' is found
@@ -1453,11 +1453,24 @@ static void IdentifyVersion(void)
 	D_AddFile(startupiwads, num_startupiwads++, va(pandf,srb2waddir,"patch.pk3"), ASSET_HASH_PATCH_PK3);
 #endif
 
-	// RadioRacers: Test
-	if (FIL_ReadFileOK(va(pandf,srb2waddir,"radioracers.wad"))) {
-		D_AddFile(startupiwads, va(pandf,srb2waddir,"radioracers.wad"));
+	// RadioRacers
+	if (FIL_ReadFileOK(va(pandf,srb2waddir,"radioracers.pk3"))) {
+		D_AddFile(startupiwads, va(pandf,srb2waddir,"radioracers.pk3"));
 		found_radioracers = true;
 	}
+	if (FIL_ReadFileOK(va(pandf,srb2path,"radioracers.pk3"))) {
+		D_AddFile(startupiwads, va(pandf,srb2path,"radioracers.pk3"));
+		found_radioracers = true;
+	}
+	if (FIL_ReadFileOK(va(pandf,srb2waddir,"radioracers_plus.pk3"))) {
+		D_AddFile(startupiwads, va(pandf,srb2waddir,"radioracers_plus.pk3"));
+		found_radioracers_plus = true;
+	}
+	if (FIL_ReadFileOK(va(pandf,srb2path,"radioracers_plus.pk3"))) {
+		D_AddFile(startupiwads, va(pandf,srb2path,"radioracers_plus.pk3"));
+		found_radioracers_plus = true;
+	}
+
 
 #define MUSICTEST(str) \
 		musicpath = va(spandf,srb2waddir,"data",str);\
@@ -1775,14 +1788,14 @@ void D_SRB2Main(void)
 	num_startupiwads = 0;
 
 	if(found_radioracers)
+	{
 		mainwads++;
-
-	//RadioRacers: Mute icon for Pause Menu
-	/**
-	 * Apparently, W_CheckMultipleLumps just got taken out of this source code? Despite being such a helpful utility function. Noire adds it back as a library, but this fork doesn't need that .. for now.
-	 */
-	if (W_LumpExists("M_ICOMUT") && W_LumpExists( "M_ICOMU2")) {
-		radioracers_usemuteicons = true;
+		wadfiles[mainwads]->important = false;
+	}
+	if(found_radioracers_plus)
+	{
+		mainwads++;
+		wadfiles[mainwads]->important = false;
 	}
 
 	// Load credits_def lump
@@ -1971,6 +1984,12 @@ void D_SRB2Main(void)
 	CONS_Printf("ACS_Init(): Init Action Code Script VM.\n");
 	ACS_Init();
 	CON_SetLoadingProgress(LOADED_ACSINIT);
+
+	// RadioRacers: .. right around here
+	if (found_radioracers) {
+		RR_Init();
+	}
+
 
 	//------------------------------------------------ COMMAND LINE PARAMS
 

@@ -8770,6 +8770,9 @@ void K_drawKartHUD(void)
 		}
 	}
 
+	// RadioRacers: right about ... here
+	RR_drawRidersFinishTicker();
+
 	if (!stplyr->spectator && !freecam) // Bottom of the screen elements, don't need in spectate mode
 	{
 		if (demo.attract)

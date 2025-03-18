@@ -971,6 +971,21 @@ void V_DrawCroppedPatch(fixed_t x, fixed_t y, fixed_t pscale, INT32 scrn, patch_
 	cliprect = oldClip;
 }
 
+/** RADIO: ? */
+void V_DrawCroppedEmotePatch(fixed_t x, fixed_t y, fixed_t pscale, INT32 scrn, patch_t *patch, fixed_t sx, fixed_t sy, fixed_t w, fixed_t h, fixed_t y_offset)
+{
+	cliprect_t oldClip = cliprect;
+
+	V_SetClipRect(x, y+y_offset, w, h, scrn);
+	
+	x -= sx;
+	y -= sy;
+
+	V_DrawStretchyFixedPatch(x, y, pscale, pscale, scrn, patch, NULL);
+
+	cliprect = oldClip;
+}
+
 //
 // V_DrawContinueIcon
 // Draw a mini player!  If we can, that is.  Otherwise we draw a star.

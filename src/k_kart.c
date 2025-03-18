@@ -5237,7 +5237,7 @@ void K_BattleAwardHit(player_t *player, player_t *victim, mobj_t *inflictor, UIN
 		 * RadioRacers: The spinning camera at the end of a round is nice. 
 		 * But you don't really know who won until you look at the rankings.
 		 */
-		RR_AnnounceBattleWinner(source->player, BATTLE_WIN_POINTS);
+		RR_AnnounceBattleWinner(player, BATTLE_WIN_POINTS);
 
 		K_StartRoundWinCamera(
 			victim->mo,

@@ -517,6 +517,8 @@ consvar_t cv_applylocalencore = Player("localencore", "Off").values({{0, "Off"},
 // Observation Haki
 consvar_t cv_applyhaki = Player("hakimode", "Off").values({{0, "Off"}, {1, "On"}}).dont_save().onchange_noinit(KartHaki_OnChange);
 
+consvar_t cv_show_riders_finish_ticker = Player("ridersfinishticker", "On").on_off().onchange_noinit(KartFinishLineTicker_OnChange);
+
 // Rumble Events
 consvar_t cv_morerumbleevents = Player("morerumbleevents", "On").on_off().onchange(RumbleEvents_OnChange);
 consvar_t cv_rr_rumble_wall_bump = Player("rr_rumble_wall_bump", "On").on_off();
@@ -600,6 +602,13 @@ consvar_t cv_hud_hidelapemblem = Player("hidelapemblem", "No").yes_no();
 consvar_t cv_hud_usehighresportraits = Player("usehighresportraits", "Yes").yes_no();
 // Restore SRB2Kart behaviour when viewing in-game rankings (i.e. having to hold the button)
 consvar_t cv_holdbuttonforscoreboard = Player("holdbuttonforscoreboard", "No").yes_no();
+// Chat emotes
+consvar_t cv_chat_emotes = Player("chat_emotes", "On").on_off().onchange(RR_ChatEmotes_OnChange);
+
+/**
+ * RadioRacers: END
+ */
+
 //
 // Server local, also available on dedicated servers.
 // Usually saved, not sycned though...

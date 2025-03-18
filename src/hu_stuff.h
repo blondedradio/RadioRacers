@@ -123,6 +123,12 @@ typedef enum
 
 // some functions
 void HU_AddChatText(const char *text, boolean playsound);
+/** RADIO: emote stuff, need these variables extern */
+extern char chat_mini[8][255]; 
+extern tic_t chat_timers[8];
+extern char w_chat[HU_MAXMSGLEN + 1];
+extern size_t c_input;
+extern char hu_tick;
 
 // set true when key is pressed while chat is open
 extern boolean chat_keydown;
