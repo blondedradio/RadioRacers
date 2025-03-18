@@ -22,6 +22,8 @@
 #include "../../k_zvote.h"
 #include "../../d_main.h"
 
+#include "../../radioracers/rr_setup.h"
+
 #ifdef HAVE_DISCORDRPC
 #include "../../discord.h"
 #endif
