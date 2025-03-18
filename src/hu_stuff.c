@@ -67,6 +67,8 @@
 
 // RadioRacers
 #include "radioracers/rr_cvar.h" // cv_holdbuttonforscoreboard
+#include "radioracers/rr_hud.h"
+#include "radioracers/rr_video.h"
 
 // coords are scaled
 #define HU_INPUTX 0
@@ -89,11 +91,12 @@ patch_t *frameslash;	// framerate stuff. Used in screen.c
 static player_t *plr;
 boolean hu_keystrokes; // :)
 boolean chat_on; // entering a chat message?
-static char w_chat[HU_MAXMSGLEN + 1];
-static size_t c_input = 0; // let's try to make the chat input less shitty.
+/** RADIO: Expose w_chat, c_input */
+char w_chat[HU_MAXMSGLEN + 1];
+size_t c_input = 0; // let's try to make the chat input less shitty.
 static boolean headsupactive = false;
 boolean hu_showscores; // draw rankings
-static char hu_tick;
+char hu_tick;
 
 //-------------------------------------------
 //              misc vars
@@ -468,8 +471,8 @@ static UINT32 chat_maxscroll = 0; // how far can we scroll?
 //static chatmsg_t chat_log[CHAT_BUFSIZE]; // Keep every message sent to us in memory so we can scroll n shit, it's cool.
 
 static char chat_log[CHAT_BUFSIZE][255]; // hold the last 48 or so messages in that log.
-static char chat_mini[8][255]; // display up to 8 messages that will fade away / get overwritten
-static tic_t chat_timers[8];
+char chat_mini[8][255]; // display up to 8 messages that will fade away / get overwritten
+tic_t chat_timers[8];
 
 static boolean chat_scrollmedown = false; // force instant scroll down on the chat log. Happens when you open it / send a message.
 
@@ -483,8 +486,12 @@ static void HU_removeChatText_Mini(void)
 	size_t i;
 	for(i=0;i<chat_nummsg_min-1;i++) {
 		strcpy(chat_mini[i], chat_mini[i+1]);
+		//radio
 		chat_timers[i] = chat_timers[i+1];
+		chat_mini_log_offset[i] = chat_mini_log_offset[i+1];
 	}
+
+	RR_RemoveEmoteChatMiniLog(chat_nummsg_min);
 	chat_nummsg_min--; // lost 1 msg.
 
 	// use addy and make shit slide smoothly af.
@@ -499,7 +506,10 @@ static void HU_removeChatText_Log(void)
 	size_t i;
 	for(i=0;i<chat_nummsg_log-1;i++) {
 		strcpy(chat_log[i], chat_log[i+1]);
+		// radio
+		chat_log_offset[i] = chat_log_offset[i+1];
 	}
+	RR_RemoveEmoteChatLog(chat_nummsg_log-1);
 	chat_nummsg_log--; // lost 1 msg.
 }
 
@@ -526,7 +536,25 @@ void HU_AddChatText(const char *text, boolean playsound)
 		CONS_Printf("%s\n", text);
 	else			// if we aren't, still save the message to log.txt
 		CON_LogMessage(va("%s\n", text));
+
+	/**
+	 * RADIO: Track the emotes with each message in the chat log
+	 */
+	chat_mini_log_offset[chat_nummsg_min-1] = 0;
+	chat_log_offset[chat_nummsg_log-1] = 0;
+	RR_UpdateEmoteChatLogs(chat_nummsg_min-1, chat_nummsg_log-1);
 }
+
+/**
+ * RADIO: emote stuff
+ */
+ static void HU_AddChatTextWithOffset(const char *text, boolean playsound, int offset)
+ {
+	HU_AddChatText(text, playsound);
+
+	chat_mini_log_offset[chat_nummsg_min-1] = offset;
+	chat_log_offset[chat_nummsg_log-1] = offset;
+ }
 
 /** Runs a say command, sending an ::XD_SAY message.
   * A say command consists of a signed 8-bit integer for the target, an
@@ -964,8 +992,13 @@ static void Got_Saycmd(const UINT8 **p, INT32 playernum)
 			fmt2 = "%s<%s%s>\x80%s %s%s";
 		}*/
 
-		HU_AddChatText(va(fmt2, prefix, cstart, dispname, cend, textcolor, msg), (cv_chatnotifications.value) && !(flags & HU_SHOUT)); // add to chat
+		/** RADIO: ffs */
+		char* final_str = va(fmt2, prefix, cstart, dispname, cend, textcolor, msg);
+		char* msg_offset = strchr(final_str, *msg);
+		int msg_index = (int)(msg_offset - final_str);
 
+		HU_AddChatTextWithOffset(final_str, (cv_chatnotifications.value) && !(flags & HU_SHOUT), msg_index); // add to chat
+		
 		if ((cv_chatnotifications.value) && (flags & HU_SHOUT))
 			S_StartSound(NULL, sfx_sysmsg);
 
@@ -1203,6 +1236,159 @@ void HU_clearChatChars(void)
 	I_UpdateMouseGrab();
 }
 
+// Handle HU_Responder for Radio-related functionality
+static boolean RR_HU_Responder(INT32 c)
+{
+	if (c == KEY_ENTER)
+	{
+		if (!CHAT_MUTE)
+		{
+			if(is_emote_menu_on) {
+				RR_CheckChatEnterforEmoteMenu();
+				return true;
+			}
+			if(is_emote_preview_on) {
+				RR_ResetEmoteSearchQuery();
+			}
+			HU_sendChatMessage();
+		}
+		
+		RR_ResetEmoteSearchQuery();
+		chat_on = false;
+		c_input = 0; // reset input cursor
+		chat_scrollmedown = true; // you hit enter, so you might wanna autoscroll to see what you just sent. :)
+		I_UpdateMouseGrab();
+	}
+	else if (c == KEY_ESCAPE
+		/*|| ((c == gamecontrol[0][gc_talkkey][0] || c == gamecontrol[0][gc_talkkey][1]
+		|| c == gamecontrol[0][gc_teamkey][0] || c == gamecontrol[0][gc_teamkey][1])
+		&& c >= NUMKEYS)*/) // If it's not a keyboard key, then the chat button is used as a toggle.
+	{
+		RR_ResetAllEmoteChatInfo();
+		chat_on = false;
+		c_input = 0; // reset input cursor
+		I_UpdateMouseGrab();
+	}
+	else if ((c == KEY_UPARROW || c == KEY_MOUSEWHEELUP) && !OLDCHAT) // CHAT SCROLLING YAYS!
+	{
+		if (is_emote_menu_on) {
+			RR_CheckEmoteMenuMovement(c);
+			return true;
+		}
+
+		if (chat_scroll > 0) {
+			chat_scroll--;
+			justscrolledup = true;
+			chat_scrolltime = 4;
+		}
+	}
+	else if ((c == KEY_DOWNARROW || c == KEY_MOUSEWHEELDOWN) && !OLDCHAT)
+	{
+		if (is_emote_menu_on) {
+			RR_CheckEmoteMenuMovement(c);
+			return true;
+		}
+
+		if (chat_scroll < chat_maxscroll && chat_maxscroll > 0) {
+			chat_scroll++;
+			justscrolleddown = true;
+			chat_scrolltime = 4;
+		}
+	}
+	else if (c == KEY_LEFTARROW && !OLDCHAT) // i said go back
+	{
+		/** RADIO: Hijacking this if we're trying to select an emote */
+		if (is_emote_menu_on) {
+			RR_CheckEmoteMenuMovement(c);
+			return true;
+		}
+
+		if (c_input == 0)
+			return true;
+		
+		if (is_emote_preview_on) {
+			RR_UpdateEmoteQueryChoice_Left();
+			return true;
+		}
+		if (ctrldown)
+			c_input = M_JumpWordReverse(w_chat, c_input);
+		else
+			c_input--;
+	}
+	else if (c == KEY_RIGHTARROW && !OLDCHAT) // don't need to check for admin or w/e here since the chat won't ever contain anything if it's muted.
+	{
+		/** RADIO: Hijacking this if we're trying to select an emote */
+		if (is_emote_preview_on || is_emote_menu_on) {
+			if (is_emote_preview_on) {
+				RR_UpdateEmoteQueryChoice_Right();
+			} else if(is_emote_menu_on) {
+				RR_CheckEmoteMenuMovement(c);
+			}
+			return true;
+		}
+		if (c_input < strlen(w_chat)) {
+			if (ctrldown)
+				c_input += M_JumpWord(&w_chat[c_input]);
+			else
+				c_input++;
+		}
+	}
+	else if (c == KEY_TAB && !OLDCHAT) {
+		if (is_emote_preview_on && !is_emote_menu_on) {
+			RR_SelectEmoteFromPreview();
+			return true;
+		}
+	}
+	else if ((c == KEY_END || (ctrldown && (c == 'e' || c == 'E'))) && !OLDCHAT) {
+		RR_ToggleEmoteMenu();
+		return true;
+	}
+	else if ((c >= HU_FONTSTART && c <= HU_FONTEND && fontv[HU_FONT].font[c-HU_FONTSTART])
+		|| c == ' ') // Allow spaces, of course
+	{
+		if (CHAT_MUTE || strlen(w_chat) >= HU_MAXMSGLEN)
+			return true;
+		
+		/**
+		 * RADIO: Starting to search for an emote, enable the preview
+		 */
+		RR_CheckChatInputForEmotePreview(c);
+		RR_CheckChatInputForEmoteMenu(c);
+		
+		if (is_emote_menu_on) { 
+			return true;
+		}
+
+		memmove(&w_chat[c_input + 1], &w_chat[c_input], strlen(w_chat) - c_input + 1);
+		w_chat[c_input] = c;
+		c_input++;
+	}
+	else if (c == KEY_BACKSPACE)
+	{
+		if (CHAT_MUTE || (c_input <= 0 && !is_emote_menu_on))
+			return true;
+
+		RR_CheckChatDeleteForEmotePreview();
+		RR_CheckChatDeleteForEmoteMenu();
+
+		if (is_emote_menu_on) {
+			return true;
+		}
+
+		memmove(&w_chat[c_input - 1], &w_chat[c_input], strlen(w_chat) - c_input + 1);
+		c_input--;
+	}
+	else if (c == KEY_DEL)
+	{
+		if (CHAT_MUTE || c_input >= strlen(w_chat))
+			return true;
+
+		memmove(&w_chat[c_input], &w_chat[c_input + 1], strlen(w_chat) - c_input);
+	}
+
+	return true;
+}
+
 //
 // Returns true if key eaten
 //
@@ -1310,6 +1496,9 @@ boolean HU_Responder(event_t *ev)
 			memcpy(&w_chat[c_input], paste, pastelen); // copy all of that.
 			c_input += pastelen;
 			return true;
+		}
+		else if(cv_chat_emotes.value) {
+			return RR_HU_Responder(c);
 		}
 		else if (c == KEY_ENTER)
 		{
@@ -1433,24 +1622,28 @@ static void HU_drawMiniChat(void)
 
 	const fixed_t scale = (vid.width < 640) ? FRACUNIT : FRACUNIT/2;
 
-	for (; i > 0; i--)
-	{
-		char *msg = CHAT_WordWrap(boxw-4, scale, V_SNAPTOBOTTOM|V_SNAPTOLEFT, chat_mini[i-1]);
-		size_t j = 0;
-		INT32 linescount = 1;
-
-		for (; msg[j]; j++) // iterate through msg
+	if (cv_chat_emotes.value) {
+		msglines = RR_Parse_ChatMiniLog_For_Lines(i, scale, boxw);
+	} else {
+		for (; i > 0; i--)
 		{
-			if (msg[j] != '\n') // get back down.
-				continue;
-
-			linescount++;
+			char *msg = CHAT_WordWrap(boxw-4, scale, V_SNAPTOBOTTOM|V_SNAPTOLEFT, chat_mini[i-1]);
+			size_t j = 0;
+			INT32 linescount = 1;
+	
+			for (; msg[j]; j++) // iterate through msg
+			{
+				if (msg[j] != '\n') // get back down.
+					continue;
+	
+				linescount++;
+			}
+	
+			msglines += linescount;
+	
+			if (msg)
+				Z_Free(msg);
 		}
-
-		msglines += linescount;
-
-		if (msg)
-			Z_Free(msg);
 	}
 
 	y = chaty - charheight*(msglines+1);
@@ -1469,56 +1662,68 @@ static void HU_drawMiniChat(void)
 	}
 
 	i = 0;
-
-	for (; i<=(chat_nummsg_min-1); i++) // iterate through our hot messages
+	if (cv_chat_emotes.value)
 	{
-		INT32 timer = ((cv_chattime.value*TICRATE)-chat_timers[i]) - cv_chattime.value*TICRATE+9; // see below...
-		INT32 transflag = (timer >= 0 && timer <= 9) ? (timer*V_10TRANS) : 0; // you can make bad jokes out of this one.
-		size_t j = 0;
-		char *msg = CHAT_WordWrap(boxw-4, scale, V_SNAPTOBOTTOM|V_SNAPTOLEFT, chat_mini[i]); // get the current message, and word wrap it.
-
-		INT32 linescount = 1;
-
-		for (; msg[j]; j++) // iterate through msg
+		chat_mini_log_parameters_t parameters = {
+			.charheight = charheight,
+			.x = &x,
+			.y = &y,
+			.boxw = boxw,
+			.scale = scale,
+			.chat_nummsg_min = chat_nummsg_min
+		};
+		RR_Draw_ChatMiniLog(parameters);
+	} else {
+		for (; i<=(chat_nummsg_min-1); i++) // iterate through our hot messages
 		{
-			if (msg[j] != '\n') // get back down.
-				continue;
-
-			linescount++;
-		}
-
-		if (cv_chatbacktint.value) // on request of wolfy
-		{
-			INT32 width = V_StringWidth(msg, 0);
-			if (vid.width >= 640)
-				width /= 2;
-
-			V_DrawFillConsoleMap(
-				x-2, y,
-				width+4,
-				charheight * linescount,
-				159|V_SNAPTOBOTTOM|V_SNAPTOLEFT
+			INT32 timer = ((cv_chattime.value*TICRATE)-chat_timers[i]) - cv_chattime.value*TICRATE+9; // see below...
+			INT32 transflag = (timer >= 0 && timer <= 9) ? (timer*V_10TRANS) : 0; // you can make bad jokes out of this one.
+			size_t j = 0;
+			char *msg = CHAT_WordWrap(boxw-4, scale, V_SNAPTOBOTTOM|V_SNAPTOLEFT, chat_mini[i]); // get the current message, and word wrap it.
+	
+			INT32 linescount = 1;
+	
+			for (; msg[j]; j++) // iterate through msg
+			{
+				if (msg[j] != '\n') // get back down.
+					continue;
+	
+				linescount++;
+			}
+	
+			if (cv_chatbacktint.value) // on request of wolfy
+			{
+				INT32 width = V_StringWidth(msg, 0);
+				if (vid.width >= 640)
+					width /= 2;
+	
+				V_DrawFillConsoleMap(
+					x-2, y,
+					width+4,
+					charheight * linescount,
+					159|V_SNAPTOBOTTOM|V_SNAPTOLEFT
+				);
+			}
+	
+			V_DrawStringScaled(
+				x << FRACBITS,
+				y << FRACBITS,
+				scale, FRACUNIT, FRACUNIT,
+				V_SNAPTOBOTTOM|V_SNAPTOLEFT|transflag,
+				NULL,
+				HU_FONT,
+				msg
 			);
+	
+			y += charheight * linescount;
+	
+			if (msg)
+				Z_Free(msg);
 		}
-
-		V_DrawStringScaled(
-			x << FRACBITS,
-			y << FRACBITS,
-			scale, FRACUNIT, FRACUNIT,
-			V_SNAPTOBOTTOM|V_SNAPTOLEFT|transflag,
-			NULL,
-			HU_FONT,
-			msg
-		);
-
-		y += charheight * linescount;
-
-		if (msg)
-			Z_Free(msg);
+	
+		// decrement addy and make that shit smooth:
+		addy /= 2;
 	}
-
-	// decrement addy and make that shit smooth:
-	addy /= 2;
 
 }
 
@@ -1580,54 +1785,71 @@ static void HU_drawChatLog(INT32 offset)
 
 	INT32 dy = 0;
 
-	for (i=0; i<chat_nummsg_log; i++) // iterate through our chatlog
+	if (cv_chat_emotes.value)
 	{
-		INT32 j = 0, startj = 0;
-		char *msg = CHAT_WordWrap(boxw-4, scale, V_SNAPTOBOTTOM|V_SNAPTOLEFT, chat_log[i]); // get the current message, and word wrap it.
+		chat_log_parameters_t parameters = {
+			.chat_nummsg_log = chat_nummsg_log,
+			.charheight = charheight,
+			.x = x, 
+			.y = y,
+			.chat_topy = chat_topy,
+			.chat_bottomy = chat_bottomy,
+			.boxw = boxw, 
+			.scale = scale, 
+			.flags = V_SNAPTOBOTTOM|V_SNAPTOLEFT, 
+			.chat_log = chat_log
+		};
 
-		INT32 linescount = 1;
-
-		for (; msg[j]; j++) // iterate through msg
+		dy = RR_Parse_ChatLog(parameters);
+	} else {
+		for (i=0; i<chat_nummsg_log; i++) // iterate through our chatlog
 		{
-			if (msg[j] != '\n') // get back down.
-				continue;
-
-			if (y + dy >= chat_bottomy)
-				;
-			else if (y + dy + 2 + charheight < chat_topy)
+			INT32 j = 0, startj = 0;
+			char *msg = CHAT_WordWrap(boxw-4, scale, V_SNAPTOBOTTOM|V_SNAPTOLEFT, chat_log[i]); // get the current message, and word wrap it.
+	
+			INT32 linescount = 1;
+	
+			for (; msg[j]; j++) // iterate through msg
 			{
-				dy += charheight;
-
-				if (y + dy + 2 + charheight >= chat_topy)
+				if (msg[j] != '\n') // get back down.
+					continue;
+	
+				if (y + dy >= chat_bottomy)
+					;
+				else if (y + dy + 2 + charheight < chat_topy)
 				{
-					startj = j;
+					dy += charheight;
+	
+					if (y + dy + 2 + charheight >= chat_topy)
+					{
+						startj = j;
+					}
+	
+					continue;
 				}
-
-				continue;
+	
+				linescount++;
 			}
-
-			linescount++;
+	
+			if (y + dy < chat_bottomy)
+			{
+				V_DrawStringScaled(
+					(x + 2) << FRACBITS,
+					(y + dy + 2) << FRACBITS,
+					scale, FRACUNIT, FRACUNIT,
+					V_SNAPTOBOTTOM|V_SNAPTOLEFT,
+					NULL,
+					HU_FONT,
+					msg+startj
+				);
+			}
+	
+			dy += charheight * linescount;
+	
+			if (msg)
+				Z_Free(msg);
 		}
-
-		if (y + dy < chat_bottomy)
-		{
-			V_DrawStringScaled(
-				(x + 2) << FRACBITS,
-				(y + dy + 2) << FRACBITS,
-				scale, FRACUNIT, FRACUNIT,
-				V_SNAPTOBOTTOM|V_SNAPTOLEFT,
-				NULL,
-				HU_FONT,
-				msg+startj
-			);
-		}
-
-		dy += charheight * linescount;
-
-		if (msg)
-			Z_Free(msg);
 	}
-
 	V_ClearClipRect();
 
 	if (((chat_scroll >= chat_maxscroll) || (chat_scrollmedown)) && !(justscrolleddown || justscrolledup || chat_scrolltime)) // was already at the bottom of the page before new maxscroll calculation and was NOT scrolling.
@@ -1828,6 +2050,17 @@ static void HU_DrawChat(void)
 	}
 
 	HU_drawChatLog(typelines-1); // typelines is the # of lines we're typing. If there's more than 1 then the log should scroll up to give us more space.
+
+	/** RADIO: Not supporting splitscreen */
+	if (r_splitscreen < 1) {
+		chat_box_parameters_t parameters = {
+			.x = chatx,
+			.y = y,
+			.typelines = typelines,
+			.charheight = charheight
+		};
+		RR_DoChatStuff(parameters);
+	}
 }
 
 

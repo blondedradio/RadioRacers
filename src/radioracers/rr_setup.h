@@ -6,25 +6,23 @@
 // terms of the GNU General Public License, version 2.
 // See the 'LICENSE' file for more details.
 //-----------------------------------------------------------------------------
-/// \file radioracers/rr_util.h
-/// \brief Util functions
+/// \file radioracers/rr_setup.h
 
-
-#ifndef __RR_UTIL__
-#define __RR_UTIL__
+#ifndef __RR_SETUP__
+#define __RR_SETUP__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum {
-    BATTLE_WIN_POINTS = 0,
-    BATTLE_WIN_EMERALDS
-} battle_win_type_t;
-
-extern int scaleInt(int value, fixed_t scale);
-extern void RR_HandleBlueSphereRumble(player_t *player);
-extern void RR_AnnounceBattleWinner(player_t *player, battle_win_type_t type);
+extern boolean found_radioracers;
+extern boolean found_radioracers_plus;
+extern boolean radioracers_usemuteicons;
+extern boolean radioracers_usehakiencore;
+extern sfxenum_t radio_ding_sound;
+extern void RR_Init(void);
+extern void RR_AddAllEmotes(UINT16 wadnum);
+extern void RR_CleanupEmoteFrames(void);
 
 #ifdef __cplusplus
 } // extern "C"

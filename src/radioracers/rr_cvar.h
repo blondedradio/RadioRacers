@@ -37,6 +37,8 @@ extern consvar_t cv_targetrackplayers;  // Toggle the TARGET HUD graphics for ot
 
 void KartLocalEncore_OnChange(void);
 void KartHaki_OnChange(void);
+void KartFinishLineTicker_OnChange(void);
+void RR_ChatEmotes_OnChange(void);
 /**
  * Checks if either the encoremode flag or the clientside flag is on
  * \sa cv_applylocalencore encoremode
@@ -68,6 +70,8 @@ extern consvar_t cv_hud_hideposition;  // Hide the bigass position bulbs at the 
 extern consvar_t cv_hud_hidelapemblem; // Hide the bigass lap emblem when you start a new lap
 extern consvar_t cv_hud_usehighresportraits; // Draw higher-res portraits in the minirankings
 extern consvar_t cv_holdbuttonforscoreboard; // Restore SRB2Kart behaviour when viewing in-game scoreboards
+extern consvar_t cv_show_riders_finish_ticker; // Show the Sonic Riders :tm: finish line ticker
+extern consvar_t cv_chat_emotes;                  // Self-explanatory
 
 // HUD -- Battle
 extern consvar_t cv_battle_toggle_emerald_on_minimap; 

@@ -74,6 +74,8 @@
 #include "m_easing.h"
 #include "acs/interface.h"
 
+#include "radioracers/rr_hud.h"
+
 #ifdef HWRENDER
 #include "hardware/hw_light.h"
 #include "hardware/hw_main.h"
@@ -1239,6 +1241,9 @@ void P_DoPlayerExit(player_t *player, pflags_t flags)
 
 	if (!player->spectator && (gametyperules & GTR_CIRCUIT)) // Special Race-like handling
 	{
+		// RADIO: add the player to the finish ticker queue
+		RR_addPlayerToFinshTicker(player);
+
 		K_UpdateAllPlayerPositions();
 	}
 

@@ -48,15 +48,22 @@ static const char* BATTLE_WIN_MESSAGES [] = {
 };
 
 /**
- * Just do a cecho!
+ * Just do a cecho
  */
 void RR_AnnounceBattleWinner(player_t *player, battle_win_type_t type)
 {
     if (!cv_battle_toggle_winner_announcement.value)
         return;
 
+    HU_SetCEchoFlags(0);
     HU_SetCEchoDuration(4);
-    HU_DoCEcho(va(M_GetText(BATTLE_WIN_MESSAGES[type]), player_names[player-players]));
+
+    // This used to crash in netgames but just to be safe..
+    if (type < 0 || type >= sizeof(BATTLE_WIN_MESSAGES) / sizeof(BATTLE_WIN_MESSAGES[0])) {
+        return;
+    }
+
+    HU_DoCEcho(va(BATTLE_WIN_MESSAGES[type], player_names[player-players]));    
 }
 
 int scaleInt(int value, fixed_t scale)
