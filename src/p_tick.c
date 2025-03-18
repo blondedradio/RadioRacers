@@ -55,6 +55,7 @@
 
 // RadioRacers
 #include "radioracers/rr_controller.h"
+#include "radioracers/rr_hud.h"
 
 #include "lua_profile.h"
 #include "deh_tables.h" // MOBJTYPE_LIST
@@ -1248,6 +1249,7 @@ void P_Ticker(boolean run)
 	{
 		K_TickDialogue();
 		K_TickMessages();
+		RR_ridersFinishTick();
 	}
 
 	if (run)

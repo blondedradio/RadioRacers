@@ -123,6 +123,8 @@
 #include "k_color.h" // K_ColorUsable
 
 #include "radioracers/rr_cvar.h"
+#include "radioracers/rr_setup.h"
+#include "radioracers/rr_hud.h"
 
 // Replay names have time
 #if !defined (UNDER_CE)
@@ -8785,6 +8787,11 @@ boolean P_LoadLevel(boolean fromnetsave, boolean reloadinggamestate)
 
 	K_ClearPersistentMessages();
 
+	// RADIO: Jaden!
+	RR_resetRidersFinishTicker();
+	// RR_InitGradeEmoteTally();
+	RR_CleanupEmoteFrames(); // Do this here too, if need be
+
 	// internal game map
 	maplumpname = mapheaderinfo[gamemap-1]->lumpname;
 	lastloadedmaplumpnum = mapheaderinfo[gamemap-1]->lumpnum;
@@ -9819,6 +9826,9 @@ UINT16 P_PartialAddWadFile(const char *wadfilename)
 	// extra sprite/skin data
 	//
 	R_LoadSpriteInfoLumps(wadnum, numlumps);
+
+	/** RADIO: Inject */
+	RR_AddAllEmotes(wadnum);
 
 	// For anything that has to be done over every wadfile at once, see P_MultiSetupWadFiles.
 

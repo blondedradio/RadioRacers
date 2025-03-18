@@ -6,10 +6,13 @@
 // terms of the GNU General Public License, version 2.
 // See the 'LICENSE' file for more details.
 //-----------------------------------------------------------------------------
-/// \file radioracers/cvar/rr_cvar.c
+/// \file radioracers/cvar/rr_cvar.cpp
 
 #include "../rr_cvar.h"
 #include "../../doomstat.h"
+
+#include "../rr_hud.h"
+#include "../rr_setup.h"
 
 void KartLocalEncore_OnChange(void)
 {
@@ -20,6 +23,34 @@ void KartLocalEncore_OnChange(void)
 void KartHaki_OnChange(void)
 {
     hakimode = (boolean)cv_applyhaki.value;
+
+    if (hakimode == 1) {
+        // Missing the lump needed for this effect to work!
+        if (!radioracers_usehakiencore) {
+            CONS_Alert(
+                CONS_NOTICE,
+                M_GetText("This feature cannot be enabled, missing the graphic lump.\n")
+            );
+            CV_StealthSetValue(&cv_applyhaki, 0);
+            return;
+        }
+    }
     // TODO: Play dramatic sound.
     CONS_Printf(M_GetText("Your observation haki will be turned \x82%s\x80 next round.\n"), cv_applyhaki.string);
+}
+
+void KartFinishLineTicker_OnChange(void)
+{
+    // Immediately empty the queue
+    if (!cv_show_riders_finish_ticker.value)
+        RR_resetRidersFinishTicker();
+}
+
+void RR_ChatEmotes_OnChange(void)
+{
+    // Immediately turn off all the emote menus/preview values
+    if (!cv_chat_emotes.value)
+    {
+        RR_ResetAllEmoteChatInfo();
+    }
 }
