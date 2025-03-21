@@ -832,8 +832,8 @@ static void draw_atlas_emote(emote_t* emote, INT16 x, INT16 y, INT32 scale)
         scale_f/EMOTE_ATLASES[emote->atlas_id]->width, scale_f/EMOTE_ATLASES[emote->atlas_id]->height
     ));
     
-    INT16 scaled_width = FixedToFloat(final_scale) * EMOTE_ATLASES[emote->atlas_id]->width;
-    INT16 scaled_height = FixedToFloat(final_scale) * EMOTE_ATLASES[emote->atlas_id]->height;
+    INT16 scaled_width = std::ceil(FixedToFloat(final_scale) * EMOTE_ATLASES[emote->atlas_id]->width);
+    INT16 scaled_height = std::ceil(FixedToFloat(final_scale) * EMOTE_ATLASES[emote->atlas_id]->height);
 
     INT32 offset = (scaled_height < scale) ? (scale - scaled_height)/2 : 0;
 
