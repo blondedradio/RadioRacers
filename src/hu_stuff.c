@@ -1130,6 +1130,10 @@ void HU_Ticker(void)
 	}
 
 	resynch_ticker++;
+
+	// RADIO
+	if (hu_radio_tick > 0)
+		hu_radio_tick--;
 }
 
 static boolean teamtalk = false;
@@ -1247,8 +1251,9 @@ static boolean RR_HU_Responder(INT32 c)
 				RR_CheckChatEnterforEmoteMenu();
 				return true;
 			}
-			if(is_emote_preview_on) {
-				RR_ResetEmoteSearchQuery();
+			if (is_emote_preview_on && !is_emote_menu_on) {
+				RR_SelectEmoteFromPreview();
+				return true;
 			}
 			HU_sendChatMessage();
 		}
