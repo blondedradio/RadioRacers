@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 #define MAX_HEIGHT 10.f
-#define MAX_HEIGHT_WITH_TEXT 7.0f
+#define MAX_HEIGHT_WITH_TEXT 8.0f
 
 #define EMOTE_LINE_PADDING_INT 3
 #define EMOTE_LINE_PADDING FloatToFixed(3.f)
