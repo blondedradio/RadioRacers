@@ -28,14 +28,19 @@
 #define COLUMNS 5
 
 // For the chat window
+int hu_radio_tick = 0;
+
+// Emote menu
 std::string emote_menu_query;
 size_t emote_menu_page = 1;
 std::vector<emote_t*> menu_emotes;
 std::vector<emote_t*> menu_search_emotes;
+
 size_t emote_menu_selection = 0;
 boolean is_emote_menu_on = false;
 std::vector<emote_t*> all_the_emotes;
 
+// Emote preview
 boolean is_emote_preview_on = false;
 std::string emote_search_query;
 size_t emote_search_query_select = 0; 
@@ -884,12 +889,17 @@ void RR_UpdateEmoteQueryChoice_Left(void) {
     } else {
         emote_search_query_select--;
     }
+    S_StartSound(NULL, sfx_menu1);
 }
 
 void RR_UpdateEmoteQueryChoice_Right(void) {    
+    if (emote_search_results.empty())
+        return;
+    
     if (++emote_search_query_select >= emote_search_results.size()) {
         emote_search_query_select = 0;
     }
+    S_StartSound(NULL, sfx_menu1);
 }
 
 void RR_SelectEmoteFromPreview(void)
@@ -921,6 +931,7 @@ void RR_SelectEmoteFromPreview(void)
 
     if (chat_length + final_length > HU_MAXMSGLEN) {
         RR_ResetEmoteSearchQuery();
+        S_StartSoundAtVolume(NULL, radio_ding_sound, 192);
         return;
     }
 
@@ -930,6 +941,8 @@ void RR_SelectEmoteFromPreview(void)
     c_input += final_length;
 
     RR_ResetEmoteSearchQuery();
+
+    S_StartSound(NULL, sfx_menu1);
 }
 
 void RR_DrawChatEmotePreview(
@@ -1153,7 +1166,7 @@ void RR_CheckChatEnterforEmoteMenu(void)
 
     if (chat_length + final_length > HU_MAXMSGLEN) {
         if (radio_ding_sound != sfx_None) {
-            S_StartSoundAtVolume(NULL, radio_ding_sound, INT32_MAX);
+            S_StartSoundAtVolume(NULL, radio_ding_sound, 192);
         }
         return;
     }
@@ -1163,7 +1176,9 @@ void RR_CheckChatEnterforEmoteMenu(void)
 
     c_input += final_length;
 
-    S_StartSoundAtVolume(NULL, sfx_cdfm09, 192);
+    S_StartSoundAtVolume(NULL, sfx_cdfm09, 100);
+
+    hu_radio_tick = 3;
 }
 
 void RR_CheckEmoteMenuMovement(INT32 direction)
@@ -1394,12 +1409,23 @@ void RR_DrawChatEmoteMenu(
                     m_emote->name
                 );
 
+                int select_x = row_x - 1;
+                int select_y = row_y - 1;
+                int select_w_h = _WIDTH + 2;
+                int bg_colour = 100;
+
+                if (hu_radio_tick > 0) {
+                    bg_colour = 72;
+                    select_w_h = _WIDTH;
+                    select_x = row_x;
+                    select_y = row_y;
+                }
                 V_DrawFill(
-                    row_x - 1,
-                    row_y - 1,
-                    _WIDTH + 2,
-                    _WIDTH + 2,
-                    100 | V_SNAPTOBOTTOM | V_SNAPTOLEFT
+                    select_x,
+                    select_y,
+                    select_w_h,
+                    select_w_h,
+                    bg_colour | V_SNAPTOBOTTOM | V_SNAPTOLEFT
                 );
             }
             
