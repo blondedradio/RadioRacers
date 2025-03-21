@@ -518,7 +518,9 @@ word_wrap_results_t V_RR_ScaledWordWrap(
 					{
 						emote_w = getAtlasEmotePatchWidth(found_emote_atlases[emote_tracker_idx], contains_text);
 					}
-				} else if(found_emote_patches != nullptr ) {
+				}
+
+				if(emote_w == -1 && found_emote_patches != nullptr ) {
 					if (found_emote_patches[emote_tracker_idx] != nullptr) {
 						emote_w = getEmotePatchWidth(found_emote_patches[emote_tracker_idx], contains_text);
 					}
@@ -527,7 +529,6 @@ word_wrap_results_t V_RR_ScaledWordWrap(
                 ew = SHORT(emote_w) * dupx;
 				
 				// Is the emote width about to pass the chat box width?
-				// CONS_Printf("w: %d - old x: %d - new x: %d\n", w/FRACUNIT, ex/FRACUNIT, (ex + (ew * FRACUNIT))/FRACUNIT);
 				if (ex + (ew * FRACUNIT) > w) {
 					right = ex + (ew * FRACUNIT);
 					cxatstart = ex;
