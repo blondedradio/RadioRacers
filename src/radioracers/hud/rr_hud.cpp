@@ -605,17 +605,19 @@ void RR_DoChatStuff(chat_box_parameters_t parameters) {
 	if (is_emote_menu_on) {
 		RR_DrawChatEmoteMenu(chatx + boxw + 4, (y-1) + (typelines*charheight));
 	} else {
-        V_DrawStretchyFixedPatch(
-            (chatx + boxw + 4) << FRACBITS,
-            ((y-10) + (typelines*charheight)) << FRACBITS,
-            FRACUNIT/3,
-            FRACUNIT/3,
-            V_SNAPTOBOTTOM | V_SNAPTOLEFT,
-            static_cast<patch_t*>(W_CachePatchName(
-                "EMENUEND", PU_HUDGFX
-            )),
-            NULL
-        );
+        if(cv_chat_emotes.value) {
+            V_DrawStretchyFixedPatch(
+                (chatx + boxw + 4) << FRACBITS,
+                ((y-10) + (typelines*charheight)) << FRACBITS,
+                FRACUNIT/3,
+                FRACUNIT/3,
+                V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+                static_cast<patch_t*>(W_CachePatchName(
+                    "EMENUEND", PU_HUDGFX
+                )),
+                NULL
+            );
+        }
     }
 }
 
