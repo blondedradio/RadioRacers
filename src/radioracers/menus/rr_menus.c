@@ -270,8 +270,11 @@ menuitem_t OPTIONS_RadioRacersMenu[] =
 	{IT_HEADER, "Chat", NULL,
 		NULL, {NULL}, 0, 0},
 
-	{IT_STRING | IT_CVAR, "Emotes", "My nigga, you know what this is",
+	{IT_STRING | IT_CVAR, "Emotes", "Show the funny emotes in the chatbox",
 		NULL, {.cvar = &cv_chat_emotes}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Animated Emotes", "Disable animated emotes",
+		NULL, {.cvar = &cv_chat_emotes_animated}, 0, 0},
 	
 	{IT_HEADER, "Netplay", NULL,
 		NULL, {NULL}, 0, 0},

@@ -72,6 +72,7 @@ extern consvar_t cv_hud_usehighresportraits; // Draw higher-res portraits in the
 extern consvar_t cv_holdbuttonforscoreboard; // Restore SRB2Kart behaviour when viewing in-game scoreboards
 extern consvar_t cv_show_riders_finish_ticker; // Show the Sonic Riders :tm: finish line ticker
 extern consvar_t cv_chat_emotes;                  // Self-explanatory
+extern consvar_t cv_chat_emotes_animated;         // Should emotes animate?
 
 // HUD -- Battle
 extern consvar_t cv_battle_toggle_emerald_on_minimap; 
