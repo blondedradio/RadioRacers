@@ -604,6 +604,7 @@ consvar_t cv_hud_usehighresportraits = Player("usehighresportraits", "Yes").yes_
 consvar_t cv_holdbuttonforscoreboard = Player("holdbuttonforscoreboard", "No").yes_no();
 // Chat emotes
 consvar_t cv_chat_emotes = Player("chat_emotes", "On").on_off().onchange(RR_ChatEmotes_OnChange);
+consvar_t cv_chat_emotes_animated = Player("chat_emotes_animate", "On").on_off();
 
 /**
  * RadioRacers: END
