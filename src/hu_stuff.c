@@ -1251,9 +1251,8 @@ static boolean RR_HU_Responder(INT32 c)
 				RR_CheckChatEnterforEmoteMenu();
 				return true;
 			}
-			if (is_emote_preview_on && !is_emote_menu_on) {
-				RR_SelectEmoteFromPreview();
-				return true;
+			if(is_emote_preview_on) {
+				RR_ResetEmoteSearchQuery();
 			}
 			HU_sendChatMessage();
 		}
