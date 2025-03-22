@@ -1242,7 +1242,8 @@ void P_DoPlayerExit(player_t *player, pflags_t flags)
 	if (!player->spectator && (gametyperules & GTR_CIRCUIT)) // Special Race-like handling
 	{
 		// RADIO: add the player to the finish ticker queue
-		RR_addPlayerToFinshTicker(player);
+		if (!modeattacking)
+			RR_addPlayerToFinshTicker(player);
 
 		K_UpdateAllPlayerPositions();
 	}
