@@ -1,1 +1,1 @@
-`pk3make.py` by (GenericHeroGuy)[https://github.com/GenericHeroGuy], from his [ringracers-scripts](https://github.com/GenericHeroGuy/ringracers-scripts) repoistory. Thank you!
+`pk3make.py` by [GenericHeroGuy](https://github.com/GenericHeroGuy), from his [ringracers-scripts](https://github.com/GenericHeroGuy/ringracers-scripts) repoistory. Thank you!
