@@ -696,6 +696,11 @@ void RR_Draw_ChatMiniLog(chat_mini_log_parameters_t parameters) {
 }
 
 /** Chat stuff */
+static std::string lc(const std::string &str) {
+    std::string lc_str = str;
+    std::transform(lc_str.begin(), lc_str.end(), lc_str.begin(), ::tolower);
+    return lc_str;
+}
 
 static void search_for_emotes(void)
 {
@@ -706,7 +711,11 @@ static void search_for_emotes(void)
         if (emote_search_results.size() >= 15) {
             break;
         }
-        if (temp_emote.first.find(emote_search_query) != std::string::npos) {
+
+        std::string lc_query = lc(emote_search_query);
+        std::string lc_emote_name = lc(temp_emote.first);
+
+        if (lc_emote_name.find(lc_query) != std::string::npos) {
             if (temp_emote.second != nullptr) {
                 emote_search_results.push_back(temp_emote.second);
             }
@@ -956,7 +965,7 @@ void RR_DrawChatEmotePreview(
     
     const INT32 PREVIEW_HEIGHT = 10;
 
-    if (emote_search_results.empty()) {
+    if (EMOTES.empty() || emote_search_results.empty()) {
         V_DrawFillConsoleMap(
             x,
             y,
@@ -1044,6 +1053,9 @@ void RR_DrawChatEmotePreview(
 
  static std::vector<emote_t*>* get_current_emote_list()
  {
+    if(EMOTES_VECTOR.empty())
+        return nullptr;
+    
     // If we're querying an emote AND there AREN'T any results ..
     if (menu_search_emotes.empty() && !emote_menu_query.empty()) {
         return nullptr;
@@ -1062,7 +1074,7 @@ void RR_DrawChatEmotePreview(
         return current_emotes->size();
 
     return std::min(
-        ROWS*COLUMNS, signed(current_emotes->size() - (emote_menu_page * ROWS*COLUMNS))
+        ROWS*COLUMNS, signed(current_emotes->size() - ((emote_menu_page-1) * ROWS*COLUMNS))
     );
 }
 
@@ -1072,7 +1084,9 @@ static size_t get_max_pages_for_emote_menu() {
     if (!current_emotes || current_emotes->size() < ROWS*COLUMNS)
         return 1;
 
-    return std::ceil(current_emotes->size() / (ROWS * COLUMNS));
+    return std::ceil(
+        static_cast<float>(current_emotes->size()) / static_cast<float>((ROWS * COLUMNS))
+    );
 }
 
 static void update_emote_menu_emotes()
@@ -1097,12 +1111,12 @@ static void update_emote_menu_results()
     emote_menu_page = 1;
     emote_menu_selection = 0;
 
+    menu_emotes.clear();
+    menu_search_emotes.clear();
+
     if (EMOTES_VECTOR.empty()) {
         return;
     }
-
-    menu_emotes.clear();
-    menu_search_emotes.clear();
     
     if (emote_menu_query.empty()) {
         update_emote_menu_emotes();
@@ -1111,7 +1125,11 @@ static void update_emote_menu_results()
     
     // fuzzy search
     for (const auto& temp_emote : EMOTES_VECTOR) {
-        if (std::string(temp_emote->name).find(emote_menu_query) != std::string::npos) {
+        // yes, we have to convert the query (and emote name) to lowercase
+        std::string lc_query = lc(emote_menu_query);
+        std::string lc_emote_name = lc(std::string(temp_emote->name));
+
+        if (lc_emote_name.find(lc_query) != std::string::npos) {
             menu_search_emotes.push_back(temp_emote);
         }
     }
@@ -1262,11 +1280,6 @@ void RR_DrawChatEmoteMenu(
 ) {
     if (!is_emote_menu_on)
         return;
-    
-    // If there are absolutely no emotes loaded, why are we even here?
-    if (EMOTES.empty()) {
-        return;
-    }
 
     const INT32 MENU_WIDTH = 56;
     const INT32 MENU_HEIGHT = 72;
@@ -1319,9 +1332,10 @@ void RR_DrawChatEmoteMenu(
         );
     }
 
-     if (menu_emotes.empty()) {
+     if (EMOTES.empty() || menu_emotes.empty()) {
         const INT32 middle_x = x + (MENU_WIDTH/2);
-        const fixed_t string_w = V_StringScaledWidth( FRACUNIT/2, FRACUNIT, FRACUNIT, V_SNAPTOBOTTOM | V_SNAPTOLEFT, TINY_FONT, "NOTHING");
+        const char* nothing = (EMOTES.empty()) ? "NO EMOTES LOADED" : "NOTHING";
+        const fixed_t string_w = V_StringScaledWidth( FRACUNIT/2, FRACUNIT, FRACUNIT, V_SNAPTOBOTTOM | V_SNAPTOLEFT, TINY_FONT, nothing);
         const int string_w_int = string_w/FRACUNIT;
 
         const int new_middle_x = middle_x - (string_w_int/2);
@@ -1334,14 +1348,15 @@ void RR_DrawChatEmoteMenu(
             V_YELLOWMAP | V_SNAPTOBOTTOM | V_SNAPTOLEFT,
             NULL,
             TINY_FONT,
-            "NOTHING"
+            nothing
         );   
 
         return;
     }
 
-    // page number
     /**
+     * page number
+     * 
      * If there are 80 emotes loaded, that's a maximum of 25 emotes per page (5 rows, 5 columns)
      * 
      * 80 / (ROWS * COLUMNS)
