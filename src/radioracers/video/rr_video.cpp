@@ -845,7 +845,7 @@ void V_RR_DrawStringScaled(
 							cx,
 							emote_y,
 							FloatToFixed(scale),
-							V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+							V_SNAPTOBOTTOM | V_SNAPTOLEFT|flags,
 							atlas_patch,
 							coords.x,
 							coords.y,

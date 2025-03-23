@@ -793,7 +793,10 @@ lumpnum_t getChatEmoteFrame(emote_t* emote) {
     size_t& frame = chatEmoteFrameMap[emote];
     tic_t& lastUpdate = chatEmoteLastUpdate[emote];
 
-    if (paused || !cv_chat_emotes_animated.value)
+    if (!cv_chat_emotes_animated.value)
+        return emote->frames[0];
+    
+    if (paused)
         return emote->frames[frame];
 
     if ((INT32)(gametic - lastUpdate) >= emote->frame_delay) {

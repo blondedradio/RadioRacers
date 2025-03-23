@@ -1,0 +1,24 @@
+Rows = 4
+Columns = 6
+Width = 128
+Height = 128
+
+Emote1 = fire
+Emote2 = broken_heart
+Emote3 = heart_on_fire
+Emote4 = mending_heart
+Emote5 = heart
+Emote6 = blue_heart
+Emote7 = kiss
+Emote8 = 100
+Emote9 = anger
+Emote10 = collision
+Emote11 = dizzy
+Emote12 = sweat_drops
+Emote13 = dashing_away
+Emote14 = speech_balloon
+Emote15 = zzz
+Emote16 = prohibited
+Emote17 = thought_bubble
+Emote18 = warning
+Emote19 = no_entry
