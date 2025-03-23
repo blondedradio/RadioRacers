@@ -1,0 +1,4 @@
+$basepath src/radioracers/
+$output out/radioracers.pk3
+
+**
