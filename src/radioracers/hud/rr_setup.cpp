@@ -21,6 +21,9 @@
 #include "../../r_defs.h"
 #include "../../r_picformats.h"
 
+static const char* EMOTE_FRAME_NAME = "FRAME";
+static const char* EMOTE_ATLAS_FRAME_NAME = "EMOATLAS";
+
 boolean found_radioracers = false;
 boolean found_radioracers_plus = false;
 boolean radioracers_usemuteicons = false;
@@ -126,6 +129,41 @@ static boolean hasRankToken(GradeEmoteTokens tokens) {
     return found;
 }
 
+static boolean is_emote_already_loaded(std::string name) {
+    return (!EMOTES.empty() && EMOTES.find(name) != EMOTES.end());
+}
+
+static boolean has_punctuation(const std::string& str) {
+    for (char ch: str) {
+        if (std::ispunct(static_cast<unsigned char>(ch)) && ch != '_') {
+            return true;
+        }
+    }
+    return false;
+}
+
+static boolean is_emote_good(std::string name) {
+    // Is the name length < EMOTE_NAME_SIZE?
+    if(name.length() > EMOTE_NAME_SIZE) {
+        CONS_Printf("Emote '%s' is TOOOOO long, skipping.\n", name.c_str());
+        return false;
+    }
+
+    // Does the name have any punctuation?
+    if (has_punctuation(name)) {
+        CONS_Printf("Emote '%s' has some invalid characters, skipping.\n", name.c_str());
+        return false;
+    }
+
+    // Is it already loaded?
+    if (is_emote_already_loaded(name)) {
+        CONS_Printf("Emote '%s' already exists, skipping.\n", name.c_str());
+        return false;
+    }
+
+    return true;
+}
+
 static void initDefaultGradeEmote(emote_t *rank_emote)
 {
     memset(rank_emote, 0, sizeof (emote_t));
@@ -198,6 +236,12 @@ GradeEmoteTokens TokenizeGradeEmotes(
      */
     while ((start = lines.find_first_not_of(delimiters, end)) != std::string::npos)
     {
+        // Ignore comments
+        if (lines[start] == '#') {
+            end = lines.find_first_of(delimiters, start);
+            continue;
+        }
+
         end = lines.find_first_of("= ", start);
 
         // No token value?
@@ -244,11 +288,12 @@ atlas_emote_config_t TokenizeAtlasEmotes(
     return {tokens, emote_names};
 }
 
+// R_LoadSkinSprites
 static void LoadEmoteLumps(UINT16 wadnum, UINT16 *lump, UINT16 *lastlump, emote_t *rank_emote)
 {
     UINT16 newlastlump;
     lumpinfo_t *lumpinfo;
-    softwarepatch_t patch;
+    // softwarepatch_t patch;
     
     lumpinfo = wadfiles[wadnum]->lumpinfo;
 
@@ -264,6 +309,10 @@ static void LoadEmoteLumps(UINT16 wadnum, UINT16 *lump, UINT16 *lastlump, emote_
     
     for (UINT16 i = *lump; i < *lastlump; i++) {
 
+        // Only process lumps that match FRAME(xxx).lmp
+        if(memcmp(lumpinfo[i].name, EMOTE_FRAME_NAME, 5))
+            continue;
+
         // Fuck off!! I don't care how funny you THINK your emote is, it doesn't need to be THAT long!
         if(rank_emote->frame_count + 1 > MAX_EMOTE_FRAMES)
         {
@@ -276,15 +325,15 @@ static void LoadEmoteLumps(UINT16 wadnum, UINT16 *lump, UINT16 *lastlump, emote_
         wadlump <<=16;
         wadlump += i;
 
-        INT32 width, height;
-        INT16 topoffset, leftoffset;
+        // INT32 width, height;
+        // INT16 topoffset, leftoffset;
 
-        W_ReadLumpHeaderPwad(wadnum, i, &patch, PNG_HEADER_SIZE, 0);
+        // W_ReadLumpHeaderPwad(wadnum, i, &patch, PNG_HEADER_SIZE, 0);
 
-        width = (INT32)(SHORT(patch.width));
-        height = (INT32)(SHORT(patch.height));
-        topoffset = (INT16)(SHORT(patch.topoffset));
-        leftoffset = (INT16)(SHORT(patch.leftoffset));
+        // width = (INT32)(SHORT(patch.width));
+        // height = (INT32)(SHORT(patch.height));
+        // topoffset = (INT16)(SHORT(patch.topoffset));
+        // leftoffset = (INT16)(SHORT(patch.leftoffset));
 
         // CONS_Printf("width %d, height %d, topoffset %d, leftoffset, %d\n", width, height, topoffset, leftoffset);
 
@@ -316,12 +365,19 @@ static void LoadAtlasEmoteLump(UINT16 wadnum, UINT16 *lump, UINT16 *lastlump, em
         *lastlump = wadfiles[wadnum]->numlumps;
 
     for (UINT16 i = *lump; i < *lastlump; i++) {
+
+        // Only process lumps that match EMOATLAS
+        if(memcmp(lumpinfo[i].name, EMOTE_ATLAS_FRAME_NAME, 8))
+            continue;
+        
         lumpnum_t wadlump = wadnum;
         
         wadlump <<=16;
         wadlump += i;
 
+        // Got the atlas lump, escape the loop immediately
         atlas->atlas_lump = wadlump;
+        break;
     }
 }
 
@@ -375,12 +431,20 @@ static void UpdateEmotesVector(void)
         emote_t* em = entry.second;
 
         if (!EMOTES_INDEX[em]) {
-            EMOTES_VECTOR.push_back(entry.second);
-            EMOTES_INDEX[em] = true; // So duplicates AREN'T added
+            EMOTES_VECTOR.push_back(em);
+            EMOTES_INDEX[em] = true;
         }
     }
+
     auto emote_sort = [](const emote_t* a, const emote_t* b) {
-        return std::string(a->name) < std::string(b->name);
+        // convert the emote names to lowercase so they appear in the right order in the menus
+        std::string lc_a = std::string(a->name);
+        std::string lc_b = std::string(b->name);
+
+        std::transform(lc_a.begin(), lc_a.end(), lc_a.begin(), ::tolower);
+        std::transform(lc_b.begin(), lc_b.end(), lc_b.begin(), ::tolower);
+
+        return lc_a < lc_b;
     };
 
     std::sort(EMOTES_VECTOR.begin(), EMOTES_VECTOR.end(), emote_sort);
@@ -459,9 +523,14 @@ void RR_AddAtlasEmotes(UINT16 wadnum)
 
             initDefaultGradeEmote(atlas_emote);
         
-            // copy the name
+            // copy the name (case-sensitive)
             std::string temp_name = config.emote_names[i];
-            std::transform(temp_name.begin(), temp_name.end(), temp_name.begin(), ::tolower);
+
+            if (!is_emote_good(temp_name)) {
+                free(atlas_emote);
+                continue;
+            }
+            
             STRBUFCPY(atlas_emote->name, temp_name.c_str());
 
             // assign the atlas ID and row/column
@@ -513,7 +582,6 @@ void RR_AddEmotes(UINT16 wadnum)
         std::string bufferStr(buffer, lump_size);
         GradeEmoteTokens tokens = TokenizeGradeEmotes(bufferStr);
 
-
         // Set default values
         initDefaultGradeEmote(rank_emote);
 
@@ -532,12 +600,17 @@ void RR_AddEmotes(UINT16 wadnum)
                 rank_emote->frame_delay = atoi(value.c_str());
             } else if (!stricmp(key.c_str(), NAME)) {
                 std::string temp_name = value;
-                std::transform(temp_name.begin(), temp_name.end(), temp_name.begin(), ::tolower);
-                STRBUFCPY(rank_emote->name, temp_name.c_str());
+                // std::transform(temp_name.begin(), temp_name.end(), temp_name.begin(), ::tolower);
+                STRBUFCPY(rank_emote->name, value.c_str());
 
                 // Needs a name to be used for the chat.
                 eligible_emote = true;
             }
+        }
+
+        if(!is_emote_good(std::string(rank_emote->name))) {
+            free(rank_emote);
+            continue;
         }
 
         // And then (somehow) load the lumps..
@@ -627,7 +700,7 @@ void RR_Init(void) {
         radioracers_usemuteicons = true;
     }
 
-    // The haki mode thing
+    // The haki mode thing - this is just Sky Sanctuary's encore palette
     if(W_LumpExists("GRAYENCR")) {
         radioracers_usehakiencore = true;
     }
