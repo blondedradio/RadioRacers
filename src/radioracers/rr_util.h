@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    BATTLE_WIN_POINTS,
+    BATTLE_WIN_POINTS = 0,
     BATTLE_WIN_EMERALDS
 } battle_win_type_t;
 

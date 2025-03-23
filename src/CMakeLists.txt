@@ -646,3 +646,40 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL Windows AND NOT "${SRB2_CONFIG_INTERNAL_LIBRA
 		COMMENT "Copying runtime DLLs"
 	)
 endif()
+
+# Post-build stuff for Radio
+if(DEFINED BUILD_RADIO_ASSETS AND BUILD_RADIO_ASSETS AND NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Linux") # TODO
+	set(RADIO_BASE_PK3 radioracers.pk3)
+	set(RADIO_EXTRA_PK3 radioracers_plus.pk3)
+
+    set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../")
+    set(BATCH_SCRIPT "${SRC_DIR}/radio/pk3/build.bat")
+    message(STATUS "RADIO BATCH SCRIPT is set to: ${BATCH_SCRIPT}")
+
+    add_custom_command(TARGET SRB2SDL2 POST_BUILD
+        COMMAND echo "RADIO: Building ${RADIO_BASE_PK3} and ${RADIO_EXTRA_PK3}"
+        WORKING_DIRECTORY "${SRC_DIR}/radio/pk3"
+        COMMAND cmd /c ${BATCH_SCRIPT} ${RADIO_BASE_PK3} ${RADIO_EXTRA_PK3}
+		COMMENT "Building the radio PK3s"
+	)
+
+	# If the batch file executed properly, there should be two PK3s
+	# only reason it wouldn't is because the user doesn't have Python 3
+	set(BASE_PK3_DIR "${SRC_DIR}/radio/pk3/out/${RADIO_BASE_PK3}")
+	set(EXTRA_PK3_DIR "${SRC_DIR}/radio/pk3/out/${RADIO_EXTRA_PK3}")
+
+	add_custom_command(TARGET SRB2SDL2 POST_BUILD
+		COMMAND echo "RADIO: Copying ${RADIO_BASE_PK3} and ${RADIO_EXTRA_PK3} to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+
+		# And copy the PK3s (if they exist) to the build folder, wherever that may be 
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${SRC_DIR}/radio/pk3/out/${RADIO_BASE_PK3}
+				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${RADIO_BASE_PK3}
+			
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${SRC_DIR}/radio/pk3/out/${RADIO_EXTRA_PK3}
+				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${RADIO_EXTRA_PK3}
+
+		COMMAND echo "RADIO: Finished post-build duties."
+	)
+endif()

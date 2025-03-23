@@ -1,3 +1,3 @@
 target_sources(SRB2SDL2 PRIVATE
-    rr_cvar.c
+    rr_cvar.cpp
 )
