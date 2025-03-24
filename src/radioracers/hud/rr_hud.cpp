@@ -14,6 +14,7 @@
 #include "../../doomstat.h" // r_splitscreen
 #include "../../doomdef.h" // SKINCOLOR_CHAOSEMERALD*
 #include "../rr_hud.h"
+#include "../rr_setup.h"
 #include "../rr_cvar.h"
 #include "../../k_roulette.h" // ROULETTE_SPACING, SLOT_SPACING
 #include "../../k_hud.h" // trackingResult_t
@@ -28,6 +29,7 @@
 #include "../../k_battle.h" // K_NumEmeralds
 #include "../../k_color.h" // K_RainbowColor
 #include "../../z_zone.h" // Z_Realloc
+#include "../../i_time.h"
 
 #include "../../v_draw.hpp" // srb2:Draw
 
@@ -605,18 +607,41 @@ void RR_DoChatStuff(chat_box_parameters_t parameters) {
 	if (is_emote_menu_on) {
 		RR_DrawChatEmoteMenu(chatx + boxw + 4, (y-1) + (typelines*charheight));
 	} else {
-        if(cv_chat_emotes.value) {
-            V_DrawStretchyFixedPatch(
-                (chatx + boxw + 4) << FRACBITS,
-                ((y-10) + (typelines*charheight)) << FRACBITS,
-                FRACUNIT/3,
-                FRACUNIT/3,
-                V_SNAPTOBOTTOM | V_SNAPTOLEFT,
-                static_cast<patch_t*>(W_CachePatchName(
-                    "EMENUEND", PU_HUDGFX
-                )),
-                NULL
-            );
+        if(cv_chat_emotes.value && cv_chat_emotes_button.value) {
+            const INT32 endkey_x = chatx + boxw + 4;
+            const INT32 endkey_y = (y-10) + (typelines*charheight);
+
+            if (radioracers_useendkey) {
+                const UINT8 anim_duration = 32; // K_drawButtonAnim
+                const boolean push = ((I_GetTime() % (anim_duration * 2)) < anim_duration);
+                const int btn_index = push ? 1 : 0;
+    
+                V_DrawStretchyFixedPatch(
+                    (endkey_x) << FRACBITS,
+                    (endkey_y) << FRACBITS,
+                    FloatToFixed(.7f),
+                    FloatToFixed(.7f),
+                    V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+                    end_key[btn_index],
+                    NULL
+                );
+            } else {
+                const fixed_t scaled_w = V_StringScaledWidth(
+                    FloatToFixed(.7f), FRACUNIT, FRACUNIT, V_SNAPTOBOTTOM | V_SNAPTOLEFT, HU_FONT, "END"
+                );
+                V_DrawFill(endkey_x-1, endkey_y, (scaled_w/FRACUNIT) + 2, 9, 16 | V_SNAPTOBOTTOM | V_SNAPTOLEFT);
+                V_DrawStringScaled(
+                    (endkey_x) << FRACBITS, 
+                    (endkey_y + 2) << FRACBITS,
+                    FloatToFixed(.7f), 
+                    FRACUNIT,
+                    FRACUNIT,
+                    V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+                    NULL,
+                    HU_FONT,
+                    "END"
+                );
+            }
         }
     }
 }
