@@ -28,6 +28,9 @@ boolean found_radioracers = false;
 boolean found_radioracers_plus = false;
 boolean radioracers_usemuteicons = false;
 boolean radioracers_usehakiencore = false;
+boolean radioracers_useendkey = false;
+patch_t* end_key[2];
+
 sfxenum_t radio_ding_sound;
 
 /**
@@ -406,7 +409,6 @@ static void AddInGameEmotes(void)
     add_quick_emote("K_ITSHRK", "shrink"); // Shrink
     add_quick_emote("K_ITGBOM", "gachabomb"); // Gachabomb
     add_quick_emote("K_ITDTRG", "bumper"); // Burger
-    add_quick_emote("K_ITGTOP", "spinningtop"); // Beyblade
     add_quick_emote("K_ITRING", "superring"); // Super Ring
     add_quick_emote("K_ITTHNS", "lightningshield"); // Lightning Shield
 
@@ -692,17 +694,25 @@ void RR_CleanupEmoteFrames(void) {
 
 /** Initialize anything relating to RadioRacers */
 void RR_Init(void) {
-    // Yeah
-    radio_ding_sound = S_AddSoundFx("emenup", false, 0, false);
+    if (found_radioracers) {
+        // Yeah
+        radio_ding_sound = S_AddSoundFx("emenup", false, 0, false);
+    
+        // Mute icon for Pause Menu
+        if (W_LumpExists("M_ICOMUT") && W_LumpExists("M_ICOMU2")) {
+            radioracers_usemuteicons = true;
+        }
+    
+        // The haki mode thing - this is just Sky Sanctuary's encore palette
+        if(W_LumpExists("GRAYENCR")) {
+            radioracers_usehakiencore = true;
+        }
 
-    // Mute icon for Pause Menu
-    if (W_LumpExists("M_ICOMUT") && W_LumpExists( "M_ICOMU2")) {
-        radioracers_usemuteicons = true;
-    }
-
-    // The haki mode thing - this is just Sky Sanctuary's encore palette
-    if(W_LumpExists("GRAYENCR")) {
-        radioracers_usehakiencore = true;
+        if (W_LumpExists("EMENU_A") && W_LumpExists("EMENU_AB")) {
+            HU_UpdatePatch(&end_key[0], "EMENU_A");
+            HU_UpdatePatch(&end_key[1], "EMENU_AB");
+            radioracers_useendkey = true;
+        }
     }
 
     // Any emotes?
