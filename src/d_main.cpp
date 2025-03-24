@@ -1975,9 +1975,7 @@ void D_SRB2Main(void)
 	CON_SetLoadingProgress(LOADED_ACSINIT);
 
 	// RadioRacers: .. right around here
-	if (found_radioracers) {
-		RR_Init();
-	}
+	RR_Init();
 
 
 	//------------------------------------------------ COMMAND LINE PARAMS
