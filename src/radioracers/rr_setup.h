@@ -19,6 +19,8 @@ extern boolean found_radioracers;
 extern boolean found_radioracers_plus;
 extern boolean radioracers_usemuteicons;
 extern boolean radioracers_usehakiencore;
+extern boolean radioracers_useendkey;
+extern patch_t *end_key[2];
 extern sfxenum_t radio_ding_sound;
 extern void RR_Init(void);
 extern void RR_AddAllEmotes(UINT16 wadnum);

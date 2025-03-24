@@ -1,3 +1,64 @@
+<picture>
+  <img src="./radio/branding.png">
+</picture>
+<div style="text-align: right">
+  <sub>*<a href="https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album">MUSIC</a>, Playboi Carti, 2025</sub>
+</div>
+
+A [DRRR](https://www.kartkrew.org/) fork.
+
+This build &ndash; like _all_ software &ndash; is always a work in progress.
+> [!NOTE]
+> Compatible with vanilla Ring Racers; all changes made so far are client-side.
+
+## Building
+
+Follow the [instructions](#building-from-source) in the original README to compile the build.  
+
+If you're on Windows 10 (or above), try following [this](https://blondedradio.github.io/rr-compile-windows-guide/) guide.
+
+### Building the assets
+  > [!IMPORTANT]  
+  >  You **will** need [Python](https://www.python.org/) in order to do this systematically.
+  
+
+1. When configuring with CMake, append `-BUILD_RADIO_ASSETS=ON`, like so:
+    ```
+    cmake --preset ninja-x86_mingw_static_vcpkg-release -DBUILD_RADIO_ASSETS=ON 
+    ```
+    This will execute a post-build batch file, that will run `pk3make.py` (by [GenericHeroGuy](https://github.com/GenericHeroGuy)), which generates the PK3 files.*
+
+2. Compile the game as usual.  
+If successful, `radioracers.pk3` and `radioracers_plus.pk3` should be in the same folder as the compiled executable:
+![alt text](radio/pk3_assets.png)
+
+<sup>*For the moment, this step only applies to Windows users since there isn't a shellscript ***yet***.</sup>
+
+Otherwise, you can always build the assets yourself by running `pk3make.py` in `./radio/pk3`:
+
+```bash
+python ./pk3make.py ./build/radioracers.txt
+python ./pk3make.py ./build/radioracers_plus.txt
+```
+
+## Features
+
+Take a gander at the [pull requests](https://github.com/blondedradio/RadioRacers/pulls).
+
+## "How do I get emotes working?????? :middle_finger::angry::anger:"
+
+Give [this](/radio/emotes/README.md) a read.
+
+## "Where's the executable??? :angry::anger:"
+
+Either compile it yourself (good practice) or have someone you trust do it for you.  
+
+---
+
+Original README below.
+
+---
+  
 # Dr. Robotnik's Ring Racers
 
 <p align="center">

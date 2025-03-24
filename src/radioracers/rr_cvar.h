@@ -73,6 +73,7 @@ extern consvar_t cv_holdbuttonforscoreboard; // Restore SRB2Kart behaviour when 
 extern consvar_t cv_show_riders_finish_ticker; // Show the Sonic Riders :tm: finish line ticker
 extern consvar_t cv_chat_emotes;                  // Self-explanatory
 extern consvar_t cv_chat_emotes_animated;         // Should emotes animate?
+extern consvar_t cv_chat_emotes_button;         // Toggle the END key button
 
 // HUD -- Battle
 extern consvar_t cv_battle_toggle_emerald_on_minimap; 
