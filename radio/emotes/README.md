@@ -152,7 +152,7 @@ Altogether, here's how the final result should look inside the PK3:
 <details>
     <summary>Animated emotes</summary>
 
-    Let's say you'd want to add an animated emote called `:pbjt:`, using this GIF:
+Let's say you'd want to add an animated emote called `:pbjt:`, using this GIF:
 
 <img src="./pbjt.gif" width="100">
 
