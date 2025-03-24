@@ -29,7 +29,7 @@ If you're on Windows 10 (or above), try following [this](https://blondedradio.gi
 
 2. Compile the game as usual.  
 If successful, `radioracers.pk3` and `radioracers_plus.pk3` should be in the same folder as the compiled executable:
-![alt text](radio/pk3_assets.png)
+  ![alt text](radio/pk3_assets.png)
 
 <sup>*For the moment, this step only applies to Windows users since there isn't a shellscript ***yet***.</sup>
 
