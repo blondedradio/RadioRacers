@@ -28,7 +28,7 @@ And `radioracers.pk3` contains a default set of emotes.
 
 > `>gets hit by spb`
 > 
-> ":sob::sob::sob:"
+> \<Player\> :sob::sob::sob:
 
 ## Process
 When loading an addon with any emotes, the build will check for two things:
