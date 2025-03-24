@@ -25,3 +25,4 @@ Win32_LIB_ASM_Release
 /bin
 /build
 /CMakeUserPresets.json
+/radio/pk3/out
