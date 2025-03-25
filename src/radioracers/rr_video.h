@@ -20,21 +20,8 @@
 #include "rr_controller.h"
 
 #ifdef __cplusplus
-extern "C" {
-#endif
 
-#define MAX_HEIGHT 10.f
-#define MAX_HEIGHT_WITH_TEXT 8.0f
-
-#define EMOTE_LINE_PADDING_INT 3
-#define EMOTE_LINE_PADDING FloatToFixed(3.f)
-
-#define EMOTE_LINE_PADDING_TEXT_INT 2
-#define EMOTE_LINE_PADDING_TEXT FloatToFixed(2.f)
-
-#define EMOTE_PADDING 1
-#define GET_CHAT_EMOTE_SCALE(h, has_text) (((has_text) ? MAX_HEIGHT_WITH_TEXT : MAX_HEIGHT)/static_cast<float_t>(h))
-
+#include <vector>
 /**
  * RADIO: Copied straight from v_video.cpp
  * Instead of manipulating the original function, just copy it here.
@@ -44,6 +31,7 @@ extern boolean V_CharacterValidEx(font_t* font, int c);
 typedef struct
 {
     char* msg;
+    std::vector<int> lines_with_emotes;
     boolean contains_text;
 } word_wrap_results_t;
 
@@ -71,6 +59,7 @@ void V_RR_DrawStringScaled(
     int         font,
     const char *text,
     int chat_log_index,
+    std::vector<int> lines_with_emotes,
     boolean is_mini_log,
     boolean contains_text,
     int top_offset,
@@ -90,6 +79,21 @@ fixed_t V_RR_StringScaledWidth(
     int chat_log_index,
     boolean contains_text
 );
+
+extern "C" {
+#endif
+
+#define MAX_HEIGHT 10.f
+#define MAX_HEIGHT_WITH_TEXT 8.0f
+
+#define EMOTE_LINE_PADDING_INT 3
+#define EMOTE_LINE_PADDING FloatToFixed(3.f)
+
+#define EMOTE_LINE_PADDING_TEXT_INT 2
+#define EMOTE_LINE_PADDING_TEXT FloatToFixed(2.f)
+
+#define EMOTE_PADDING 1
+#define GET_CHAT_EMOTE_SCALE(h, has_text) (((has_text) ? MAX_HEIGHT_WITH_TEXT : MAX_HEIGHT)/static_cast<float_t>(h))
 
 #ifdef __cplusplus
 } // extern "C"
