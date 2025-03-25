@@ -493,6 +493,11 @@ word_wrap_results_t V_RR_ScaledWordWrap(
 
 	char* newstring = static_cast<char*>(Z_Malloc(len + sparenewlines, PU_STATIC, NULL));
 
+	// RADIO: Check if next line has an emote or not, useful to determine padding when drawing the message
+	std::vector<int> lines_with_emotes;
+	bool line_checked_for_emotes = false;
+	size_t current_line = 1;
+
 	for (; (c = s[reader]); ++reader, ++writer)
 	{
 		newstring[writer] = s[reader];
@@ -506,6 +511,8 @@ word_wrap_results_t V_RR_ScaledWordWrap(
 			ex = 0;
 			cxatstart = 0;
 			startwriter = 0;
+			current_line++;
+			line_checked_for_emotes = false;
 			break;
         case '\x01':
             // RADIO: Emote logic
@@ -543,6 +550,12 @@ word_wrap_results_t V_RR_ScaledWordWrap(
 				}
 
                 emote_tracker_idx++;
+
+				// Look ahead
+				if (!line_checked_for_emotes) {
+					lines_with_emotes.push_back(current_line);
+					line_checked_for_emotes = true;
+				}
             }
             break;
 		default:
@@ -626,6 +639,7 @@ word_wrap_results_t V_RR_ScaledWordWrap(
 				cx = cw;					   // Valid value in the only case right is currently set
 				newstring[writer] = s[reader]; // Re-add
 			}
+			current_line++;
 		}
 	}
 
@@ -634,8 +648,17 @@ word_wrap_results_t V_RR_ScaledWordWrap(
 	word_wrap_results_t results;
 	results.msg = newstring;
 	results.contains_text = contains_text;
+	results.lines_with_emotes = lines_with_emotes;
 
 	return results;
+}
+
+
+static bool doesNextLineHaveEmote(size_t current_line, std::vector<int> lines_with_emotes) {
+    if (lines_with_emotes.empty()) {
+        return false;
+    }
+    return std::find(lines_with_emotes.begin(), lines_with_emotes.end(), current_line+1) != lines_with_emotes.end();
 }
 
 void V_RR_DrawStringScaled(
@@ -649,6 +672,7 @@ void V_RR_DrawStringScaled(
 	int fontno,
 	const char* s,
     int chat_log_index,
+	std::vector<int> lines_with_emotes,
 	boolean is_mini_log,
 	boolean contains_text = true,
 	int top_offset = 0,
@@ -784,6 +808,12 @@ void V_RR_DrawStringScaled(
 			}
 
 			cy += fontspec.lfh;
+			// Look-ahead
+			if(doesNextLineHaveEmote(count, lines_with_emotes)) {
+				cy += __PADDING;
+				line_has_emote = true;
+			}
+
 			if (cy >= bot)
 				return;
 			cx = x;
