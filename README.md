@@ -2,10 +2,6 @@
   <img src="http://143.110.160.172/random-image.php">
 </picture>
 
-<p align="right">
-<sub>*<a href="https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album">MUSIC</a>, Playboi Carti, 2025</sub>
-</p>
-
 A [DRRR](https://www.kartkrew.org/) fork.
 
 This build &ndash; like _all_ software &ndash; is always a work in progress.
