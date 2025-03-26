@@ -1,5 +1,5 @@
 <picture>
-  <img src="./radio/branding.png">
+  <img src="http://143.110.160.172/random-image.php">
 </picture>
 
 <p align="right">
