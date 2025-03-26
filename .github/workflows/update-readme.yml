@@ -1,0 +1,33 @@
+name: Cycle random banner in README
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # Runs every 6 hours
+  workflow_dispatch:
+
+jobs:
+  cycle-banner-in-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Restore placeholders
+        run: |
+          git checkout README.md  # Reset README to the last committed version
+
+      - name: Pick random banner
+        run: |
+          index=$(shuf -i 1-$(wc -l < images.txt) -n 1)
+          image=$(sed -n "${index}p" images.txt)
+          footnote=$(sed -n "${index}p" footnotes.txt)
+          sed -i "s|RANDOM_IMAGE|$image|g" README.md
+          sed -i "s|RANDOM_FOOTNOTE|$footnote|g" README.md
+
+      - name: Commit and push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Cycle README.md banner"
+          git push
