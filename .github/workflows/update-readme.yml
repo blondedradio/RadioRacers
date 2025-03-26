@@ -18,9 +18,9 @@ jobs:
 
       - name: Pick random banner
         run: |
-          index=$(shuf -i 1-$(wc -l < images.txt) -n 1)
-          image=$(sed -n "${index}p" images.txt)
-          footnote=$(sed -n "${index}p" footnotes.txt)
+          line=$(shuf -n 1 radio/images.txt)
+          image=$(echo "$line" | cut -d '|' -f1 | xargs)
+          footnote=$(echo "$line" | cut -d '|' -f2- | xargs)
           sed -i "s|RANDOM_IMAGE|$image|g" README.md
           sed -i "s|RANDOM_FOOTNOTE|$footnote|g" README.md
 
