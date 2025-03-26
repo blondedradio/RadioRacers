@@ -1,9 +1,9 @@
 <picture>
-  <img src="RANDOM_IMAGE">
+  <img src="./radio/branding.png">
 </picture>
 
 <p align="right">
-RANDOM_FOOTNOTE
+<sub>*<a href="https://en.wikipedia.org/wiki/Music_(Playboi_Carti_album">MUSIC</a>, Playboi Carti, 2025</sub>
 </p>
 
 A [DRRR](https://www.kartkrew.org/) fork.
