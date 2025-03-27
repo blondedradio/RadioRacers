@@ -63,7 +63,7 @@ Animated emotes should be GIFs and GIFs have a frame delay. Convert the frame de
 
 Here's the formula:
 
-$$\text{tic\_delay} =\lfloor \frac{\text{frame\_delay} + 14}{28} \rfloor$$
+$`\text{tic\_delay} =\lfloor \frac{\text{frame\_delay} + 14}{28} \rfloor`$
 
 Let's say a GIF has a frame delay of 30ms:
 
