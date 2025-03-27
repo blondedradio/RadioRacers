@@ -4,7 +4,7 @@
 
 <p></p>
 
-A [DRRR](https://www.kartkrew.org/) fork.
+A [Ring Racers](https://www.kartkrew.org/) fork.
 
 This build &ndash; like _all_ software &ndash; is always a work in progress.
 > [!NOTE]
