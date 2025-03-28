@@ -22,6 +22,7 @@
 #include "../../hu_stuff.h"
 
 #include "rr_cvar.h"
+#include "rr_video.h"
 
 #ifdef __cplusplus
 
@@ -59,11 +60,6 @@ typedef struct
     fixed_t x;
     fixed_t y;
 } emote_atlas_coordinates_t;
-
-typedef enum  {
-    MAIN = 0,
-    MINI
-} chat_log_type_t;
 
 extern std::unordered_map<std::string, emote_t*> EMOTES;
 extern std::vector<emote_t*> EMOTES_VECTOR;
@@ -142,11 +138,26 @@ typedef struct
     INT32 charheight;
 } chat_box_parameters_t;
 
+typedef struct
+{
+    INT32 boxw;
+    fixed_t scale;
+    INT32 flags;
+    INT32 y;
+    INT32 chatx;
+    INT32 charheight;
+    const char* talk;
+} chat_input_parameters_t;
+
 extern void RR_UpdateEmoteChatLogs(UINT32 chat_mini_log, UINT32 chat_log);
 extern void RR_RemoveEmoteChatMiniLog(UINT32 chat_mini_log);
 extern void RR_RemoveEmoteChatLog(UINT32 chat_log);
+extern void RR_UpdateEmoteChatInputLog(void);
+extern void RR_RemoveEmoteChatInputLog(void);
 extern INT32 RR_Parse_ChatLog(chat_log_parameters_t parameters);
 extern void RR_Draw_ChatMiniLog(chat_mini_log_parameters_t parameters);
+extern INT16 RR_DrawChatInput(chat_input_parameters_t p, INT32 *y);
+extern boolean RR_CheckChatDeleteEmoteForInput(void);
 extern INT32 RR_Parse_ChatMiniLog_For_Lines(
     size_t i, 
     fixed_t scale,
