@@ -273,6 +273,9 @@ menuitem_t OPTIONS_RadioRacersMenu[] =
 	{IT_STRING | IT_CVAR, "Emotes", "Show the funny emotes in the chatbox.",
 		NULL, {.cvar = &cv_chat_emotes}, 0, 0},
 
+	{IT_STRING | IT_CVAR, "In-Line Previews", "Toggle in-line emote previews.",
+		NULL, {.cvar = &cv_chat_emotes_preview}, 0, 0},
+
 	{IT_STRING | IT_CVAR, "Animated Emotes", "Toggle animated emotes.",
 		NULL, {.cvar = &cv_chat_emotes_animated}, 0, 0},
 

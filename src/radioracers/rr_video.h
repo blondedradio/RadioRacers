@@ -35,6 +35,12 @@ typedef struct
     boolean contains_text;
 } word_wrap_results_t;
 
+typedef enum  {
+    CLT_MAIN = 0,
+    CLT_MINI,
+    CLT_INPUT
+} chat_log_type_t;
+
 word_wrap_results_t V_RR_ScaledWordWrap(
 	fixed_t w,
 	fixed_t scale,
@@ -60,7 +66,7 @@ void V_RR_DrawStringScaled(
     const char *text,
     int chat_log_index,
     std::vector<int> lines_with_emotes,
-    boolean is_mini_log,
+    chat_log_type_t log_type,
     boolean contains_text,
     int top_offset,
     int bottom_offset
