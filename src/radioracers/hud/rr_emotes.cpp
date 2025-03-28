@@ -49,8 +49,10 @@ std::vector<emote_t*> emote_search_results;
 // Track chat_log array from hu_stuff.c so we don't have to keep recalculating stuff.
 std::vector<std::vector<patch_t*>> chat_log_emote_patches;
 std::vector<std::vector<patch_t*>> chat_mini_log_emote_patches;
+std::vector<std::vector<patch_t*>> chat_input_emote_patches;
 std::vector<std::vector<emote_t*>> chat_log_emotes;
 std::vector<std::vector<emote_t*>> chat_mini_log_emotes;
+std::vector<std::vector<emote_t*>> chat_input_emotes;
 
 typedef struct
 {
@@ -94,9 +96,9 @@ static parse_message_results_t ParseMessageForEmotes(const char* message, int of
     std::string message_std = std::string(message);
 
     // You can bypass the max length of a message by pasting in the chat input
-    if (message_std.length() >= HU_MAXMSGLEN) {
-        message_std = message_std.substr(0, HU_MAXMSGLEN-2);
-    }
+    // if (message_std.length() >= HU_MAXMSGLEN) {
+    //     message_std = message_std.substr(0, HU_MAXMSGLEN-2);
+    // }
     
     parse_message_results_t result;
     result.contains_text = true;
@@ -205,7 +207,8 @@ static word_wrap_results_t word_wrap(
     size_t log_index,
     int offset,
     std::vector<std::vector<patch_t*>> *patch_table,
-    std::vector<std::vector<emote_t*>> *emote_table
+    std::vector<std::vector<emote_t*>> *emote_table,
+    boolean override = false
 )
 {
     // Replace any emote identifiers (if there are any) with '\x01'. It'll act as a placeholder.
@@ -216,7 +219,7 @@ static word_wrap_results_t word_wrap(
 
     if (found_emotes != nullptr)
     {
-        if ((*patch_table)[log_index].empty()) 
+        if ((*patch_table)[log_index].empty() || override) 
         {
             (*patch_table)[log_index] = result.found_emote_patches;
             (*emote_table)[log_index] = result.found_emotes;
@@ -282,6 +285,11 @@ static word_wrap_results_t RR_CHAT_WordWrap(INT32 w, fixed_t scale, INT32 option
     return word_wrap(w, scale, option, string, chat_log_index, chat_log_offset[chat_log_index], &chat_log_emote_patches, &chat_log_emotes);
 }
 
+static word_wrap_results_t RR_Chat_Input_WordWrap(INT32 w, fixed_t scale, INT32 option, const char* string) 
+{
+    return word_wrap(w, scale, option, string, 0, 0, &chat_input_emote_patches, &chat_input_emotes, true);
+}
+
 void RR_UpdateEmoteChatLogs(UINT32 chat_mini_log, UINT32 chat_log)
 {
     // CONS_Printf("[%d]: Initialize emote chat log\n", chat_log);
@@ -335,6 +343,27 @@ void RR_RemoveEmoteChatMiniLog(UINT32 chat_mini_log)
     chat_mini_log_emote_patches[chat_mini_log-1].clear();
 }
 
+void RR_UpdateEmoteChatInputLog(void) {
+    if (!chat_input_emotes.empty())
+        return;
+
+    chat_input_emotes.resize(1);
+    chat_input_emote_patches.resize(1);
+}
+
+void RR_RemoveEmoteChatInputLog(void)
+{
+    if(chat_input_emotes.empty()) {
+        return;
+    }
+    if(chat_input_emote_patches.empty()) {
+        return;
+    }
+
+    chat_input_emotes[0].clear();
+    chat_input_emote_patches[0].clear();
+}
+
 emote_t* RR_GetEmoteFromChatLog(size_t chat_log_index, int emote_tracer_index) 
 {
     if (chat_log_emotes[chat_log_index].empty()) {
@@ -353,9 +382,20 @@ emote_t* RR_GetEmoteFromChatMiniLog(size_t chat_log_mini_index, int emote_tracer
     }
 }
 
+emote_t* RR_GetEmoteFromChatInput(size_t _index, int emote_tracer_index)
+{
+    if (chat_input_emotes[_index].empty()) {
+        return nullptr;
+    } else {
+        return (chat_input_emotes[_index][emote_tracer_index]);
+    }
+    return nullptr;
+}
+
 std::unordered_map<chat_log_type_t, std::function<emote_t*(size_t, int)>> emote_fetch_map = {
-    {chat_log_type_t::MAIN, RR_GetEmoteFromChatLog},
-    {chat_log_type_t::MINI, RR_GetEmoteFromChatMiniLog}
+    {chat_log_type_t::CLT_MAIN, RR_GetEmoteFromChatLog},
+    {chat_log_type_t::CLT_MINI, RR_GetEmoteFromChatMiniLog},
+    {chat_log_type_t::CLT_INPUT, RR_GetEmoteFromChatInput}
 };
 
 /** 
@@ -511,7 +551,7 @@ INT32 RR_Parse_ChatLog(chat_log_parameters_t parameters)
 				msg+startj,
 				static_cast<int>(i),
                 results.lines_with_emotes,
-				false,
+				CLT_MAIN,
                 results.contains_text,
                 chat_topy,
                 chat_bottomy
@@ -684,7 +724,7 @@ void RR_Draw_ChatMiniLog(chat_mini_log_parameters_t parameters) {
 			msg,
 			i,
             results.lines_with_emotes,
-			true,
+			CLT_MINI,
             results.contains_text,
             0,
             0
@@ -695,6 +735,156 @@ void RR_Draw_ChatMiniLog(chat_mini_log_parameters_t parameters) {
 		if (msg)
 			Z_Free(msg);
 	}
+}
+
+INT16 RR_DrawChatInput(chat_input_parameters_t p, INT32 *chaty) {
+    const fixed_t scale = (vid.width < 640) ? FRACUNIT : FRACUNIT/2;
+
+    UINT32 i = 0;
+    INT16 typelines = 1;
+    INT16 emote_lines = 0;
+
+    const char* haha = va("%c%s %c%s%c%c", '\x80', p.talk, '\x80', w_chat, '\x80', '_');
+    word_wrap_results_t r = RR_Chat_Input_WordWrap(
+        p.boxw-4, 
+        scale, 
+        p.flags, 
+        haha
+    );
+
+    INT32 y = p.y;
+
+    char* msg = r.msg;
+
+    boolean line_has_emote = false;
+    boolean line_checked_for_emote = false;
+    boolean previous_line_had_emote = false;
+    boolean previous_line_checked = false;
+    boolean had_at_least_one_emote = false;
+
+    for (; msg[i]; i++) // iterate through msg
+    {
+        if (msg[i] == '\x01')
+        {				
+            if (!line_checked_for_emote) {
+                if(!line_has_emote) {
+                    previous_line_had_emote = false;
+                    line_has_emote = true;
+                    line_checked_for_emote = true;
+
+                    had_at_least_one_emote = true;
+
+                    // for every line with an emote, add another line
+                    if (!previous_line_checked)
+                        ;
+                    emote_lines++;
+
+                }
+            }
+        } else {				
+            if (previous_line_had_emote) {
+                // extra_y_padding += 4;
+                emote_lines++;
+                previous_line_had_emote = false;
+                previous_line_checked = true;
+            }
+        }
+
+        if (msg[i] != '\n') // get back down.
+            continue;
+
+        if (msg[i] == '\n')
+        {
+            previous_line_had_emote = line_has_emote;
+            previous_line_checked = false;
+            line_has_emote = false;
+            line_checked_for_emote = false;	
+        }
+
+        typelines++;
+    }
+
+    // This is removed after the fact to not have the newline handling flicker.
+    if (i != 0 && hu_tick >= 4)
+    {
+        msg[i-1] = '\0';
+    }
+
+    y -= typelines * p.charheight;
+    *chaty = (y + (emote_lines*p.charheight));
+
+    V_DrawFillConsoleMap(p.chatx, y-1, p.boxw, ((typelines + emote_lines) *p.charheight), 159 | p.flags);
+	
+    int y_padding = (r.contains_text) ? EMOTE_PADDING_CONST_TEXT : EMOTE_PADDING_CONST;
+    V_RR_DrawStringScaled(
+        (p.chatx + 2) << FRACBITS,
+        ((y) + ((had_at_least_one_emote || line_has_emote) ? (y_padding) : 0)) << FRACBITS,
+        scale, FRACUNIT, FRACUNIT,
+        p.flags,
+        NULL,
+        HU_FONT,
+        msg ? msg : p.talk,
+        0,
+        r.lines_with_emotes,
+        CLT_INPUT,
+        r.contains_text,
+        0,
+        0
+    );
+
+    if (msg)
+        Z_Free(msg);
+
+    return typelines;
+}
+
+boolean RR_CheckChatDeleteEmoteForInput(void) {
+    if (c_input <= 0)
+        return false;
+    
+    size_t found_index = std::string::npos;
+    
+    for (int i = c_input - 1; i >= 0; --i) {
+        if (isspace(w_chat[i]))
+            break;
+        
+        if(w_chat[i] == ':') {
+            int start = i;
+            start--;
+
+            boolean entered = false;
+            boolean valid = true;
+
+            // Nested loops, sorry
+            while (start >= 0 && w_chat[start] != ':') {
+                if (!entered)
+                    entered = true;
+                if (isspace(w_chat[start]))  {
+                    valid = false;
+                    break;
+                }
+                start--;
+            }
+
+            if (entered && valid && start >= 0 && w_chat[start] == ':') {
+                found_index = start;
+                break;
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+
+    if (found_index == std::string::npos)
+        return false;
+    
+    size_t emote_length = c_input - found_index;
+    
+    memmove(&w_chat[c_input - emote_length], &w_chat[c_input], strlen(w_chat) - c_input + 1);
+    c_input-= emote_length;
+    return true;
 }
 
 /** Chat stuff */
@@ -814,9 +1004,19 @@ void RR_CheckChatInputForEmotePreview(INT32 c) {
             return;
         }
         if (w_chat[c_input-1] == ':' && c != ':' && c != ' ' ) {
-            is_emote_preview_on = true;
-            update_emote_query_add(c);
-            search_for_emotes();
+
+            boolean show_ = true;
+
+            // Check if there's a space before the colon or at the start of the line
+            if (c_input - 2 >= 0 && w_chat[c_input - 2] != '\0') {
+                show_ = w_chat[c_input-2] == ':' || isspace(w_chat[c_input-2]);
+            }
+
+            if (show_) {
+                is_emote_preview_on = true;
+                update_emote_query_add(c);
+                search_for_emotes();
+            }
         }
     } else {
         if(c_input < 0) {
@@ -921,7 +1121,7 @@ void RR_SelectEmoteFromPreview(void)
 
     // Replace the whole query in the chat input with the emote we've found
     std::string chosen_emote_name = emote_search_results[emote_search_query_select]->name;
-    std::string final_emote_name = chosen_emote_name.append(": ");
+    std::string final_emote_name = chosen_emote_name.append(":");
     const char* final_emote_name_c = final_emote_name.c_str();
 
     // Reset to just where the query started (which should be right after the colon)
@@ -933,18 +1133,17 @@ void RR_SelectEmoteFromPreview(void)
         return;
     }
 
-    memmove(&w_chat[start], &w_chat[c_input], strlen(&w_chat[c_input]) + 1);
-    c_input = start;
+    int chat_length = strlen(w_chat) - (c_input - start);
+    int final_length = strlen(final_emote_name_c);
 
-    size_t chat_length = strlen(w_chat);
-    
-    size_t final_length = strlen(final_emote_name_c);
-
-    if (chat_length + final_length > HU_MAXMSGLEN) {
+    if (chat_length + final_length >= HU_MAXMSGLEN) {
         RR_ResetEmoteSearchQuery();
         S_StartSoundAtVolume(NULL, radio_ding_sound, 192);
         return;
     }
+
+    memmove(&w_chat[start], &w_chat[c_input], strlen(&w_chat[c_input]) + 1);
+    c_input = start;
 
     memmove(&w_chat[c_input + final_length], &w_chat[c_input], (chat_length - c_input) + 1);
     memcpy(&w_chat[c_input], final_emote_name_c, final_length);
@@ -1181,16 +1380,16 @@ void RR_CheckChatEnterforEmoteMenu(void)
     
     const char* final_emote_name_c = final_emote_name.c_str();
 
-    size_t chat_length = strlen(w_chat);
-    size_t final_length = strlen(final_emote_name_c);
+    int chat_length = strlen(w_chat);
+    int final_length = strlen(final_emote_name_c);
 
-    if (chat_length + final_length > HU_MAXMSGLEN) {
+    if (chat_length + final_length >= HU_MAXMSGLEN) {
         if (radio_ding_sound != sfx_None) {
             S_StartSoundAtVolume(NULL, radio_ding_sound, 192);
         }
         return;
     }
-    
+        
     memmove(&w_chat[c_input + final_length], &w_chat[c_input], (chat_length - c_input) + 1);
     memcpy(&w_chat[c_input], final_emote_name_c, final_length);
 
