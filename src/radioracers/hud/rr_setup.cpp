@@ -14,6 +14,7 @@
 #include <unordered_map>
 
 #include "../rr_hud.h"
+#include "../rr_demo.h"
 #include "../rr_setup.h"
 #include "../../d_main.h"
 #include "../../w_wad.h"
@@ -694,6 +695,13 @@ void RR_CleanupEmoteFrames(void) {
 
 /** Initialize anything relating to RadioRacers */
 void RR_Init(void) {
+    if (dedicated)
+        return;
+        
+#ifndef ENABLE_RADIO_DEMOS
+    RR_InitDemoCommands();
+#endif
+    
     if (found_radioracers) {
         // Yeah
         radio_ding_sound = S_AddSoundFx("emenup", false, 0, false);
