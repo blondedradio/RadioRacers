@@ -69,6 +69,9 @@
 #include "radioracers/rr_cvar.h" // cv_holdbuttonforscoreboard
 #include "radioracers/rr_hud.h"
 #include "radioracers/rr_video.h"
+#ifndef ENABLE_RADIO_DEMOS
+#include "radioracers/rr_demo.h"
+#endif
 
 // coords are scaled
 #define HU_INPUTX 0
@@ -1134,6 +1137,11 @@ void HU_Ticker(void)
 	// RADIO
 	if (hu_radio_tick > 0)
 		hu_radio_tick--;
+	
+	
+#ifndef ENABLE_RADIO_DEMOS
+	RR_DemoTicker();
+#endif
 }
 
 static boolean teamtalk = false;
@@ -1243,6 +1251,8 @@ void HU_clearChatChars(void)
 // Handle HU_Responder for Radio-related functionality
 static boolean RR_HU_Responder(INT32 c)
 {
+	RR_UpdateEmoteChatInputLog();
+
 	if (c == KEY_ENTER)
 	{
 		if (!CHAT_MUTE)
@@ -1255,6 +1265,7 @@ static boolean RR_HU_Responder(INT32 c)
 				RR_ResetEmoteSearchQuery();
 			}
 			HU_sendChatMessage();
+			RR_RemoveEmoteChatInputLog();
 		}
 		
 		RR_ResetEmoteSearchQuery();
@@ -1379,6 +1390,12 @@ static boolean RR_HU_Responder(INT32 c)
 			return true;
 		}
 
+		// If we're deleting an emote from the chat, delete the whole string
+		if (!is_emote_menu_on && !is_emote_preview_on) {
+			if(RR_CheckChatDeleteEmoteForInput()) 
+				return true;
+		}
+
 		memmove(&w_chat[c_input - 1], &w_chat[c_input], strlen(w_chat) - c_input + 1);
 		c_input--;
 	}
@@ -1443,6 +1460,7 @@ boolean HU_Responder(event_t *ev)
 			teamtalk = false;
 			chat_scrollmedown = true;
 			typelines = 1;
+			RR_RemoveEmoteChatInputLog();
 			return true;
 		}
 		if ((ev->data1 == gamecontrol[0][gc_teamtalk][0] || ev->data1 == gamecontrol[0][gc_teamtalk][1]
@@ -1454,6 +1472,7 @@ boolean HU_Responder(event_t *ev)
 			teamtalk = G_GametypeHasTeams();	// Don't teamtalk if we don't have teams.
 			chat_scrollmedown = true;
 			typelines = 1;
+			RR_RemoveEmoteChatInputLog();
 			return true;
 		}
 	}
@@ -1938,44 +1957,60 @@ static void HU_DrawChat(void)
 	}
 	else
 	{
-		msg = CHAT_WordWrap(
-			boxw-4,
-			scale,
-			V_SNAPTOBOTTOM|V_SNAPTOLEFT,
-			va("%c%s %c%s%c%c", cflag, talk, tflag, w_chat, '\x80', '_')
-		);
+		if (cv_chat_emotes.value && cv_chat_emotes_preview.value) {
+			chat_input_parameters_t parameters = {
+				.boxw = boxw,
+				.scale = scale,
+				.flags = V_SNAPTOBOTTOM|V_SNAPTOLEFT,
+				.talk = talk,
+				.y = y,
+				.chatx = chatx,
+				.charheight = charheight
+			};
 
-		for (; msg[i]; i++) // iterate through msg
-		{
-			if (msg[i] != '\n') // get back down.
-				continue;
-
-			typelines++;
-		}
-
-		// This is removed after the fact to not have the newline handling flicker.
-		if (i != 0 && hu_tick >= 4)
-		{
-			msg[i-1] = '\0';
+			typelines = RR_DrawChatInput(parameters, &y);
+		} else {
+			msg = CHAT_WordWrap(
+				boxw-4,
+				scale,
+				V_SNAPTOBOTTOM|V_SNAPTOLEFT,
+				va("%c%s %c%s%c%c", cflag, talk, tflag, w_chat, '\x80', '_')
+			);
+	
+			for (; msg[i]; i++) // iterate through msg
+			{
+				if (msg[i] != '\n') // get back down.
+					continue;
+	
+				typelines++;
+			}
+	
+			// This is removed after the fact to not have the newline handling flicker.
+			if (i != 0 && hu_tick >= 4)
+			{
+				msg[i-1] = '\0';
+			}
 		}
 	}
 
-	y -= typelines * charheight;
-
-	V_DrawFillConsoleMap(chatx, y-1, boxw, (typelines*charheight), 159 | V_SNAPTOBOTTOM | V_SNAPTOLEFT);
-
-	V_DrawStringScaled(
-		(chatx + 2) << FRACBITS,
-		y << FRACBITS,
-		scale, FRACUNIT, FRACUNIT,
-		V_SNAPTOBOTTOM|V_SNAPTOLEFT,
-		NULL,
-		HU_FONT,
-		msg ? msg : talk
-	);
-
-	if (msg)
-		Z_Free(msg);
+	if (!cv_chat_emotes.value || cv_chat_emotes.value && !cv_chat_emotes_preview.value) {
+		y -= typelines * charheight;
+	
+		V_DrawFillConsoleMap(chatx, y-1, boxw, (typelines*charheight), 159 | V_SNAPTOBOTTOM | V_SNAPTOLEFT);
+	
+		V_DrawStringScaled(
+			(chatx + 2) << FRACBITS,
+			y << FRACBITS,
+			scale, FRACUNIT, FRACUNIT,
+			V_SNAPTOBOTTOM|V_SNAPTOLEFT,
+			NULL,
+			HU_FONT,
+			msg ? msg : talk
+		);
+	
+		if (msg)
+			Z_Free(msg);
+	}
 
 	// handle /pm list. It's messy, horrible and I don't care.
 	if (!CHAT_MUTE && !teamtalk && vid.width >= 640 && strnicmp(w_chat, "/pm", 3) == 0) // 320x200 unsupported kthxbai

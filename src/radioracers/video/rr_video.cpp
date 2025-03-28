@@ -673,7 +673,7 @@ void V_RR_DrawStringScaled(
 	const char* s,
     int chat_log_index,
 	std::vector<int> lines_with_emotes,
-	boolean is_mini_log,
+	chat_log_type_t log_type,
 	boolean contains_text = true,
 	int top_offset = 0,
 	int bottom_offset = 0
@@ -821,7 +821,7 @@ void V_RR_DrawStringScaled(
         case '\x01':
             // Emote logic
             if (cx < right) {
-				auto emote_fetch = emote_fetch_map[is_mini_log ? (chat_log_type_t::MINI) : (chat_log_type_t::MAIN)]; 
+				auto emote_fetch = emote_fetch_map[log_type]; 
 
                 if (emote_fetch(chat_log_index, emote_tracker_idx) != nullptr) {
 
@@ -1056,9 +1056,9 @@ fixed_t V_RR_StringScaledWidth(
 				break;
 			case '\x01':
 				// Emote logic
-				if (emote_fetch_map[chat_log_type_t::MINI](chat_log_index, emote_tracker_idx) != nullptr) {
+				if (emote_fetch_map[chat_log_type_t::CLT_MINI](chat_log_index, emote_tracker_idx) != nullptr) {
 
-					emote_t* emote = emote_fetch_map[chat_log_type_t::MINI](chat_log_index, emote_tracker_idx);
+					emote_t* emote = emote_fetch_map[chat_log_type_t::CLT_MINI](chat_log_index, emote_tracker_idx);
 
                     INT32 width = getEmotePatchWidthDirectly(emote, contains_text);
                     cw = SHORT(width) * dupx;
