@@ -1,0 +1,29 @@
+name: Build radioracers and radioracers_plus files
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Init Python 
+        uses: actions/setup-python@v5
+        with: 
+            python-version: '3.13'
+
+      - name: Build radioracers.pk3
+        run: python radio/pk3/pk3make.py radio/pk3/build/radioracers.txt --force -o radio/pk3/out/radioracers.pk3
+
+      - name: Build radioracers_plus.pk3
+        run: python radio/pk3/pk3make.py radio/pk3/build/radioracers_plus.txt --force -o radio/pk3/out/radioracers_plus.pk3
+
+      - name: Upload radioracers and radioracers_plus
+        uses: actions/upload-artifact@v4
+        with:
+            name: radioracers_assets
+            path: radio/pk3/out/
+          
