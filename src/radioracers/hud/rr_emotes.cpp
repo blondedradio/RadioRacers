@@ -22,6 +22,7 @@
 #include "../../d_clisrv.h"
 #include "../../deh_soc.h"
 #include "../../s_sound.h"
+#include "../../i_time.h"
 
 #define EMOTE_MENU_QUERY_SIZE 26 // query + '_'
 #define ROWS 5
@@ -628,6 +629,107 @@ INT32 RR_Parse_ChatMiniLog_For_Lines(
     return msglines;
 }
 
+/**
+ * Used for the chat input window and mini log chat messages.
+ * Unlike the chat log, these draw their own windows so the padding needs to be handled
+ * a bit differently.
+ */
+static void ParseMessageForChatWindow(
+    UINT32 *j,
+    char* msg,
+    INT32 *linescount,
+    int *emote_lines,
+    boolean *line_has_emote_ref,
+    boolean *had_at_least_one_emote_ref
+) {
+    boolean line_has_emote = false;
+    boolean line_checked_for_emote = false;
+    boolean previous_line_had_emote = false;
+    boolean previous_line_checked = false;
+    boolean had_at_least_one_emote = false;
+    
+    for (; msg[*j]; (*j)++) // iterate through msg
+    {
+        if (msg[*j] == '\x01')
+        {				
+            if (!line_checked_for_emote) {
+                if(!line_has_emote) {
+                    previous_line_had_emote = false;
+                    line_has_emote = true;
+                    line_checked_for_emote = true;
+
+                    had_at_least_one_emote = true;
+
+                    (*emote_lines)++;
+                }
+            }
+        } else {				
+            if (previous_line_had_emote) {
+                // extra_y_padding += 4;
+                // (*emote_lines)++;
+                previous_line_had_emote = false;
+                previous_line_checked = true;
+            }
+        }
+
+        if (msg[*j] != '\n') // get back down.
+            continue;
+
+        if (msg[*j] == '\n')
+        {
+            previous_line_had_emote = line_has_emote;
+            previous_line_checked = false;
+            line_has_emote = false;
+            line_checked_for_emote = false;	
+        }
+
+        (*linescount)++;
+    }
+
+    *line_has_emote_ref = line_has_emote;
+    *had_at_least_one_emote_ref = had_at_least_one_emote;
+}
+
+
+bool contains(const std::vector<int>& vec, int value) {
+    return std::find(vec.begin(), vec.end(), value) != vec.end();
+}
+
+static INT16 GetChatHeightPaddingForWindow(
+    INT32 charheight,
+    INT32 emote_lines,
+    INT32 typelines,
+    word_wrap_results_t r
+) {
+    INT16 chatinput_h = typelines * charheight;
+
+    /**
+     * Padding
+     */
+    if (typelines > 1) {
+        INT16 firstlineheight = 1 * charheight;
+        INT32 adjusted_emotelines = emote_lines;
+        INT32 adjusted_typelines = typelines;
+        if(!r.lines_with_emotes.empty() && r.contains_text && contains(r.lines_with_emotes, 1)) {
+            firstlineheight = (charheight) + (EMOTE_PADDING_CONST_TEXT);
+
+            // emote_lines minus the first line
+            adjusted_emotelines = emote_lines - 1;
+            // typelines minus the first line
+            adjusted_typelines = typelines - 1;
+            chatinput_h = firstlineheight + ((adjusted_typelines + adjusted_emotelines) * charheight);
+        } else if(!r.lines_with_emotes.empty()) {
+            chatinput_h = ((typelines + emote_lines) * charheight);
+        } else {
+            chatinput_h = typelines * charheight;
+        }
+    } else {
+        chatinput_h = (typelines + emote_lines) * charheight;
+    }
+
+    return chatinput_h;
+}
+
 void RR_Draw_ChatMiniLog(chat_mini_log_parameters_t parameters) {
     INT32 boxw = parameters.boxw;
     INT32 charheight = parameters.charheight;
@@ -641,7 +743,7 @@ void RR_Draw_ChatMiniLog(chat_mini_log_parameters_t parameters) {
 	{
         INT32 timer = ((cv_chattime.value*TICRATE)-chat_timers[i]) - cv_chattime.value*TICRATE+9; // see below...
         INT32 transflag = (timer >= 0 && timer <= 9) ? (timer*V_10TRANS) : 0; // you can make bad jokes out of this one.
-		size_t j = 0;
+		UINT32 j = 0;
         
         word_wrap_results_t results = RR_CHAT_Mini_WordWrap(boxw-4, scale, V_SNAPTOBOTTOM|V_SNAPTOLEFT, chat_mini[i], i); // get the current message, and word wrap it.
 		char *msg = results.msg;
@@ -650,61 +752,33 @@ void RR_Draw_ChatMiniLog(chat_mini_log_parameters_t parameters) {
 
         // Yeah
 		boolean line_has_emote = false;
-		boolean line_checked_for_emote = false;
-		boolean previous_line_had_emote = false;
-		boolean previous_line_checked = false;
 		boolean had_at_least_one_emote = false;
 
 		int emote_lines = 0;
-		for (; msg[j]; j++) // iterate through msg
-		{
-			if (msg[j] == '\x01')
-			{				
-				if (!line_checked_for_emote) {
-					if(!line_has_emote) {
-						previous_line_had_emote = false;
-						line_has_emote = true;
-						line_checked_for_emote = true;
 
-						had_at_least_one_emote = true;
+        ParseMessageForChatWindow(
+            &j,
+            msg,
+            &linescount,
+            &emote_lines,
+            &line_has_emote,
+            &had_at_least_one_emote
+        );
 
-						// for every line with an emote, add another line
-						if (!previous_line_checked)
-							linescount++;
-
-						emote_lines++;
-					}
-				}
-			} else {				
-				if (previous_line_had_emote) {
-					// extra_y_padding += 4;
-					linescount++;
-					previous_line_had_emote = false;
-					previous_line_checked = true;
-				}
-			}
-
-			if (msg[j] != '\n') // get back down.
-				continue;
-
-			if (msg[j] == '\n')
-			{
-				previous_line_had_emote = line_has_emote;
-				previous_line_checked = false;
-				line_has_emote = false;
-				line_checked_for_emote = false;	
-			}
-
-			linescount++;
-		}
-
+        INT32 final_height = 0;
 		if (cv_chatbacktint.value) // on request of wolfy
 		{
 			INT32 width = V_RR_StringWidth(msg, 0, i, results.contains_text);
 			if (vid.width >= 640)
 				width /= 2;		
 
-            INT32 final_height = charheight * linescount;
+            final_height = GetChatHeightPaddingForWindow(
+                charheight,
+                emote_lines,
+                linescount,
+                results
+            );
+
 			V_DrawFillConsoleMap(
 				(*x)-2, (*y),
 				width+4,
@@ -730,26 +804,23 @@ void RR_Draw_ChatMiniLog(chat_mini_log_parameters_t parameters) {
             0
 		);
         
-		(*y) += charheight * linescount;
+		(*y) += (final_height != 0) ? final_height : charheight * linescount;
 
 		if (msg)
 			Z_Free(msg);
 	}
 }
 
+
 INT16 RR_DrawChatInput(chat_input_parameters_t p, INT32 *chaty) {
     const fixed_t scale = (vid.width < 640) ? FRACUNIT : FRACUNIT/2;
 
-    UINT32 i = 0;
-    INT16 typelines = 1;
-    INT16 emote_lines = 0;
-
-    const char* haha = va("%c%s %c%s%c%c", '\x80', p.talk, '\x80', w_chat, '\x80', '_');
+    const char* fmt_msg = va("%c%s %c%s%c%c", '\x80', p.talk, '\x80', w_chat, '\x80', '_');
     word_wrap_results_t r = RR_Chat_Input_WordWrap(
         p.boxw-4, 
         scale, 
         p.flags, 
-        haha
+        fmt_msg
     );
 
     INT32 y = p.y;
@@ -757,52 +828,20 @@ INT16 RR_DrawChatInput(chat_input_parameters_t p, INT32 *chaty) {
     char* msg = r.msg;
 
     boolean line_has_emote = false;
-    boolean line_checked_for_emote = false;
-    boolean previous_line_had_emote = false;
-    boolean previous_line_checked = false;
     boolean had_at_least_one_emote = false;
 
-    for (; msg[i]; i++) // iterate through msg
-    {
-        if (msg[i] == '\x01')
-        {				
-            if (!line_checked_for_emote) {
-                if(!line_has_emote) {
-                    previous_line_had_emote = false;
-                    line_has_emote = true;
-                    line_checked_for_emote = true;
-
-                    had_at_least_one_emote = true;
-
-                    // for every line with an emote, add another line
-                    if (!previous_line_checked)
-                        ;
-                    emote_lines++;
-
-                }
-            }
-        } else {				
-            if (previous_line_had_emote) {
-                // extra_y_padding += 4;
-                emote_lines++;
-                previous_line_had_emote = false;
-                previous_line_checked = true;
-            }
-        }
-
-        if (msg[i] != '\n') // get back down.
-            continue;
-
-        if (msg[i] == '\n')
-        {
-            previous_line_had_emote = line_has_emote;
-            previous_line_checked = false;
-            line_has_emote = false;
-            line_checked_for_emote = false;	
-        }
-
-        typelines++;
-    }
+    UINT32 i = 0;
+    INT32 typelines = 1;
+    INT32 emote_lines = 0;
+    
+    ParseMessageForChatWindow(
+        &i,
+        msg,
+        &typelines,
+        &emote_lines,
+        &line_has_emote,
+        &had_at_least_one_emote
+    );
 
     // This is removed after the fact to not have the newline handling flicker.
     if (i != 0 && hu_tick >= 4)
@@ -813,7 +852,17 @@ INT16 RR_DrawChatInput(chat_input_parameters_t p, INT32 *chaty) {
     y -= typelines * p.charheight;
     *chaty = (y + (emote_lines*p.charheight));
 
-    V_DrawFillConsoleMap(p.chatx, y-1, p.boxw, ((typelines + emote_lines) *p.charheight), 159 | p.flags);
+    INT16 chatinput_h = GetChatHeightPaddingForWindow(
+        p.charheight,
+        emote_lines,
+        typelines,
+        r
+    );
+
+    if (had_at_least_one_emote && !line_has_emote) {
+        chatinput_h += EMOTE_PADDING_CONST_TEXT;
+    }
+    V_DrawFillConsoleMap(p.chatx, y-1, p.boxw, chatinput_h, 159 | p.flags);
 	
     int y_padding = (r.contains_text) ? EMOTE_PADDING_CONST_TEXT : EMOTE_PADDING_CONST;
     V_RR_DrawStringScaled(
@@ -1087,6 +1136,30 @@ static void draw_normal_emote(emote_t* emote, INT16 x, INT16 y, INT32 scale)
         final_scale,
         V_SNAPTOBOTTOM | V_SNAPTOLEFT,
         emote_patch,
+        NULL
+    );
+}
+
+static void draw_select_cursor(INT16 x, INT16 y, INT32 scale)
+{
+    float scale_f = static_cast<float>(scale);
+
+    UINT8 cursorframe = (I_GetTime()/4) % 8;
+    patch_t* cursor_patch = static_cast<patch_t*>(W_CachePatchName(
+        va("K_CHILI%d", cursorframe+1), PU_HUDGFX
+    ));
+
+    fixed_t final_scale = FloatToFixed(std::min(
+        scale_f/cursor_patch->width, scale_f/cursor_patch->height
+    ));
+
+    V_DrawStretchyFixedPatch(
+        (x) << FRACBITS,
+        (y) << FRACBITS,
+        final_scale,
+        final_scale,
+        V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+        cursor_patch,
         NULL
     );
 }
@@ -1400,6 +1473,50 @@ void RR_CheckChatEnterforEmoteMenu(void)
     hu_radio_tick = 3;
 }
 
+static void wrap_emote_menu(INT32 direction) {
+
+    size_t total_emotes_on_page = get_max_emotes_on_menu_page();
+    size_t max_rows = (total_emotes_on_page + ROWS - 1)/ROWS;
+
+    size_t current_row = emote_menu_selection / ROWS;
+
+    // If we're on row 3, but the next page only has two rows, you'd want to be on row 2
+    size_t last_valid_row = std::min(current_row, max_rows - 1);
+
+    // Puts us at the very start of the row (column 1)
+    size_t start_column = last_valid_row * COLUMNS;
+
+    if (direction < 1) {
+        // Going back a page
+
+        /**
+         * 
+         * Page 3, on row 3, going back to page 2, with only two rows.
+         *      last_valid_row = 1; (2 - 1, zero indexing)
+         * That puts the cursor at the beginning of the row:
+         *      start_column = 1 * COLUMNS = 1 * 5 = 5
+         * 
+         * Now, try and get the furthest column (to the right):
+         *  A row can either have COLUMNS emotes or.. as many as can fit in that row.
+         * 
+         * So if page 2 only has 8 emotes...
+         *      std::min(4, (8 - 1 - (1*5)))
+         *      std::min(4, 2)
+         *      max_column = 5 + 2 = 7 
+         * 
+         * That puts us at the furthest right column (8-1)
+         */
+        size_t max_column = start_column + std::min(
+            COLUMNS - 1, 
+            signed(total_emotes_on_page - 1 - (last_valid_row * COLUMNS))
+        );
+        emote_menu_selection = max_column;
+    } else {
+        // Going forward
+        emote_menu_selection = start_column;
+    }    
+}
+
 void RR_CheckEmoteMenuMovement(INT32 direction)
 {
     // there can only be (ROWS * COLUMNS) per page
@@ -1409,8 +1526,8 @@ void RR_CheckEmoteMenuMovement(INT32 direction)
         return;
     }
     
-    size_t row_start = ((emote_menu_selection) / COLUMNS) * COLUMNS;
-    size_t row_end = std::min(row_start + (COLUMNS - 1), total_emotes_on_page - 1);
+    size_t column_start = ((emote_menu_selection) / COLUMNS) * COLUMNS;
+    size_t column_end = std::min(column_start + (COLUMNS - 1), total_emotes_on_page - 1);
     size_t max_page = get_max_pages_for_emote_menu();
     
     switch (direction) {
@@ -1427,24 +1544,26 @@ void RR_CheckEmoteMenuMovement(INT32 direction)
             }
             break;
         case KEY_LEFTARROW:
-            if (emote_menu_selection > row_start) {
+            if (emote_menu_selection > column_start) {
                 emote_menu_selection--;
             } else {
                 emote_menu_page = (emote_menu_page - 1 < 1) ? max_page : emote_menu_page - 1;
                 menu_emotes.clear();
                 update_emote_menu_emotes();
-                emote_menu_selection = 0;
+
+                wrap_emote_menu(0);
             }
             S_StartSound(NULL, sfx_menu1);
             break;
         case KEY_RIGHTARROW:
-            if (emote_menu_selection < row_end) {
+            if (emote_menu_selection < column_end) {
                 emote_menu_selection++;
             } else {
                 emote_menu_page = (emote_menu_page + 1 > max_page) ? 1 : emote_menu_page + 1;
                 menu_emotes.clear();
                 update_emote_menu_emotes();
-                emote_menu_selection = 0;
+                
+                wrap_emote_menu(1);
             }
             S_StartSound(NULL, sfx_menu1);
             break;
@@ -1636,13 +1755,19 @@ void RR_DrawChatEmoteMenu(
                     select_x = row_x;
                     select_y = row_y;
                 }
-                V_DrawFill(
-                    select_x,
-                    select_y,
-                    select_w_h,
-                    select_w_h,
-                    bg_colour | V_SNAPTOBOTTOM | V_SNAPTOLEFT
-                );
+
+                if (W_LumpExists("K_CHILI1")) {
+                    draw_select_cursor(select_x, select_y, select_w_h);
+                } else {
+                    V_DrawFill(
+                        select_x,
+                        select_y,
+                        select_w_h,
+                        select_w_h,
+                        bg_colour | V_SNAPTOBOTTOM | V_SNAPTOLEFT
+                    );
+                }
+
             }
             
             if(m_emote->atlas_id != -1) {
