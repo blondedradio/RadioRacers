@@ -17,7 +17,7 @@ Follow the [instructions](#building-from-source) in the original README to compi
 If you're on Windows 10 (or above), try following [this](https://blondedradio.github.io/rr-compile-windows-guide/) guide.
 
 ### Assets
-Check the [latest release](https://github.com/blondedradio/RadioRacers/releases/latest-radio-assets/) for the `radioracers_assets.zip` file, or get it directly [here](https://github.com/blondedradio/RadioRacers/releases/latest-radio-assets/download/radioracers_assets.zip).  
+Check the [latest release](https://github.com/blondedradio/RadioRacers/releases/latest-radio-assets/) for the `radioracers_assets.zip` file, or get it directly [here](https://github.com/blondedradio/RadioRacers/releases/download/latest-radio-assets/radioracers_assets.zip).  
 
 ### Building assets
 <details>
