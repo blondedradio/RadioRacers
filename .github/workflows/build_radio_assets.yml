@@ -13,7 +13,7 @@ jobs:
       - name: Init Python 
         uses: actions/setup-python@v5
         with: 
-            python-version: '3.13'
+            python-version: '3.x'
 
       - name: Build radioracers.pk3
         run: python radio/pk3/pk3make.py radio/pk3/build/radioracers.txt --force -o radio/pk3/out/radioracers.pk3 -b radio/pk3/src/radioracers
@@ -21,9 +21,16 @@ jobs:
       - name: Build radioracers_plus.pk3
         run: python radio/pk3/pk3make.py radio/pk3/build/radioracers_plus.txt --force -o radio/pk3/out/radioracers_plus.pk3 -b radio/pk3/src/radioracers_plus
 
-      - name: Upload radioracers and radioracers_plus
-        uses: actions/upload-artifact@v4
+      - name: Zip the assets
+        run: |
+          cd radio/pk3/out
+          zip radioracers_assets.zip radioracers.pk3 radioracers_plus.pk3
+          mv radioracers_assets.zip ../../
+
+      - name: Upload radioracers and radioracers_plus as github release
+        uses: softprops/action-gh-release@v2
         with:
-            name: radioracers_assets
-            path: radio/pk3/out/
+            tag_name: latest
+            token: ${{ secrets.GITHUB_TOKEN }}
+            files: radioracers_assets.zip
           
