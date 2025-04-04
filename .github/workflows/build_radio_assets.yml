@@ -16,10 +16,10 @@ jobs:
             python-version: '3.13'
 
       - name: Build radioracers.pk3
-        run: python radio/pk3/pk3make.py radio/pk3/build/radioracers.txt --force -o radio/pk3/out/radioracers.pk3
+        run: python radio/pk3/pk3make.py radio/pk3/build/radioracers.txt --force -o radio/pk3/out/radioracers.pk3 -b radio/pk3/src/radioracers
 
       - name: Build radioracers_plus.pk3
-        run: python radio/pk3/pk3make.py radio/pk3/build/radioracers_plus.txt --force -o radio/pk3/out/radioracers_plus.pk3
+        run: python radio/pk3/pk3make.py radio/pk3/build/radioracers_plus.txt --force -o radio/pk3/out/radioracers_plus.pk3 -b radio/pk3/src/radioracers_plus
 
       - name: Upload radioracers and radioracers_plus
         uses: actions/upload-artifact@v4
