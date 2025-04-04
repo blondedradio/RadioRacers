@@ -25,12 +25,35 @@ jobs:
         run: |
           cd radio/pk3/out
           zip radioracers_assets.zip radioracers.pk3 radioracers_plus.pk3
-          mv radio/pk3/outradioracers_assets.zip ../../
+          mv radioracers_assets.zip ../../
 
+      # Just print a directory tree of the radioracers folder
+
+      - name: Get tree 
+        run: sudo apt-get install -y tree
+      
+      - name: Generate release notes
+        run: |
+          cat << EOF > release_notes.md
+          Built on **$(date +'%Y-%m-%d %H:%M:%S')**  
+
+          ### Assets:
+          - **radioracers.pk3**
+          \`\`\`
+          $(tree radio/pk3/src/radioracers)
+          \`\`\`
+
+          - **radioracers_plus.pk3**
+          \`\`\`
+          $(tree radio/pk3/src/radioracers_plus)
+          \`\`\`
+          EOF
+        
       - name: Upload radioracers and radioracers_plus as github release
         uses: softprops/action-gh-release@v2
         with:
-            tag_name: latest
+            tag_name: latest-radio-rassets
             token: ${{ secrets.GITHUB_TOKEN }}
             files: radioracers_assets.zip
+            body_path: release_notes.md
           
