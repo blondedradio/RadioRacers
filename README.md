@@ -16,7 +16,15 @@ Follow the [instructions](#building-from-source) in the original README to compi
 
 If you're on Windows 10 (or above), try following [this](https://blondedradio.github.io/rr-compile-windows-guide/) guide.
 
-### Building the assets
+### Assets
+Check the [latest release](https://github.com/blondedradio/RadioRacers/releases/latest-radio-assets/) for the `radioracers_assets.zip` file, or get it directly [here](https://github.com/blondedradio/RadioRacers/releases/latest-radio-assets/download/radioracers_assets.zip).  
+
+### Building assets
+<details>
+  <summary> If you want to try it yourself.</summary>
+
+  <p></p>
+
   > [!IMPORTANT]  
   >  You **will** need [Python](https://www.python.org/) in order to do this systematically.
   
@@ -40,6 +48,7 @@ Otherwise, you can always build the assets yourself by running `pk3make.py` in `
 python ./pk3make.py ./build/radioracers.txt
 python ./pk3make.py ./build/radioracers_plus.txt
 ```
+</details>
 
 ## Features
 
