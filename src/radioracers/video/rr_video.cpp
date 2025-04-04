@@ -553,6 +553,7 @@ word_wrap_results_t V_RR_ScaledWordWrap(
 
 				// Look ahead
 				if (!line_checked_for_emotes) {
+					// CONS_Printf("emote found on line %d\n", current_line);
 					lines_with_emotes.push_back(current_line);
 					line_checked_for_emotes = true;
 				}
@@ -623,6 +624,9 @@ word_wrap_results_t V_RR_ScaledWordWrap(
 
 				// Reset this here, otherwise it only gets caught in the '\n' case
 				ex = 0;
+				if (line_checked_for_emotes) {
+					line_checked_for_emotes = false;
+				}
 			}
 			else
 			{
@@ -787,13 +791,12 @@ void V_RR_DrawStringScaled(
 	cy = y;
 	cyoff = 0;
 
-	int count = 0;
+	int count = 1;
 	for (; (c = *s); ++s, ++dancecounter)
 	{
 		switch (c)
 		{
 		case '\n':
-			count++;
 			// CONS_Printf("break #%d\n", count);
 
 			previous_line_had_emote = line_has_emote;
@@ -810,9 +813,17 @@ void V_RR_DrawStringScaled(
 			cy += fontspec.lfh;
 			// Look-ahead
 			if(doesNextLineHaveEmote(count, lines_with_emotes)) {
-				cy += __PADDING;
+				// CONS_Printf("[D]: emote on next line %d\n", count+1);
+
+				if (previous_line_had_emote) {
+					cy += __PADDING + __PADDING;
+				} else {
+					cy += __PADDING;
+				}
 				line_has_emote = true;
 			}
+
+			count++;
 
 			if (cy >= bot)
 				return;
@@ -824,6 +835,7 @@ void V_RR_DrawStringScaled(
 				auto emote_fetch = emote_fetch_map[log_type]; 
 
                 if (emote_fetch(chat_log_index, emote_tracker_idx) != nullptr) {
+					// CONS_Printf("yo\n");
 
 					if (check_for_emotes && line_has_emote == false)
 					{

@@ -1127,16 +1127,16 @@ void HU_Ticker(void)
 	if (cechotimer)
 		cechotimer--;
 
+	// RADIO
+	if (hu_radio_tick > 0)
+		hu_radio_tick--;
+	
 	if (gamestate != GS_LEVEL)
 	{
 		return;
 	}
 
 	resynch_ticker++;
-
-	// RADIO
-	if (hu_radio_tick > 0)
-		hu_radio_tick--;
 	
 	
 #ifndef ENABLE_RADIO_DEMOS
@@ -1251,8 +1251,6 @@ void HU_clearChatChars(void)
 // Handle HU_Responder for Radio-related functionality
 static boolean RR_HU_Responder(INT32 c)
 {
-	RR_UpdateEmoteChatInputLog();
-
 	if (c == KEY_ENTER)
 	{
 		if (!CHAT_MUTE)
@@ -1957,6 +1955,7 @@ static void HU_DrawChat(void)
 	}
 	else
 	{
+		RR_UpdateEmoteChatInputLog();
 		if (cv_chat_emotes.value && cv_chat_emotes_preview.value) {
 			chat_input_parameters_t parameters = {
 				.boxw = boxw,
