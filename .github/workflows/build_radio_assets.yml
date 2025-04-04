@@ -25,7 +25,7 @@ jobs:
         run: |
           cd radio/pk3/out
           zip radioracers_assets.zip radioracers.pk3 radioracers_plus.pk3
-          mv radioracers_assets.zip ../../
+          mv radio/pk3/outradioracers_assets.zip ../../
 
       - name: Upload radioracers and radioracers_plus as github release
         uses: softprops/action-gh-release@v2
