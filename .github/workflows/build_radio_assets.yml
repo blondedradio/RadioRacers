@@ -52,7 +52,7 @@ jobs:
       - name: Upload radioracers and radioracers_plus as github release
         uses: softprops/action-gh-release@v2
         with:
-            tag_name: latest-radio-rassets
+            tag_name: latest-radio-assets
             token: ${{ secrets.GITHUB_TOKEN }}
             files: radioracers_assets.zip
             body_path: release_notes.md
