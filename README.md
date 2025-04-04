@@ -18,6 +18,7 @@ If you're on Windows 10 (or above), try following [this](https://blondedradio.gi
 
 ### Assets
 Check the [latest release](https://github.com/blondedradio/RadioRacers/releases/latest-radio-assets/) for the `radioracers_assets.zip` file, or get it directly [here](https://github.com/blondedradio/RadioRacers/releases/download/latest-radio-assets/radioracers_assets.zip).  
+Extract the assets into the **_same folder_** where you have installed Ring Racers (where the executable is).
 
 ### Building assets
 <details>
