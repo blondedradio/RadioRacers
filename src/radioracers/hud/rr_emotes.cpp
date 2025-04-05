@@ -22,7 +22,7 @@
 #include "../../d_clisrv.h"
 #include "../../deh_soc.h"
 #include "../../s_sound.h"
-#include "../../i_time.h"
+#include "../../p_tick.h"
 
 #define EMOTE_MENU_QUERY_SIZE 26 // query + '_'
 #define ROWS 5
@@ -1144,7 +1144,11 @@ static void draw_select_cursor(INT16 x, INT16 y, INT32 scale)
 {
     float scale_f = static_cast<float>(scale);
 
-    UINT8 cursorframe = (I_GetTime()/4) % 8;
+    // I _think_ I_GetTime() is causing a crash here at some point? 
+    // So to be safe, just gonna use leveltime. Won't work during vote screens/intermissions, but still.
+    // TODO: Define own tick when confident that the random crash issue is squashed
+
+    UINT8 cursorframe = (leveltime/4) % 8;
     patch_t* cursor_patch = static_cast<patch_t*>(W_CachePatchName(
         va("K_CHILI%d", cursorframe+1), PU_HUDGFX
     ));
@@ -1507,14 +1511,24 @@ static void wrap_emote_menu(INT32 direction) {
          * That puts us at the furthest right column (8-1)
          */
         size_t max_column = start_column + std::min(
-            COLUMNS - 1, 
-            signed(total_emotes_on_page - 1 - (last_valid_row * COLUMNS))
+            static_cast<size_t>(COLUMNS - 1), 
+            total_emotes_on_page > (last_valid_row * COLUMNS)
+            ? total_emotes_on_page - 1 - (last_valid_row * COLUMNS)
+            : 0
         );
         emote_menu_selection = max_column;
     } else {
         // Going forward
         emote_menu_selection = start_column;
     }    
+
+    std::vector<emote_t*> *current_emotes = get_current_emote_list();
+    boolean selection_too_large = current_emotes != nullptr && emote_menu_selection >= current_emotes->size();
+
+    // Another obligatory check
+    if (selection_too_large) {
+        emote_menu_selection = 0;
+    }
 }
 
 void RR_CheckEmoteMenuMovement(INT32 direction)
