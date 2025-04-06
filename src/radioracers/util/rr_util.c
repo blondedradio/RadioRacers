@@ -63,6 +63,7 @@ void RR_AnnounceBattleWinner(player_t *player, battle_win_type_t type)
         return;
     }
 
+    // va causes crashes sometimes but ONLY semi-rarely, weird.
     HU_DoCEcho(va(BATTLE_WIN_MESSAGES[type], player_names[player-players]));    
 }
 
