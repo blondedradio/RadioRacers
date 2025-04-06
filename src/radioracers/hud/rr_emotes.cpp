@@ -1527,6 +1527,7 @@ static void wrap_emote_menu(INT32 direction) {
 
     // Another obligatory check
     if (selection_too_large) {
+        CONS_Printf("Something really funny happened, fixing\n");
         emote_menu_selection = 0;
     }
 }
