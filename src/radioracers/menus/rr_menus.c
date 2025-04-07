@@ -119,6 +119,9 @@ menuitem_t OPTIONS_RadioRacersHud[] =
 	{IT_HEADER, "General Options", NULL,
 		NULL, {NULL}, 0, 0},
 
+	{IT_STRING | IT_CVAR, "Input Display Type", "Toggle between the DIGITAL and ANALOG controller types in the input display.",
+		NULL, {.cvar = &cv_inputdisplaytoggle}, 0, 0},
+
 	{IT_STRING | IT_CVAR, "Hold Rankings Button", "Press and hold the rankings button to view the rankings, just like in SRB2Kart.",
 		NULL, {.cvar = &cv_holdbuttonforscoreboard}, 0, 0},
 	
@@ -321,7 +324,7 @@ void Roulette_OnChange(void)
 
 	UINT16 newstatus = (cv_rouletteonplayer.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
 
-	for (int i = 8; i < 12; i++) {
+	for (int i = 9; i < 13; i++) {
 		OPTIONS_RadioRacersHud[i].status = newstatus;
 	}
 }
