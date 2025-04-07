@@ -7705,7 +7705,12 @@ static void K_drawInput(void)
 	};
 	INT32 k = r_splitscreen <= 1 ? r_splitscreen : 2 + (viewnum & 1);
 	INT32 flags = def[k][2] | V_SPLITSCREEN;
-	char mode = ((stplyr->pflags & PF_ANALOGSTICK) ? '4' : '2') + (r_splitscreen > 1);
+
+	char mode = ((stplyr->pflags & PF_ANALOGSTICK) ? '4' : '2');
+	if (cv_inputdisplaytoggle.value) {
+		mode = cv_inputdisplaytoggle.value;
+	}
+	mode += (r_splitscreen > 1);
 	bool local = !demo.playback && P_IsMachineLocalPlayer(stplyr);
 	fixed_t slide = K_GetDialogueSlide(FRACUNIT);
 	INT32 tallySlide = []() -> INT32

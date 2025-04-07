@@ -602,6 +602,11 @@ consvar_t cv_hud_hidelapemblem = Player("hidelapemblem", "No").yes_no();
 consvar_t cv_hud_usehighresportraits = Player("usehighresportraits", "Yes").yes_no();
 // Restore SRB2Kart behaviour when viewing in-game rankings (i.e. having to hold the button)
 consvar_t cv_holdbuttonforscoreboard = Player("holdbuttonforscoreboard", "No").yes_no();
+// Toggle between ANALOG and DIGITAL input display
+consvar_t cv_inputdisplaytoggle = Player("inputdisplaytoggle", "Digital").values({
+	{'2', "Digital"}, 
+	{'4', "Analog"}
+});
 // Chat emotes
 consvar_t cv_chat_emotes = Player("chat_emotes", "On").on_off().onchange(RR_ChatEmotes_OnChange);
 consvar_t cv_chat_emotes_animated = Player("chat_emotes_animate", "On").on_off();
