@@ -70,6 +70,7 @@ extern consvar_t cv_hud_hideposition;  // Hide the bigass position bulbs at the 
 extern consvar_t cv_hud_hidelapemblem; // Hide the bigass lap emblem when you start a new lap
 extern consvar_t cv_hud_usehighresportraits; // Draw higher-res portraits in the minirankings
 extern consvar_t cv_holdbuttonforscoreboard; // Restore SRB2Kart behaviour when viewing in-game scoreboards
+extern consvar_t cv_inputdisplaytoggle; // Toggle betweeen DIGITAL and ANALOG input display controller
 extern consvar_t cv_show_riders_finish_ticker; // Show the Sonic Riders :tm: finish line ticker
 extern consvar_t cv_chat_emotes;                    // Self-explanatory
 extern consvar_t cv_chat_emotes_animated;           // Should emotes animate?
