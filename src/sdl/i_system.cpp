@@ -197,6 +197,7 @@ static char returnWadPath[256];
 #include "../r_fps.h"
 
 #include "../k_menu.h"
+#include "../radioracers/rr_setup.h"
 
 #ifdef MAC_ALERT
 #include "macosx/mac_alert.h"
@@ -1858,6 +1859,9 @@ FUNCNORETURN void ATTRNORETURN I_Quit(void)
 	quiting = SDL_FALSE;
 	M_SaveConfig(NULL); //save game config, cvars..
 	M_SaveJoinedIPs();
+
+	// RADIO
+	RR_SaveEmoteUsage();
 
 	// Make sure you lose points for ALT-F4
 	if (Playing())

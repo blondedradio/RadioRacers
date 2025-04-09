@@ -612,6 +612,10 @@ consvar_t cv_chat_emotes = Player("chat_emotes", "On").on_off().onchange(RR_Chat
 consvar_t cv_chat_emotes_animated = Player("chat_emotes_animate", "On").on_off();
 consvar_t cv_chat_emotes_button = Player("chat_emotes_button", "On").on_off();
 consvar_t cv_chat_emotes_preview = Player("chat_emotes_input_preview", "On").on_off();
+consvar_t cv_chat_emotes_sort = Player("chat_emotes_sort", "Alphabetical").values({
+	{0, "Alphabetical"},
+	{1, "Most Used"}
+}).onchange(RR_ChatEmoteSort_OnChange);
 
 /**
  * RadioRacers: END
