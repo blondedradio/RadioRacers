@@ -1236,6 +1236,9 @@ static void HU_sendChatMessage(void)
 		buf[1] = ((server || IsPlayerAdmin(consoleplayer)) && cv_autoshout.value) ? HU_SHOUT : 0; // flags
 
 		DoSayPacket(target, buf[1], consoleplayer, msg);
+
+		if (cv_chat_emotes.value)
+			RR_EmoteUsageCheckOnSend(msg);
 	}
 }
 
@@ -1349,6 +1352,10 @@ static boolean RR_HU_Responder(INT32 c)
 	else if (c == KEY_TAB && !OLDCHAT) {
 		if (is_emote_preview_on && !is_emote_menu_on) {
 			RR_SelectEmoteFromPreview();
+			return true;
+		}
+		if (!is_emote_preview_on && is_emote_menu_on) {
+			CV_AddValue(&cv_chat_emotes_sort, 1);
 			return true;
 		}
 	}
@@ -2003,7 +2010,7 @@ static void HU_DrawChat(void)
 		}
 	}
 
-	if (!cv_chat_emotes.value || cv_chat_emotes.value && !cv_chat_emotes_preview.value) {
+	if (!cv_chat_emotes.value || (cv_chat_emotes.value && !cv_chat_emotes_preview.value)) {
 		y -= typelines * charheight;
 	
 		V_DrawFillConsoleMap(chatx, y-1, boxw, (typelines*charheight), 159 | V_SNAPTOBOTTOM | V_SNAPTOLEFT);

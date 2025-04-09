@@ -25,6 +25,8 @@ extern sfxenum_t radio_ding_sound;
 extern void RR_Init(void);
 extern void RR_AddAllEmotes(UINT16 wadnum);
 extern void RR_CleanupEmoteFrames(void);
+extern void RR_SaveEmoteUsage(void);
+extern void RR_UpdateEmoteUsageVector(void);
 
 #ifdef __cplusplus
 } // extern "C"

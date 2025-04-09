@@ -16,6 +16,7 @@
 #include "../rr_hud.h"
 #include "../rr_video.h"
 #include "../rr_setup.h"
+#include "../rr_cvar.h"
 #include "../../z_zone.h"
 #include "../../v_video.h"
 #include "../../hu_stuff.h"
@@ -1329,9 +1330,26 @@ void RR_DrawChatEmotePreview(
  * RADIO: Emote menu
  */
 
+ // Depending on the sort cvar, get the sorted vector or the regular vector
+ static std::vector<emote_t*>& get_emote_vector()
+ {
+    switch(cv_chat_emotes_sort.value) {
+        case 0: // Alphabetical
+            return EMOTES_VECTOR;
+            break;
+        case 1: // Most Used
+            return EMOTES_VECTOR_SORTED;
+            break;
+        default: 
+            return EMOTES_VECTOR;
+            break;
+    }
+ }
  static std::vector<emote_t*>* get_current_emote_list()
  {
-    if(EMOTES_VECTOR.empty())
+    std::vector<emote_t*>& emote_vector = get_emote_vector();
+
+    if(emote_vector.empty())
         return nullptr;
     
     // If we're querying an emote AND there AREN'T any results ..
@@ -1339,7 +1357,7 @@ void RR_DrawChatEmotePreview(
         return nullptr;
     } else {
         // .. but if we're NOT searching for anything
-        return (menu_search_emotes.empty()) ? &EMOTES_VECTOR : &menu_search_emotes;
+        return (menu_search_emotes.empty()) ? &emote_vector : &menu_search_emotes;
     }
  }
  static size_t get_max_emotes_on_menu_page() {
@@ -1392,7 +1410,8 @@ static void update_emote_menu_results()
     menu_emotes.clear();
     menu_search_emotes.clear();
 
-    if (EMOTES_VECTOR.empty()) {
+    std::vector<emote_t*> emote_vector = get_emote_vector();
+    if (emote_vector.empty()) {
         return;
     }
     
@@ -1402,7 +1421,7 @@ static void update_emote_menu_results()
     }
     
     // fuzzy search
-    for (const auto& temp_emote : EMOTES_VECTOR) {
+    for (const auto& temp_emote : emote_vector) {
         // yes, we have to convert the query (and emote name) to lowercase
         std::string lc_query = lc(emote_menu_query);
         std::string lc_emote_name = lc(std::string(temp_emote->name));
@@ -1626,6 +1645,27 @@ void RR_DrawChatEmoteMenu(
     // background
     V_DrawFill(x, background_y, MENU_WIDTH, MENU_HEIGHT, 31 | V_60TRANS | V_SNAPTOBOTTOM | V_SNAPTOLEFT);
 
+    // sort
+    const UINT8 menuSortLine_y = background_y - 10;
+    V_DrawFill(x, menuSortLine_y, MENU_WIDTH, 5, 22 | V_SNAPTOBOTTOM | V_SNAPTOLEFT);
+    const char* sortString = va("\x83Tab: \x81%s", cv_chat_emotes_sort.string);
+
+    fixed_t sortStringWidth = V_StringScaledWidth( FRACUNIT/2, FRACUNIT, FRACUNIT, V_SNAPTOBOTTOM | V_SNAPTOLEFT, TINY_FONT, sortString);
+    fixed_t menuSortLine_x = ((x + MENU_WIDTH) << FRACBITS) - sortStringWidth;
+
+    V_DrawStringScaled(
+        menuSortLine_x,
+        (menuSortLine_y) << FRACBITS,
+        FRACUNIT/2,
+        FRACUNIT,
+        FRACUNIT,
+        V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+        NULL,
+        TINY_FONT,
+        va("Tab: \x82%s", cv_chat_emotes_sort.string)
+    );
+
+
     // text input
     const INT32 text_x = x + 1;
     const INT32 text_y = background_y - 5;
@@ -1798,4 +1838,53 @@ void RR_DrawChatEmoteMenu(
         row_y += (10) + 2;
         row_x = x +1;
     }
+}
+
+void RR_EmoteUsageCheckOnSend(const char* msg) {
+    // from ParseMessageForEmotes
+    std::string message_std = std::string(msg);
+
+    std::unordered_map<std::string, int> tempEmoteUsage;
+
+    for (
+            size_t start = message_std.find(":"); 
+            start != std::string::npos; 
+            start = message_std.find(":", start + 1)
+        ) {
+        size_t end = message_std.find(":", start + 1);
+
+        // Reached the end of the message?
+        if (end == std::string::npos)
+            break;
+        
+        std::string emote_name = message_std.substr(start + 1, end - start - 1);
+
+        if (EMOTES[emote_name])
+        {
+            tempEmoteUsage[emote_name]++;
+        }
+    }
+
+    // Update the global emote usage map ONLY when the player sends the message
+    if (!tempEmoteUsage.empty()) {
+        for (const auto& [emote, count] : tempEmoteUsage) {
+            EMOTE_USAGE[emote] += count;
+        }
+
+        // Then update the sorted vector again
+        RR_UpdateEmoteUsageVector();
+    }
+}
+
+void RR_ChatEmoteSort_OnChange(void) {
+    if (!is_emote_menu_on)
+        return;
+
+    emote_menu_query.clear();
+    menu_emotes.clear();
+    menu_search_emotes.clear();
+    emote_menu_selection = 0;
+    emote_menu_page = 1;
+    
+    update_emote_menu_emotes();
 }
