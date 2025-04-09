@@ -12,6 +12,8 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <iostream>
+#include <fstream>
 
 #include "../rr_hud.h"
 #include "../rr_demo.h"
@@ -54,7 +56,11 @@ std::unordered_map<std::string, emote_t*> EMOTES;
 // Checks if the emote is already IN the vector
 std::unordered_map<emote_t*, bool> EMOTES_INDEX; 
 std::vector<emote_t*> EMOTES_VECTOR;
+std::vector<emote_t*> EMOTES_VECTOR_SORTED; // By usage
 std::unordered_map<int, emote_atlas_t*> EMOTE_ATLASES;
+
+// Store most used emotes (akin to savedips)
+std::unordered_map<std::string, int> EMOTE_USAGE;
 
 static int ATLAS_ID = -1;
 
@@ -428,6 +434,21 @@ static void AddInGameEmotes(void)
     add_quick_emote("THIFN057", "9");
 }
 
+void RR_UpdateEmoteUsageVector(void)
+{
+    if (EMOTE_USAGE.empty()) 
+        return;
+
+    auto emote_sort_usage = [](const emote_t* a, const emote_t* b) {
+        const int a_count = EMOTE_USAGE.count(std::string(a->name)) > 0 ? EMOTE_USAGE[std::string(a->name)] : 0;
+        const int b_count = EMOTE_USAGE.count(std::string(b->name)) > 0 ? EMOTE_USAGE[std::string(b->name)] : 0;
+
+        return a_count > b_count;
+    };
+
+    std::sort(EMOTES_VECTOR_SORTED.begin(), EMOTES_VECTOR_SORTED.end(), emote_sort_usage);
+}
+
 static void UpdateEmotesVector(void)
 {
     for (const std::pair<const std::string, emote_t*>& entry : EMOTES) {
@@ -451,6 +472,10 @@ static void UpdateEmotesVector(void)
     };
 
     std::sort(EMOTES_VECTOR.begin(), EMOTES_VECTOR.end(), emote_sort);
+
+    // Then we update the usage vector
+    EMOTES_VECTOR_SORTED.assign(EMOTES_VECTOR.begin(), EMOTES_VECTOR.end());
+    RR_UpdateEmoteUsageVector();
 }
 
 void RR_AddAtlasEmotes(UINT16 wadnum)
@@ -675,6 +700,45 @@ void RR_InitEmotes(void) {
     }
 }
 
+void RR_LoadMostUsedEmotes(void);
+void RR_LoadMostUsedEmotes(void) {
+    const char *filepath = va("%s" PATHSEP "%s", srb2home, EMOTE_MOST_USED_FILE);
+    std::ifstream file(filepath);
+    if (!file)
+        return;
+
+    std::string line;
+    while (std::getline(file, line)) {
+        size_t delimiter_pos = line.find(";");
+        std::string emote = line.substr(0, delimiter_pos);
+        int count = std::stoi(line.substr(line.find(";") + 1)); 
+
+        if (emote.length() > EMOTE_NAME_SIZE) {
+            continue;
+        }
+        if (!count) {
+            continue;
+        }
+        EMOTE_USAGE[emote] = count;
+    }
+}
+
+void RR_SaveEmoteUsage(void) {
+    const char *filepath = va("%s" PATHSEP "%s", srb2home, EMOTE_MOST_USED_FILE);
+
+    std::ofstream out(filepath);
+
+    if (!out.is_open()) {
+        return;
+    }
+
+    for (const auto& [emote, count] : EMOTE_USAGE) {
+        out << emote.c_str() << ";" << count << "\n";
+    }
+
+    out.close();
+}
+
 // Anytime the player is NOT in the game, the tracker arrays should be emptied.
 void RR_CleanupEmoteFrames(void) {
     if (emoteFrameMap.empty() && emoteLastUpdate.empty()) {
@@ -725,5 +789,6 @@ void RR_Init(void) {
 
     // Any emotes?
     CONS_Printf("RADIO: Setting up emotes.\n");
+    RR_LoadMostUsedEmotes();
     RR_InitEmotes();
 }
