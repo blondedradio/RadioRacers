@@ -39,6 +39,7 @@ void KartLocalEncore_OnChange(void);
 void KartHaki_OnChange(void);
 void KartFinishLineTicker_OnChange(void);
 void RR_ChatEmotes_OnChange(void);
+void RR_ChatEmoteSort_OnChange(void);
 /**
  * Checks if either the encoremode flag or the clientside flag is on
  * \sa cv_applylocalencore encoremode
@@ -76,6 +77,7 @@ extern consvar_t cv_chat_emotes;                    // Self-explanatory
 extern consvar_t cv_chat_emotes_animated;           // Should emotes animate?
 extern consvar_t cv_chat_emotes_button;             // Toggle the END key button
 extern consvar_t cv_chat_emotes_preview;            // Toggle emotes previewing in the chat input
+extern consvar_t cv_chat_emotes_sort;               // Toggle sorting function in the emote menu
 
 // HUD -- Battle
 extern consvar_t cv_battle_toggle_emerald_on_minimap; 
