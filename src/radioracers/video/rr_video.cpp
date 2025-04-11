@@ -540,6 +540,12 @@ word_wrap_results_t V_RR_ScaledWordWrap(
 					right = ex + (ew * FRACUNIT);
 					cxatstart = ex;
 					startwriter = writer-1;
+
+					if (!line_checked_for_emotes) {
+						// CONS_Printf("emote found on line %d\n", current_line);
+						lines_with_emotes.push_back(current_line);
+						line_checked_for_emotes = true;
+					}
 					break;
 				}
 
