@@ -912,7 +912,7 @@ static void draw_quotes(INT16 x, INT16 y, UINT32 w) {
         V_SNAPTOBOTTOM | V_SNAPTOLEFT,
         NULL,
         TINY_FONT,
-        va("\x80Page %d of %d", quote_preview_page, get_total_quote_pages(_quotes))
+        va("\x80Page %d of %d \x82< >", quote_preview_page, get_total_quote_pages(_quotes))
     );
 }
 

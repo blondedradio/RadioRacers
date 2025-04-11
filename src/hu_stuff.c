@@ -2091,6 +2091,7 @@ static void HU_DrawChat(void)
 
 	/** RADIO: Not supporting splitscreen */
 	is_quote_command_on = (
+		cv_show_quote_preview.value &&
 		r_splitscreen < 1 &&
 		!CHAT_MUTE && 
 		!teamtalk && 

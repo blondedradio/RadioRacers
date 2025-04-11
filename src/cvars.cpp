@@ -37,6 +37,7 @@
 
 // RadioRacers
 #include "radioracers/rr_cvar.h"
+#include "radioracers/rr_hud.h"
 
 // There is a memset in one of consvar_t's constructors. It
 // SHOULD be safe if there is no polymorphism, but just
@@ -602,6 +603,8 @@ consvar_t cv_inputdisplaytoggle = Player("inputdisplaytoggle", "Digital").values
 });
 // Chat
 consvar_t cv_show_chat_log_num = Player("chat_log_numbers", "On").on_off();
+// Quotes
+consvar_t cv_show_quote_preview = Player("show_quote_preview", "On").on_off().onchange(RR_ResetQuotePreviewVars);
 // Chat emotes
 consvar_t cv_chat_emotes = Player("chat_emotes", "On").on_off().onchange(RR_ChatEmotes_OnChange);
 consvar_t cv_chat_emotes_animated = Player("chat_emotes_animate", "On").on_off();

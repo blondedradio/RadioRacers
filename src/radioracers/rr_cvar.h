@@ -74,6 +74,7 @@ extern consvar_t cv_holdbuttonforscoreboard; // Restore SRB2Kart behaviour when 
 extern consvar_t cv_inputdisplaytoggle; // Toggle betweeen DIGITAL and ANALOG input display controller
 extern consvar_t cv_show_riders_finish_ticker; // Show the Sonic Riders :tm: finish line ticker
 extern consvar_t cv_show_chat_log_num;             // Show number of chat message in chat log
+extern consvar_t cv_show_quote_preview;             // Emergency brake
 extern consvar_t cv_chat_emotes;                    // Self-explanatory
 extern consvar_t cv_chat_emotes_animated;           // Should emotes animate?
 extern consvar_t cv_chat_emotes_button;             // Toggle the END key button
