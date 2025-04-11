@@ -543,7 +543,7 @@ word_wrap_results_t V_RR_ScaledWordWrap(
 
 					if (!line_checked_for_emotes) {
 						// CONS_Printf("emote found on line %d\n", current_line);
-						lines_with_emotes.push_back(current_line);
+						lines_with_emotes.push_back(current_line + 1);
 						line_checked_for_emotes = true;
 					}
 					break;
