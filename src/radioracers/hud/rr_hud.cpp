@@ -30,8 +30,11 @@
 #include "../../k_color.h" // K_RainbowColor
 #include "../../z_zone.h" // Z_Realloc
 #include "../../i_time.h"
+#include "../../s_sound.h"
 
 #include "../../v_draw.hpp" // srb2:Draw
+
+boolean is_quote_command_on = false;
 
 #define ITEM_BOX_WIDTH 46 // 50 - 4
 #define ITEM_BOX_HEIGHT 50
@@ -599,12 +602,16 @@ void RR_DoChatStuff(chat_box_parameters_t parameters) {
     CONST INT32 charheight = parameters.charheight;
 
     // Is the player trying to quick-select an emote?
-    if (is_emote_preview_on) {
+    if (is_emote_preview_on && !is_quote_command_on) {
 		RR_DrawChatEmotePreview(chatx, (y-1) + (typelines*charheight), boxw);
 	}
 
+    if (is_quote_command_on) {
+        RR_DrawQuotePrintPreview(chatx, (y-1), boxw);
+    }
+
     // Is the player trying to select an emote from the menu?
-	if (is_emote_menu_on) {
+	if (is_emote_menu_on && ! is_quote_command_on) {
 		RR_DrawChatEmoteMenu(chatx + boxw + 4, (y-1) + (typelines*charheight));
 	} else {
         if(cv_chat_emotes.value && cv_chat_emotes_button.value) {
@@ -830,4 +837,189 @@ lumpnum_t getChatEmoteFrame(emote_t* emote) {
     }
 
     return emote->frames[frame];
+}
+
+/**
+ * Quotes
+ */
+
+#define MAX_PREVIEW_QUOTES 3
+#define QUOTE_CUTOFF 65
+std::vector<std::string> preview_quotes;
+std::vector<std::string> preview_search_quotes;
+std::string old_search_query;
+size_t quote_preview_page = 1;
+
+static std::vector<std::string> get_current_quotes() {
+    return (!preview_search_quotes.empty()) ? preview_search_quotes : preview_quotes;    
+}
+
+static size_t get_total_quote_pages(std::vector<std::string> quotes) {
+    if (quotes.empty() || quotes.size() < MAX_PREVIEW_QUOTES) {
+        return 1;
+    }
+
+    return std::ceil(
+        static_cast<float>(quotes.size()) / static_cast<float>(MAX_PREVIEW_QUOTES)
+    );
+}
+
+static const char* format_quote(std::string q, size_t idx) {
+    // Cut off the quote after ... x chars or so
+    if (q.length() > QUOTE_CUTOFF) {
+        q = q.substr(0, QUOTE_CUTOFF) + "...";
+    }
+    const char* quote_str = va("Quote \x82#%d: \x80%s", idx, q.c_str());
+    return quote_str;
+}
+
+static void draw_quotes(INT16 x, INT16 y, UINT32 w) {
+    const INT32 _MESSAGE_HEIGHT = 6;
+
+    std::vector<std::string> _quotes = get_current_quotes();
+    size_t start_index = (quote_preview_page - 1) * MAX_PREVIEW_QUOTES;
+    size_t end_index = std::min(start_index + static_cast<size_t>(MAX_PREVIEW_QUOTES-1), _quotes.size() - 1);
+
+    INT32 start_y = y + _MESSAGE_HEIGHT;
+
+    for (size_t idx = start_index; idx <= end_index; idx++) {
+
+        V_DrawFill(x, start_y, w, _MESSAGE_HEIGHT, 31 | V_60TRANS | V_SNAPTOBOTTOM | V_SNAPTOLEFT);
+
+        V_DrawStringScaled(
+            (x + 1) << FRACBITS,
+            (start_y + 1) << FRACBITS,
+            FRACUNIT/2,
+            FRACUNIT,
+            FRACUNIT,
+            V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+            NULL,
+            TINY_FONT,
+            _quotes[idx].c_str()
+        );
+
+        start_y += _MESSAGE_HEIGHT;
+    }
+
+    // Page x of X
+    V_DrawFillConsoleMap(x, start_y, w, _MESSAGE_HEIGHT, 21 | V_60TRANS | V_SNAPTOBOTTOM | V_SNAPTOLEFT);
+    V_DrawStringScaled(
+        (x + 1) << FRACBITS,
+        (start_y + 1) << FRACBITS,
+        FRACUNIT/2,
+        FRACUNIT,
+        FRACUNIT,
+        V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+        NULL,
+        TINY_FONT,
+        va("\x80Page %d of %d", quote_preview_page, get_total_quote_pages(_quotes))
+    );
+}
+
+static void print_no_quotes_found(
+    UINT32 w,
+    INT32 x,
+    INT32 y,
+    INT32 h
+) {
+    V_DrawFill(x, y, w, h, 31 | V_60TRANS | V_SNAPTOBOTTOM | V_SNAPTOLEFT);
+    V_DrawStringScaled(
+        (x + 1) << FRACBITS,
+        (y + 1) << FRACBITS,
+        FRACUNIT/2,
+        FRACUNIT,
+        FRACUNIT,
+        V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+        NULL,
+        TINY_FONT,
+        "No quotes found."
+    );
+}
+
+void RR_CheckQuotePreviewMovement(INT32 c) {
+    switch(c) {
+        case KEY_LEFTARROW:
+            if (--quote_preview_page <= 0) {
+                quote_preview_page = get_total_quote_pages(get_current_quotes());
+            }
+            S_StartSound(NULL, sfx_menu1);
+            break;
+        case KEY_RIGHTARROW:
+            if (++quote_preview_page > get_total_quote_pages(get_current_quotes())) {
+                quote_preview_page = 1;
+            }
+            S_StartSound(NULL, sfx_menu1);
+            break;
+    }
+}
+
+void RR_ResetQuotePreviewVars(void) {
+    quote_preview_page = 1;
+    preview_search_quotes.clear();
+    preview_quotes.clear();
+    old_search_query.clear();
+}
+
+void RR_DrawQuotePrintPreview(    
+    INT16 x,
+    INT16 y,
+    INT32 w
+){
+    if (!is_quote_command_on || (strlen(w_chat) <= 0))
+        return;
+    
+    const UINT32 _WIDTH = w;
+    const INT32 _MESSAGE_HEIGHT = 6;
+    const INT32 start_x = x;
+
+    INT32 start_y = y + _MESSAGE_HEIGHT;
+
+    if (QUOTED_MESSAGES.empty())
+    {
+        print_no_quotes_found(_WIDTH, start_x, start_y, _MESSAGE_HEIGHT);
+        return;
+    }
+
+    if (preview_quotes.empty() || preview_quotes.size() != QUOTED_MESSAGES.size()) {
+        size_t index = 0;
+        preview_quotes.clear();
+        for (const auto& quote: QUOTED_MESSAGES) {
+            preview_quotes.push_back(format_quote(quote, index));
+            ++index;
+        }
+    }
+
+    // We're searching :soyhype:
+    const char* search_query = w_chat + strlen(va("%s ", QUOTE_PRINT_COMMAND_DELIMITER));
+    
+    // Searching by index for now. I think people will remember quotes by their index rather than their contents.
+    // "dude let's not forget quote42". Y'know?
+    if (search_query && *search_query != '\0') {
+        if (std::string(search_query) != old_search_query) {
+            old_search_query = search_query;
+
+            preview_search_quotes.clear();
+    
+            size_t index = 0;
+            for (const auto& quote: QUOTED_MESSAGES) {
+                if (std::to_string(index).find(search_query) != std::string::npos) {
+                    preview_search_quotes.push_back(format_quote(quote, index));
+                }
+                ++index;
+            }
+            quote_preview_page = 1;
+        }
+
+        if (preview_search_quotes.empty()) {
+            print_no_quotes_found(w, start_x, start_y, _MESSAGE_HEIGHT);
+            return;
+        }
+        draw_quotes(x, y, w);
+    } else {
+        if (!preview_search_quotes.empty()) {
+            preview_search_quotes.clear();   
+        }
+        old_search_query.clear();
+        draw_quotes(x, y, w);
+    }
 }

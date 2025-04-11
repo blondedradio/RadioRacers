@@ -69,6 +69,8 @@
 #include "radioracers/rr_cvar.h" // cv_holdbuttonforscoreboard
 #include "radioracers/rr_hud.h"
 #include "radioracers/rr_video.h"
+#include "radioracers/rr_util.h"
+#include "radioracers/rr_setup.h"
 #ifndef ENABLE_RADIO_DEMOS
 #include "radioracers/rr_demo.h"
 #endif
@@ -1184,6 +1186,105 @@ static void HU_sendChatMessage(void)
 	memset(w_chat, '\0', sizeof(w_chat));
 	c_input = 0;
 
+	/** RADIO **/	
+	const char *quote_prefix = va("%s ", QUOTE_COMMAND_DELIMITER);
+	size_t quote_command_len = strlen(quote_prefix);
+
+	// Do the first n characters of the message start with '/quote '?
+	if (strncmp(msg, quote_prefix, quote_command_len) == 0) {
+		const char* chat_log_index = msg + quote_command_len;
+
+		if (*chat_log_index == '\0') {
+			HU_AddChatText("\x82* NOTICE: \x80Quote command works as follows: \'/q <MESSAGE_ID_HERE>\'", false);
+			return;
+		}
+
+		if (!isdigit(*chat_log_index)) {
+			HU_AddChatText("\x82* NOTICE: \x80Quote command works as follows: \'/q <MESSAGE_ID_HERE>\'", false);
+			return;
+		}
+
+		// Okay, now convert
+		int id = atoi(chat_log_index);
+
+		if (id >= 0 && id < CHAT_BUFSIZE) {
+			RR_UpdateQuotes(chat_log[id]);
+
+			const char* snitch = "/me has just quoted the chat.";
+			char fakebuf[2 + HU_MAXMSGLEN + 1];
+			memset(fakebuf, 0, sizeof(fakebuf));
+
+			char *fakemsg = &fakebuf[2];
+			size_t fakeci;
+		
+			// copy printable characters and terminating '\0' only.
+			for (fakeci = 2; snitch[fakeci-2]; fakeci++)
+			{
+				char c = snitch[fakeci-2];
+				if (c >= ' ' && !(c & 0x80))
+					fakebuf[fakeci] = c;
+			};
+			fakebuf[fakeci] = '\0';
+			
+			fakebuf[0] = target;
+			fakebuf[1] = 0;
+
+			DoSayPacket(target, buf[1], consoleplayer, fakemsg);
+			return;
+		} else {
+			HU_AddChatText("\x82* NOTICE: \x80Mesasge ID is out of bounds.", false);
+			return;	
+		}
+	}
+
+	const char *quote_print_prefix = va("%s ", QUOTE_PRINT_COMMAND_DELIMITER);
+	size_t quote_print_command_len = strlen(quote_print_prefix);
+
+	// Do the first n characters of the message start with '/quoteprint '?
+	if (strncmp(msg, quote_print_prefix, quote_print_command_len) == 0) {
+		const char* quote_id = msg + quote_print_command_len;
+
+		if (*quote_id == '\0') {
+			HU_AddChatText("\x82* NOTICE: \x80Quote print command works as follows: \'/qp <QUOTE_ID_HERE>\'", false);
+			return;
+		}
+
+		if (!isdigit(*quote_id)) {
+			HU_AddChatText("\x82* NOTICE: \x80Quote print command works as follows: \'/qp <QUOTE_ID_HERE>\'", false);
+			return;
+		}
+
+		// Okay, now convert
+		int id = atoi(quote_id);
+		const char* quoted_message = RR_FetchQuote(id);
+		if (quoted_message != NULL) {
+			char fakebuf[2 + HU_MAXMSGLEN + 1];
+			memset(fakebuf, 0, sizeof(fakebuf));
+
+			char *fakemsg = &fakebuf[2];
+			size_t fakeci;
+		
+			// copy printable characters and terminating '\0' only.
+			for (fakeci = 2; quoted_message[fakeci-2]; fakeci++)
+			{
+				char c = quoted_message[fakeci-2];
+				if (c >= ' ' && !(c & 0x80))
+					fakebuf[fakeci] = c;
+			};
+			fakebuf[fakeci] = '\0';
+			
+			fakebuf[0] = target;
+			fakebuf[1] = 0;
+
+			// And send
+			DoSayPacket(target, fakebuf[1], consoleplayer, fakemsg);
+			return;
+		} else {
+			HU_AddChatText("\x82* NOTICE: \x80Quote does not exist.", false);
+			return;	
+		}
+	}
+
 	if (strlen(msg) > 4 && strnicmp(msg, "/pm", 3) == 0) // used /pm
 	{
 		INT32 spc = 1; // used if playernum[1] is a space.
@@ -1265,6 +1366,9 @@ static boolean RR_HU_Responder(INT32 c)
 			if(is_emote_preview_on) {
 				RR_ResetEmoteSearchQuery();
 			}
+			if(is_quote_command_on) {
+				RR_ResetQuotePreviewVars();
+			}
 			HU_sendChatMessage();
 			RR_RemoveEmoteChatInputLog();
 		}
@@ -1319,6 +1423,11 @@ static boolean RR_HU_Responder(INT32 c)
 			return true;
 		}
 
+		if (is_quote_command_on) {
+			RR_CheckQuotePreviewMovement(c);
+			return true;
+		}
+
 		if (c_input == 0)
 			return true;
 		
@@ -1342,6 +1451,10 @@ static boolean RR_HU_Responder(INT32 c)
 			}
 			return true;
 		}
+		if (is_quote_command_on) {
+			RR_CheckQuotePreviewMovement(c);
+			return true;
+		}
 		if (c_input < strlen(w_chat)) {
 			if (ctrldown)
 				c_input += M_JumpWord(&w_chat[c_input]);
@@ -1360,8 +1473,10 @@ static boolean RR_HU_Responder(INT32 c)
 		}
 	}
 	else if ((c == KEY_END || (ctrldown && (c == 'e' || c == 'E'))) && !OLDCHAT) {
-		RR_ToggleEmoteMenu();
-		return true;
+		if (!is_quote_command_on) {
+			RR_ToggleEmoteMenu();
+			return true;
+		}
 	}
 	else if ((c >= HU_FONTSTART && c <= HU_FONTEND && fontv[HU_FONT].font[c-HU_FONTSTART])
 		|| c == ' ') // Allow spaces, of course
@@ -1861,6 +1976,20 @@ static void HU_drawChatLog(INT32 offset)
 	
 			if (y + dy < chat_bottomy)
 			{
+				if (cv_show_chat_log_num.value)
+				{
+					chat_log_message_param_t parameters = {
+						.index = i,
+						.x = x, 
+						.message_y = (y + dy + 2),
+						.boxw = boxw, 
+						.chat_topy = chat_topy,
+						.flags = V_SNAPTOBOTTOM|V_SNAPTOLEFT, 
+						.chat_bottomy = chat_bottomy,
+						.scale = scale
+					};
+					RR_DrawChatLogMessageNumbers(parameters);
+				}
 				V_DrawStringScaled(
 					(x + 2) << FRACBITS,
 					(y + dy + 2) << FRACBITS,
@@ -1955,6 +2084,20 @@ static void HU_DrawChat(void)
 
 	char *msg = NULL;
 
+	/** RADIO */
+	// Copying the /pm check since it's sensible
+	const char *command_prefix = va("%s ", QUOTE_PRINT_COMMAND_DELIMITER);
+	size_t command_len = strlen(command_prefix);
+
+	/** RADIO: Not supporting splitscreen */
+	is_quote_command_on = (
+		r_splitscreen < 1 &&
+		!CHAT_MUTE && 
+		!teamtalk && 
+		vid.width >= 640 && 
+		strncmp(w_chat, command_prefix, command_len) == 0
+	); 
+
 	if (CHAT_MUTE)
 	{
 		talk = mute;
@@ -1963,7 +2106,7 @@ static void HU_DrawChat(void)
 	else
 	{
 		RR_UpdateEmoteChatInputLog();
-		if (cv_chat_emotes.value && cv_chat_emotes_preview.value) {
+		if (cv_chat_emotes.value && cv_chat_emotes_preview.value && !is_quote_command_on) {
 			chat_input_parameters_t parameters = {
 				.boxw = boxw,
 				.scale = scale,
@@ -1999,7 +2142,7 @@ static void HU_DrawChat(void)
 		}
 	}
 
-	if (!cv_chat_emotes.value || (cv_chat_emotes.value && !cv_chat_emotes_preview.value)) {
+	if (is_quote_command_on || !cv_chat_emotes.value || (cv_chat_emotes.value && !cv_chat_emotes_preview.value)) {
 		y -= typelines * charheight;
 	
 		V_DrawFillConsoleMap(chatx, y-1, boxw, (typelines*charheight), 159 | V_SNAPTOBOTTOM | V_SNAPTOLEFT);
@@ -2430,6 +2573,8 @@ drawontop:
 			HU_DrawChat();
 		else
 			HU_DrawChat_Old();
+	} else {
+		RR_ResetQuotePreviewVars();
 	}
 
 	if (cechotimer)

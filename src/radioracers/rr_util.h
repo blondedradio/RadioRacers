@@ -26,6 +26,19 @@ extern int scaleInt(int value, fixed_t scale);
 extern void RR_HandleBlueSphereRumble(player_t *player);
 extern void RR_AnnounceBattleWinner(player_t *player, battle_win_type_t type);
 
+typedef struct
+{
+    UINT32 index;
+    INT32 x;
+    INT32 message_y;
+    INT32 boxw;
+    INT32 chat_topy;
+    INT32 flags;
+    INT32 chat_bottomy;
+    fixed_t scale;
+
+} chat_log_message_param_t;
+extern void RR_DrawChatLogMessageNumbers(chat_log_message_param_t p);
 #ifdef __cplusplus
 } // extern "C"
 #endif

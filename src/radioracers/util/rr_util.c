@@ -16,6 +16,7 @@
 #include "../../p_local.h"
 #include "../../hu_stuff.h"
 #include "../../g_game.h"
+#include "../../v_video.h"
 
 boolean shouldApplyEncore(void)
 {
@@ -65,6 +66,34 @@ void RR_AnnounceBattleWinner(player_t *player, battle_win_type_t type)
 
     // va causes crashes sometimes but ONLY semi-rarely, weird.
     HU_DoCEcho(va(BATTLE_WIN_MESSAGES[type], player_names[player-players]));    
+}
+
+/** Draw the index of each message in the chat log when viewing the chat log */
+void RR_DrawChatLogMessageNumbers(chat_log_message_param_t p)
+{
+    const char* chat_log_index_str = va("%d", p.index);
+    const fixed_t index_x = ((p.x - 4) << FRACBITS) -  V_StringScaledWidth(p.scale, FRACUNIT, FRACUNIT, 0, HU_FONT, chat_log_index_str);
+
+    cliprect_t clip;
+    V_SaveClipRect(&clip);
+    
+    V_SetClipRect(
+        index_x, (p.chat_topy) << FRACBITS,
+        index_x + ((p.boxw) << FRACBITS), (p.chat_bottomy) <<FRACBITS,
+        V_SNAPTOBOTTOM|V_SNAPTOLEFT
+    );
+
+    V_DrawStringScaled(
+        index_x,
+        (p.message_y) << FRACBITS,
+        p.scale, FRACUNIT, FRACUNIT,
+        p.flags | V_TRANSLUCENT,
+        NULL,
+        HU_FONT,
+        chat_log_index_str
+    );
+
+    V_RestoreClipRect(&clip);
 }
 
 int scaleInt(int value, fixed_t scale)

@@ -17,6 +17,7 @@
 #include "../rr_video.h"
 #include "../rr_setup.h"
 #include "../rr_cvar.h"
+#include "../rr_util.h"
 #include "../../z_zone.h"
 #include "../../v_video.h"
 #include "../../hu_stuff.h"
@@ -543,9 +544,24 @@ INT32 RR_Parse_ChatLog(chat_log_parameters_t parameters)
 
         if (y + dy < chat_bottomy)
         {
+            const INT32 message_y = y + dy + ((emote_flags.had_at_least_one_emote || emote_flags.line_has_emote) ? emote_padding : 2);
+            if (cv_show_chat_log_num.value)
+            {
+                chat_log_message_param_t parameters = {
+                    .index = i,
+                    .x = x, 
+                    .message_y = message_y,
+                    .boxw = boxw, 
+                    .chat_topy = chat_topy,
+                    .flags = V_SNAPTOBOTTOM|V_SNAPTOLEFT, 
+                    .chat_bottomy = chat_bottomy,
+                    .scale = scale
+                };
+                RR_DrawChatLogMessageNumbers(parameters);
+            }
             V_RR_DrawStringScaled(
                 (x + 2) << FRACBITS,
-				(y + dy + ((emote_flags.had_at_least_one_emote || emote_flags.line_has_emote) ? emote_padding : 2)) << FRACBITS,
+				(message_y) << FRACBITS,
 				scale, FRACUNIT, FRACUNIT,
 				flags,
 				NULL,

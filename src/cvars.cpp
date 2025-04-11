@@ -600,6 +600,8 @@ consvar_t cv_inputdisplaytoggle = Player("inputdisplaytoggle", "Digital").values
 	{'2', "Digital"}, 
 	{'4', "Analog"}
 });
+// Chat
+consvar_t cv_show_chat_log_num = Player("chat_log_numbers", "On").on_off();
 // Chat emotes
 consvar_t cv_chat_emotes = Player("chat_emotes", "On").on_off().onchange(RR_ChatEmotes_OnChange);
 consvar_t cv_chat_emotes_animated = Player("chat_emotes_animate", "On").on_off();

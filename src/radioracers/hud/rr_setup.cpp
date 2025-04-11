@@ -36,6 +36,8 @@ patch_t* end_key[2];
 
 sfxenum_t radio_ding_sound;
 
+std::vector<std::string> QUOTED_MESSAGES;
+
 /**
  * 300 frames is really generous. 
  * Some animated emotes are really cheeky with how long they are.
@@ -723,6 +725,68 @@ void RR_LoadMostUsedEmotes(void) {
     }
 }
 
+void RR_LoadQuotes(void);
+void RR_LoadQuotes(void) {
+    const char *filepath = va("%s" PATHSEP "%s", srb2home, QUOTED_MESSAGES_FILE);
+    std::ifstream file(filepath);
+    if (!file)
+        return;
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (!line.empty()) {
+            CONS_Printf("loading quote %s\n", line.c_str());
+            QUOTED_MESSAGES.push_back(line);
+        }
+    }
+}
+
+void RR_UpdateQuotes(const char* msg) {
+    // Check for any control characters, color, newline, etc
+    QUOTED_MESSAGES.push_back(std::string(msg));
+    CONS_Printf("Quoted!\n");
+}
+
+void RR_SaveQuotes(void) {
+    const char *filepath = va("%s" PATHSEP "%s", srb2home, QUOTED_MESSAGES_FILE);
+    std::ofstream out(filepath);
+
+    if (!out.is_open()) {
+        return;
+    }
+
+    for (const std::string& quote: QUOTED_MESSAGES) {
+        if (!quote.empty())
+            out << quote.c_str() << "\n";
+    }
+
+    out.close();
+}
+
+// Say packets don't like invalid characters like 0x80
+static std::string ValidateQuote(std::string quote) {
+    std::string newquote;
+    for (char c : quote) {
+        if (c >= ' ' && !(c & 0x80)) {
+            newquote += c;
+        }
+    }
+    return newquote;
+}
+
+extern const char* RR_FetchQuote(int id) {
+    if (id >= 0 && id < static_cast<int>(QUOTED_MESSAGES.size())) {
+        std::string quote_message = ValidateQuote(QUOTED_MESSAGES[id]);
+
+        // If the message is TOO long.. gonna have truncate it
+        if (quote_message.length() > HU_MAXMSGLEN) {
+            quote_message = quote_message.substr(0, HU_MAXMSGLEN-4) += "...";
+        }
+        return quote_message.c_str();
+    }
+    return NULL;
+}
+
 void RR_SaveEmoteUsage(void) {
     const char *filepath = va("%s" PATHSEP "%s", srb2home, EMOTE_MOST_USED_FILE);
 
@@ -788,6 +852,9 @@ void RR_Init(void) {
     }
 
     // Any emotes?
+    CONS_Printf("RADIO: Setting up quotes.\n");
+    RR_LoadQuotes();
+    CONS_Printf("RADIO: Loaded %d quotes!\n", QUOTED_MESSAGES.size());
     CONS_Printf("RADIO: Setting up emotes.\n");
     RR_LoadMostUsedEmotes();
     RR_InitEmotes();

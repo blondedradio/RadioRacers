@@ -91,9 +91,27 @@ emote_t* RR_GetEmoteFromChatLog(size_t chat_log_index, int emote_tracer_index);
 emote_t* RR_GetEmoteFromChatMiniLog(size_t chat_log_mini_index, int emote_tracer_index);
 extern std::unordered_map<chat_log_type_t, std::function<emote_t*(size_t, int)>> emote_fetch_map;
 
+extern std::vector<std::string> QUOTED_MESSAGES;
 
 extern "C" {
 #endif
+
+/**
+ * Quotes
+ */
+
+#define QUOTE_COMMAND_DELIMITER "/q"
+#define QUOTE_PRINT_COMMAND_DELIMITER "/qp"
+#define QUOTED_MESSAGES_FILE "rr_quotes.txt"
+
+extern void RR_DrawQuotePrintPreview(    
+    INT16 x,
+    INT16 y,
+    INT32 w
+);
+
+extern void RR_CheckQuotePreviewMovement(INT32 c);
+extern void RR_ResetQuotePreviewVars(void);
 
 /**
  * Emotes
@@ -108,6 +126,7 @@ extern "C" {
 // For the chat
 extern boolean is_emote_preview_on;
 extern boolean is_emote_menu_on;
+extern boolean is_quote_command_on;
 
 typedef struct
 {
