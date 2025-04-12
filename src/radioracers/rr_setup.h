@@ -26,7 +26,10 @@ extern void RR_Init(void);
 extern void RR_AddAllEmotes(UINT16 wadnum);
 extern void RR_CleanupEmoteFrames(void);
 extern void RR_SaveEmoteUsage(void);
+extern void RR_SaveFavouriteEmotes(void);
 extern void RR_UpdateEmoteUsageVector(void);
+extern void RR_FavouriteEmote(char* name);
+extern void RR_UnfavouriteEmote(char* name);
 
 #ifdef __cplusplus
 } // extern "C"

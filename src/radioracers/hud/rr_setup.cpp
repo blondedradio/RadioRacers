@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <iostream>
 #include <fstream>
 
@@ -52,15 +53,19 @@ std::unordered_map<emote_t*, size_t> chatEmoteFrameMap;
 std::unordered_map<emote_t*, size_t> chatEmoteLastUpdate;
 
 // Emotes
-std::unordered_map<std::string, emote_t*> EMOTES;
 // Checks if the emote is already IN the vector
-std::unordered_map<emote_t*, bool> EMOTES_INDEX; 
+std::unordered_map<std::string, emote_t*> EMOTES;
+std::unordered_map<std::string, bool> EMOTES_INDEX; 
 std::vector<emote_t*> EMOTES_VECTOR;
 std::vector<emote_t*> EMOTES_VECTOR_SORTED; // By usage
+std::vector<emote_t*> EMOTES_VECTOR_FAVOURITES;
 std::unordered_map<int, emote_atlas_t*> EMOTE_ATLASES;
 
 // Store most used emotes (akin to savedips)
 std::unordered_map<std::string, int> EMOTE_USAGE;
+// Store favourite emotes
+std::vector<std::string> EMOTES_FAVOURITE_LOOKUP;
+std::unordered_map<std::string, emote_t*> EMOTES_FAVOURITE_MAP;
 
 static int ATLAS_ID = -1;
 
@@ -434,6 +439,36 @@ static void AddInGameEmotes(void)
     add_quick_emote("THIFN057", "9");
 }
 
+void RR_FavouriteEmote(char* name)
+{
+    std::string std_n = std::string(name);
+    EMOTES_FAVOURITE_MAP[std_n] = EMOTES[std_n];
+    EMOTES_VECTOR_FAVOURITES.push_back(EMOTES[std_n]);
+}
+
+void RR_UnfavouriteEmote(char* name)
+{
+    auto iterator = EMOTES_FAVOURITE_MAP.find(std::string(name));
+
+    if (iterator != EMOTES_FAVOURITE_MAP.end()) {
+        emote_t* target = iterator->second;
+
+        // Remove
+        EMOTES_FAVOURITE_MAP.erase(iterator);
+
+        // Instead of shifting every element in the vector, just swap it with the last element
+        auto target_iterator = std::find(EMOTES_VECTOR_FAVOURITES.begin(), EMOTES_VECTOR_FAVOURITES.end(), target);
+
+        if (target_iterator != EMOTES_VECTOR_FAVOURITES.end()) {
+            // Swap with the last emote in the list
+            std::iter_swap(target_iterator, EMOTES_VECTOR_FAVOURITES.end() - 1);
+
+            // And remove the last element (cos it's empty)
+            EMOTES_VECTOR_FAVOURITES.pop_back(); 
+        }
+    }
+}
+
 void RR_UpdateEmoteUsageVector(void)
 {
     if (EMOTE_USAGE.empty()) 
@@ -454,9 +489,25 @@ static void UpdateEmotesVector(void)
     for (const std::pair<const std::string, emote_t*>& entry : EMOTES) {
         emote_t* em = entry.second;
 
-        if (!EMOTES_INDEX[em]) {
+        if (em == nullptr) {
+            CONS_Printf("PROBLEM!!! %s\n", entry.first.c_str());
+            continue;
+        }
+
+        auto index_iterator = EMOTES_INDEX.find(entry.first);
+        if (index_iterator == EMOTES_INDEX.end()) {
             EMOTES_VECTOR.push_back(em);
-            EMOTES_INDEX[em] = true;
+            EMOTES_INDEX[entry.first] = true;
+        }
+    }
+
+    // Update the favourites vector as well
+    for (const auto &fav : EMOTES_FAVOURITE_LOOKUP) {        
+        auto iterator = EMOTES_FAVOURITE_MAP.find(fav);
+        
+        if (iterator == EMOTES_FAVOURITE_MAP.end() && EMOTES[fav] != nullptr) {
+            EMOTES_FAVOURITE_MAP[fav] = EMOTES[fav];
+            EMOTES_VECTOR_FAVOURITES.push_back(EMOTES[fav]);
         }
     }
 
@@ -636,6 +687,7 @@ void RR_AddEmotes(UINT16 wadnum)
             }
         }
 
+        // CONS_Printf("before %s\n", rank_emote->name);
         if(!is_emote_good(std::string(rank_emote->name))) {
             free(rank_emote);
             continue;
@@ -647,7 +699,7 @@ void RR_AddEmotes(UINT16 wadnum)
         // You've added the configuration. But you don't have any frames?
         if (rank_emote->frame_count == 0)
         {
-            free(rank_emote);
+            // free(rank_emote);
             continue;
         }
 
@@ -721,6 +773,47 @@ void RR_LoadMostUsedEmotes(void) {
         }
         EMOTE_USAGE[emote] = count;
     }
+
+    file.close();
+}
+
+void RR_LoadFavouriteEmotes(void);
+void RR_LoadFavouriteEmotes(void) {
+    const char *filepath = va("%s" PATHSEP "%s", srb2home, EMOTE_FAVOURITES_FILE);
+    std::ifstream file(filepath);
+    if (!file)
+        return;
+
+    std::string line;
+
+    std::unordered_set<std::string> seen;
+    while (std::getline(file, line)) {
+        if (line.empty())
+            continue;
+        
+        // No duplicates
+        auto [_, unique] = seen.insert(line);
+        if (unique) {
+            EMOTES_FAVOURITE_LOOKUP.push_back(line);
+        }
+    }
+
+    file.close();
+}
+
+void RR_SaveFavouriteEmotes(void) {
+    const char* filepath = va("%s" PATHSEP "%s", srb2home, EMOTE_FAVOURITES_FILE);
+    std::ofstream out(filepath);
+
+    if (!out.is_open()) {
+        return;
+    }
+
+    for (const auto& e: EMOTES_VECTOR_FAVOURITES) {
+        out << e->name << "\n";
+    }
+
+    out.close();
 }
 
 void RR_SaveEmoteUsage(void) {
@@ -790,5 +883,6 @@ void RR_Init(void) {
     // Any emotes?
     CONS_Printf("RADIO: Setting up emotes.\n");
     RR_LoadMostUsedEmotes();
+    RR_LoadFavouriteEmotes();
     RR_InitEmotes();
 }
