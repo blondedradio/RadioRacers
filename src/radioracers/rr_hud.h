@@ -64,6 +64,8 @@ typedef struct
 extern std::unordered_map<std::string, emote_t*> EMOTES;
 extern std::vector<emote_t*> EMOTES_VECTOR;
 extern std::vector<emote_t*> EMOTES_VECTOR_SORTED;
+extern std::vector<emote_t*> EMOTES_VECTOR_FAVOURITES;
+extern std::unordered_map<std::string, emote_t*> EMOTES_FAVOURITE_MAP;
 extern std::unordered_map<int, emote_atlas_t*> EMOTE_ATLASES;
 extern std::unordered_map<std::string, int> EMOTE_USAGE;
 
@@ -104,6 +106,7 @@ extern "C" {
 #define EMOTE_NAME_SIZE 80 // Even this seems generous
 #define NUMLOGEMOTES 50 // Even THIS seems generous
 #define EMOTE_MOST_USED_FILE "rr_mostusedemotes.txt" // accidentially named this fortnite.txt
+#define EMOTE_FAVOURITES_FILE "rr_favemotes.txt" // accidentially named this fortnite.txt
 
 // For the chat
 extern boolean is_emote_preview_on;
@@ -192,6 +195,7 @@ extern void RR_DrawChatEmoteMenu(
 );
 extern void RR_CheckEmoteMenuMovement(INT32 c);
 extern void RR_EmoteUsageCheckOnSend(const char* msg);
+extern void RR_UpdateFavouriteEmotes(void);
 
 /**
  * Ringbox / Itembox
