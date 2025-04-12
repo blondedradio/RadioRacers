@@ -1007,13 +1007,18 @@ void RR_ResetEmoteSearchQuery(void)
     emote_search_results.clear();
 }
 
-void RR_ResetEmoteMenuInfo(void)
+static void RR_ResetEmoteMenuVars(void)
 {
     emote_menu_query.clear();
     menu_emotes.clear();
     menu_search_emotes.clear();
     emote_menu_selection = 0;
     emote_menu_page = 1;
+}
+
+void RR_ResetEmoteMenuInfo(void)
+{
+    RR_ResetEmoteMenuVars();
     is_emote_menu_on = false;
 }
 
@@ -1081,6 +1086,26 @@ void RR_CheckChatInputForEmotePreview(INT32 c) {
     }
 }
 
+static void draw_favourite(INT16 x, INT16 y) {
+    if (!is_emote_menu_on)
+        return;
+        
+    // Already displaying the favourites, no need to draw the star
+    if (cv_chat_emotes_sort.value == 2)
+        return;
+    V_DrawStringScaled(
+        ((x+1) << FRACBITS),
+        ((y+1) << FRACBITS),
+        FRACUNIT/2,
+        FRACUNIT,
+        FRACUNIT,
+        V_BLUEMAP | V_SNAPTOBOTTOM | V_SNAPTOLEFT,
+        NULL,
+        TINY_FONT,
+        "*"
+    );
+}
+
 static void draw_atlas_emote(emote_t* emote, INT16 x, INT16 y, INT32 scale)
 {
     float scale_f = static_cast<float>(scale);
@@ -1111,6 +1136,10 @@ static void draw_atlas_emote(emote_t* emote, INT16 x, INT16 y, INT32 scale)
         scaled_width * FRACUNIT,
         scaled_height * FRACUNIT
     );
+
+    if (EMOTES_FAVOURITE_MAP[std::string(emote->name)]) {
+        draw_favourite(x, y);
+    }
 }
 
 static void draw_normal_emote(emote_t* emote, INT16 x, INT16 y, INT32 scale)
@@ -1139,6 +1168,10 @@ static void draw_normal_emote(emote_t* emote, INT16 x, INT16 y, INT32 scale)
         emote_patch,
         NULL
     );
+    
+    if (EMOTES_FAVOURITE_MAP[std::string(emote->name)]) {
+        draw_favourite(x, y);
+    }
 }
 
 static void draw_select_cursor(INT16 x, INT16 y, INT32 scale)
@@ -1339,6 +1372,9 @@ void RR_DrawChatEmotePreview(
             break;
         case 1: // Most Used
             return EMOTES_VECTOR_SORTED;
+            break;
+        case 2:
+            return EMOTES_VECTOR_FAVOURITES;
             break;
         default: 
             return EMOTES_VECTOR;
@@ -1880,11 +1916,40 @@ void RR_ChatEmoteSort_OnChange(void) {
     if (!is_emote_menu_on)
         return;
 
-    emote_menu_query.clear();
-    menu_emotes.clear();
-    menu_search_emotes.clear();
-    emote_menu_selection = 0;
-    emote_menu_page = 1;
-    
+    RR_ResetEmoteMenuVars();
     update_emote_menu_emotes();
+}
+
+void RR_UpdateFavouriteEmotes(void) {
+    if (!is_emote_menu_on)
+        return;
+
+    if (menu_emotes.empty())
+        return;
+
+    size_t current_row = (emote_menu_selection) / COLUMNS;
+    size_t current_column = (emote_menu_selection) % COLUMNS;
+    size_t emote_index = (current_row * ROWS) + current_column;
+
+    emote_t* selected_emote = menu_emotes[emote_index];
+
+    // Hopefully the math is bulletproof enough to prevent this from happening
+    if (selected_emote == nullptr) {
+        return;
+    }
+
+    if (EMOTES_FAVOURITE_MAP[selected_emote->name]) { // Unfavourite
+        RR_UnfavouriteEmote(selected_emote->name);
+        S_StartSound(NULL, sfx_gshd5);
+        S_StopSoundByID(NULL, sfx_ssa130);
+    } else { // Favourite
+        S_StartSound(NULL, sfx_ssa130);
+        S_StopSoundByID(NULL, sfx_gshd5);
+        RR_FavouriteEmote(selected_emote->name);
+    }
+
+    if (cv_chat_emotes_sort.value == 2) {
+        RR_ResetEmoteMenuVars();
+        update_emote_menu_emotes();
+    }
 }
