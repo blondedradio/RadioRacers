@@ -1275,8 +1275,12 @@ static boolean RR_HU_Responder(INT32 c)
 		c_input = 0; // reset input cursor
 		chat_scrollmedown = true; // you hit enter, so you might wanna autoscroll to see what you just sent. :)
 		I_UpdateMouseGrab();
-	}
-	else if (c == KEY_ESCAPE
+	} else if ((c == 'f' || c == 'F') && ctrldown) { // Favouriting
+		if (is_emote_menu_on) {
+			RR_UpdateFavouriteEmotes();
+			return true;
+		}
+	} else if (c == KEY_ESCAPE
 		/*|| ((c == gamecontrol[0][gc_talkkey][0] || c == gamecontrol[0][gc_talkkey][1]
 		|| c == gamecontrol[0][gc_teamkey][0] || c == gamecontrol[0][gc_teamkey][1])
 		&& c >= NUMKEYS)*/) // If it's not a keyboard key, then the chat button is used as a toggle.

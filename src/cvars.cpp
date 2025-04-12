@@ -614,7 +614,8 @@ consvar_t cv_chat_emotes_button = Player("chat_emotes_button", "On").on_off();
 consvar_t cv_chat_emotes_preview = Player("chat_emotes_input_preview", "On").on_off();
 consvar_t cv_chat_emotes_sort = Player("chat_emotes_sort", "Alphabetical").values({
 	{0, "Alphabetical"},
-	{1, "Most Used"}
+	{1, "Most Used"},
+	{2, "Favourites"}
 }).onchange(RR_ChatEmoteSort_OnChange);
 
 /**
