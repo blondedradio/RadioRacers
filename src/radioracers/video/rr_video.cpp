@@ -865,6 +865,9 @@ void V_RR_DrawStringScaled(
 						emote_atlas_coordinates_t coords = getEmoteAtlasCoordinates(emote, scale); 
 
 						fixed_t scaled_width = FloatToFixed(scale * EMOTE_ATLASES[emote->atlas_id]->width);
+						if (emote->atlas_column == EMOTE_ATLASES[emote->atlas_id]->columns-1) {
+							scaled_width += (2*FRACUNIT);
+						}
 						fixed_t scaled_height = FloatToFixed(scale * EMOTE_ATLASES[emote->atlas_id]->height);
 						if (bottom_offset != 0) {
 							if ((emote_y/FRACUNIT) + scaled_height/FRACUNIT > bottom_offset) {
