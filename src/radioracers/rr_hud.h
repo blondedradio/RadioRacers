@@ -268,6 +268,7 @@ extern void RR_addPlayerToFinshTicker(player_t *player);
 extern void RR_drawRidersFinishTicker(void);
 extern void RR_ridersFinishTick(void);
 extern void RR_resetRidersFinishTicker(void);
+extern void RR_DrawKartLapsMini(void);
 
 typedef struct
 {
@@ -287,6 +288,11 @@ extern int hu_radio_tick;
 extern void RR_DoChatStuff(chat_box_parameters_t parameters);
 // Tally
 void RR_DrawGradeEmote(player_grade_info_t grade_info);
+
+/**
+ * Timer
+ */
+extern void RR_DrawKartMiniTimestamp(tic_t drawtime, INT32 TX, INT32 TY, INT32 splitflags, UINT8 mode);
 
 #ifdef __cplusplus
 } // extern "C"

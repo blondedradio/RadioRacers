@@ -5773,7 +5773,7 @@ static void K_SpawnDriftSparks(player_t *player)
 			if (player->driftcharge <= (dsfour)+(32*3))
 			{
 				// transition
-				P_SetScale(spark, (spark->destscale = spark->scale*3/2));
+				P_SetScale(spark, (spark->destscale = FixedMul(spark->scale, cv_driftsparkrate_size.value)));
 				S_StartSound(player->mo, sfx_cock);
 			}
 			else
@@ -5790,7 +5790,7 @@ static void K_SpawnDriftSparks(player_t *player)
 			if (player->driftcharge <= dsthree+(32*3))
 			{
 				// transition
-				P_SetScale(spark, (spark->destscale = spark->scale*3/2));
+				P_SetScale(spark, (spark->destscale = FixedMul(spark->scale, cv_driftsparkrate_size.value)));
 			}
 		}
 		else if (player->driftcharge >= dstwo)
@@ -5802,7 +5802,7 @@ static void K_SpawnDriftSparks(player_t *player)
 			if (player->driftcharge <= dstwo+(32*3))
 			{
 				// transition
-				P_SetScale(spark, (spark->destscale = spark->scale*3/2));
+				P_SetScale(spark, (spark->destscale = FixedMul(spark->scale, cv_driftsparkrate_size.value)));
 			}
 		}
 		else
@@ -5813,7 +5813,7 @@ static void K_SpawnDriftSparks(player_t *player)
 			if (player->driftcharge <= dsone+(32*3))
 			{
 				// transition
-				P_SetScale(spark, (spark->destscale = spark->scale*2));
+				P_SetScale(spark, (spark->destscale = FixedMul(spark->scale, cv_driftsparkrate_size.value)));
 			}
 		}
 

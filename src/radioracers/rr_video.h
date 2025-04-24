@@ -15,6 +15,7 @@
 #include "../m_cond.h"
 #include "../command.h"
 #include "../console.h"
+#include "../v_video.h"
 
 #include "rr_cvar.h"
 #include "rr_controller.h"
@@ -100,6 +101,10 @@ extern "C" {
 
 #define EMOTE_PADDING 1
 #define GET_CHAT_EMOTE_SCALE(h, has_text) (((has_text) ? MAX_HEIGHT_WITH_TEXT : MAX_HEIGHT)/static_cast<float_t>(h))
+
+// Thin timer font isn't used anywhere
+#define V_DrawThinTimerString( x,y,option,string ) \
+	V__DrawDupxString (x,y,FRACUNIT,option,NULL,TINYTIMER_FONT,string)
 
 #ifdef __cplusplus
 } // extern "C"

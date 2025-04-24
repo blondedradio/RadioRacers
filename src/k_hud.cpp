@@ -1670,6 +1670,30 @@ static void K_drawKartItem(void)
 	auto draw_item = [&](fixed_t y, int i)
 	{
 		const UINT8 *colormap = (localcolor[i] ? R_GetTranslationColormap(colormode[i], localcolor[i], GTC_CACHE) : NULL);
+		// INT32 stupidflags = baseVideoFlags|fflags;
+		// if (i == 0 || i == 2) {
+
+		// 	INT32 offset = rouletteOffset / FRACUNIT;
+		// 	if (i == 0) {
+		// 		if (offset > 0) {
+		// 			if (offset > 9)
+		// 				offset = 9;
+		// 			transnum_t alpha = static_cast<transnum_t>(offset);
+		// 			stupidflags = (alpha << V_ALPHASHIFT);
+		// 		}
+		// 	} else {
+		// 		if (offset < 0) {
+		// 			INT32 absoffset = abs(offset);
+		// 			if (absoffset < 1)
+		// 				absoffset = 1;
+		// 			if (absoffset > 8)
+		// 				absoffset = 8;
+					
+		// 			CONS_Printf("offset %d / calc offset %d\n", absoffset, absoffset);
+		// 			stupidflags = (static_cast<transnum_t>(absoffset) << V_ALPHASHIFT);
+		// 		}
+		// 	}
+		// }
 		V_DrawFixedPatch(
 			fx<<FRACBITS, (fy<<FRACBITS) + rouletteOffset + y,
 			baseHudScale, baseVideoFlags|fflags,
@@ -2915,10 +2939,16 @@ static boolean K_drawKartPositionFaces(void)
 	if (!LUA_HudEnabled(hud_minirankings))
 		return false;	// Don't proceed but still return true for free play above if HUD is disabled.
 
+	boolean showstandings = cv_toggle_race_standings.value;
+	if (!showstandings && (gametyperules & GTR_POINTLIMIT)) {
+		showstandings = true;
+	}
+	
 	switch (r_splitscreen)
 	{
 	case 0:
-		state.draw_1p();
+		if (showstandings)
+			state.draw_1p();
 		break;
 
 	case 1:
@@ -3508,6 +3538,12 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 			using srb2::Draw;
 			Draw row = Draw(RINGC_X+23+3, fy-4).flags(ringcounterflags).font(Draw::Font::kThinTimer).colormap(ringmap);
 			row.text("{:02}", abs(stplyr->hudrings));
+
+			if (cv_toggle_rings_excess.value && stplyr->superring > 1 && abs(stplyr->hudrings) >= 19) {
+				// Draw excess rings (skypegiggle)
+				row.font(Draw::Font::kPing).x(12).y(4).colormap(R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MINT, GTC_CACHE)).text("+");
+				row.font(Draw::Font::kThinTimer).x(18).colormap(R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MINT, GTC_CACHE)).text("{:02}", abs(stplyr->superring));
+			}
 			// V_DrawMappedPatch(LAPS_X+23, fy, V_HUDTRANS|V_SLIDEIN|splitflags, fontv[TALLNUM_FONT].font[rn[0]], ringmap);
 			// V_DrawMappedPatch(LAPS_X+29, fy, V_HUDTRANS|V_SLIDEIN|splitflags, fontv[TALLNUM_FONT].font[rn[1]], ringmap);
 		}
@@ -5648,7 +5684,7 @@ static void K_drawKartStartCountdown(void)
 
 	if (leveltime >= introtime && leveltime < starttime-(3*TICRATE))
 	{
-		if (cv_hud_hideposition.value)
+		if (!cv_hud_hideposition.value)
 			return;
 		
 		if (numbulbs > 1)
@@ -6671,7 +6707,12 @@ void K_drawKartHUD(void)
 		}
 #endif
 
-		if (LUA_HudEnabled(hud_minimap))
+		boolean showminimap = cv_toggle_race_minimap.value;
+		// Show the minimap during battle, it's important information
+		if (!showminimap && (gametyperules & GTR_POINTLIMIT)) {
+			showminimap = true;
+		}
+		if (LUA_HudEnabled(hud_minimap) && showminimap)
 			K_drawKartMinimap();
 	}
 
@@ -6706,7 +6747,22 @@ void K_drawKartHUD(void)
 				}
 			}
 
-			K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+			if ((gametyperules & GTR_POINTLIMIT) || modeattacking) // Playing Battle or Time-Attacking
+			{
+				K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+			} else {
+				switch(cv_toggle_timestamp_race.value)
+				{
+					case 0:
+						K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+						break;
+					case 1:
+						RR_DrawKartMiniTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+						break;
+					case 2:
+						break;
+				}
+			}
 
 			if (modeattacking)
 			{
@@ -6865,7 +6921,19 @@ void K_drawKartHUD(void)
 				{
 					if (numlaps != 1)
 					{
-						K_drawKartLaps();
+						// RADIO
+						switch (cv_toggle_laps_race.value)
+						{
+							case 0:
+								K_drawKartLaps();
+								break;
+							case 1:
+								RR_DrawKartLapsMini();
+								break;
+							default:
+								K_drawKartLaps();
+								break;
+						}
 						gametypeinfoshown = true;
 					}
 				}
@@ -6945,12 +7013,12 @@ void K_drawKartHUD(void)
 			K_drawKartFinish(true);
 		else if (!(gametyperules & GTR_CIRCUIT))
 			;
-		else if (stplyr->karthud[khud_lapanimation] && !r_splitscreen && !cv_hud_hidelapemblem.value)
+		else if (stplyr->karthud[khud_lapanimation] && !r_splitscreen && cv_hud_hidelapemblem.value)
 			K_drawLapStartAnim();
 	}
 
 	// trick panel cool trick
-	if (stplyr->karthud[khud_trickcool])
+	if (stplyr->karthud[khud_trickcool] && cv_toggle_trick_cool.value)
 		K_drawTrickCool();
 
 	if ((freecam || stplyr->spectator) && LUA_HudEnabled(hud_textspectator))
