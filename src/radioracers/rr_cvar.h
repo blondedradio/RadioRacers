@@ -78,6 +78,13 @@ extern consvar_t cv_chat_emotes_animated;           // Should emotes animate?
 extern consvar_t cv_chat_emotes_button;             // Toggle the END key button
 extern consvar_t cv_chat_emotes_preview;            // Toggle emotes previewing in the chat input
 extern consvar_t cv_chat_emotes_sort;               // Toggle sorting function in the emote menu
+extern consvar_t cv_driftsparkrate_size; // Toggle spark rate pulse size when drifting (Thank you Callmore xxxxx)
+extern consvar_t cv_toggle_rings_excess; // Toggle the green text showing ring count overflow
+extern consvar_t cv_toggle_timestamp_race; // Toggle the timestamp in the top right
+extern consvar_t cv_toggle_laps_race;       // Toggle the display style for the laps in the bottom left
+extern consvar_t cv_toggle_race_minimap;    // Toggle the minimap
+extern consvar_t cv_toggle_race_standings;    // Toggle the player standings
+extern consvar_t cv_toggle_trick_cool;    // Toggle the "COOL!" graphic when you do a successful trick
 
 // HUD -- Battle
 extern consvar_t cv_battle_toggle_emerald_on_minimap; 
