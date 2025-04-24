@@ -1961,6 +1961,30 @@ static void K_drawKartItem(void)
 	auto draw_item = [&](fixed_t y, int i)
 	{
 		const UINT8 *colormap = (localcolor[i] ? R_GetTranslationColormap(colormode[i], localcolor[i], GTC_CACHE) : NULL);
+		// INT32 stupidflags = baseVideoFlags|fflags;
+		// if (i == 0 || i == 2) {
+
+		// 	INT32 offset = rouletteOffset / FRACUNIT;
+		// 	if (i == 0) {
+		// 		if (offset > 0) {
+		// 			if (offset > 9)
+		// 				offset = 9;
+		// 			transnum_t alpha = static_cast<transnum_t>(offset);
+		// 			stupidflags = (alpha << V_ALPHASHIFT);
+		// 		}
+		// 	} else {
+		// 		if (offset < 0) {
+		// 			INT32 absoffset = abs(offset);
+		// 			if (absoffset < 1)
+		// 				absoffset = 1;
+		// 			if (absoffset > 8)
+		// 				absoffset = 8;
+					
+		// 			CONS_Printf("offset %d / calc offset %d\n", absoffset, absoffset);
+		// 			stupidflags = (static_cast<transnum_t>(absoffset) << V_ALPHASHIFT);
+		// 		}
+		// 	}
+		// }
 		V_DrawFixedPatch(
 			fx<<FRACBITS, (fy<<FRACBITS) + rouletteOffset + y,
 			baseHudScale, baseVideoFlags|fflags,
@@ -3459,13 +3483,19 @@ static boolean K_drawKartPositionFaces(void)
 	if (!LUA_HudEnabled(hud_minirankings))
 		return false;	// Don't proceed but still return true for free play above if HUD is disabled.
 
+	boolean showstandings = cv_toggle_race_standings.value;
+	if (!showstandings && (gametyperules & GTR_POINTLIMIT)) {
+		showstandings = true;
+	}
+	
 	if (K_InRaceDuel())
 		return false;
 
 	switch (r_splitscreen)
 	{
 	case 0:
-		state.draw_1p();
+		if (showstandings)
+			state.draw_1p();
 		break;
 
 	case 1:
@@ -7473,7 +7503,7 @@ static void K_drawKartStartCountdown(void)
 
 	if (leveltime >= introtime && leveltime < starttime-(3*TICRATE))
 	{
-		if (cv_hud_hideposition.value)
+		if (!cv_hud_hideposition.value)
 			return;
 		
 		if (numbulbs > 1)
@@ -8580,7 +8610,12 @@ void K_drawKartHUD(void)
 		}
 #endif
 
-		if (LUA_HudEnabled(hud_minimap))
+		boolean showminimap = cv_toggle_race_minimap.value;
+		// Show the minimap during battle, it's important information
+		if (!showminimap && (gametyperules & GTR_POINTLIMIT)) {
+			showminimap = true;
+		}
+		if (LUA_HudEnabled(hud_minimap) && showminimap)
 			K_drawKartMinimap();
 	}
 
@@ -8701,8 +8736,21 @@ void K_drawKartHUD(void)
 				row.colormap(textcolor).colorize(textcolor).x(15).text(text);
 			}
 
-			if (modeattacking || (gametyperules & GTR_TIMELIMIT) || cv_drawtimer.value)
+			if (modeattacking || (gametyperules & GTR_TIMELIMIT) || cv_drawtimer.value) {
 				K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+			} else {
+				switch(cv_toggle_timestamp_race.value)
+				{
+					case 0:
+						K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+						break;
+					case 1:
+						RR_DrawKartMiniTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+						break;
+					case 2:
+						break;
+				}
+			}
 
 			if (modeattacking)
 			{
@@ -8997,12 +9045,12 @@ void K_drawKartHUD(void)
 			K_drawKartFinish(true);
 		else if (!(gametyperules & GTR_CIRCUIT))
 			;
-		else if (stplyr->karthud[khud_lapanimation] && !r_splitscreen && !cv_hud_hidelapemblem.value)
+		else if (stplyr->karthud[khud_lapanimation] && !r_splitscreen && cv_hud_hidelapemblem.value)
 			K_drawLapStartAnim();
 	}
 
 	// trick panel cool trick
-	if (stplyr->karthud[khud_trickcool])
+	if (stplyr->karthud[khud_trickcool] && cv_toggle_trick_cool.value)
 		K_drawTrickCool();
 
 	if ((freecam || stplyr->spectator) && LUA_HudEnabled(hud_textspectator))

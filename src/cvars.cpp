@@ -508,6 +508,7 @@ consvar_t stereoreverse = Player("stereoreverse", "Off").on_off();
 // Backport of accessibility option from SRB2Kart.
 consvar_t cv_translucenthud = Player("translucenthud", "10").min_max(0, 10);
 
+consvar_t cv_driftsparkrate_size = Player("driftsparkpulsesize", "2.95").floating_point().min_max(0, 30*FRACUNIT).save();
 // Vote Snitch
 consvar_t cv_votesnitch = Player("votesnitch", "On").on_off();
 
@@ -531,7 +532,7 @@ consvar_t cv_rr_rumble_spheres = Player("rr_rumble_spheres", "On").on_off();
 consvar_t cv_rr_rumble_wavedash = Player("rr_rumble_wavedash", "On").on_off();
 
 // Rings drawn on player (akin to driftgauge)
-consvar_t cv_ringsonplayer = Player("ringsonplayer", "Vanilla").values({
+consvar_t cv_ringsonplayer = Player("ringsonplayer", "Custom").values({
 	{0, "Vanilla"}, 
 	{1, "Custom"}
 });
@@ -539,13 +540,13 @@ consvar_t cv_ringsonplayer = Player("ringsonplayer", "Vanilla").values({
 // -- Battle
 
 // Blue Sphere meter drawn on player
-consvar_t cv_spheremeteronplayer = Player("spheremeteronplayer", "Vanilla").values({
+consvar_t cv_spheremeteronplayer = Player("spheremeteronplayer", "Custom").values({
 	{0, "Vanilla"}, 
 	{1, "Custom"}
 });
 
 // Alterate Emerald display HUD
-consvar_t cv_customemeraldhud = Player("customemeraldhud", "Vanilla").values({
+consvar_t cv_customemeraldhud = Player("customemeraldhud", "Full").values({
 	{0, "Vanilla"}, 
 	{1, "Minimal"},
 	{2, "Full"}
@@ -561,8 +562,10 @@ consvar_t cv_battle_toggle_ufo_timer_on_minimap = Player("bttl_ufo_timer_on_mini
 // Toggle tracking players in the HUD
 consvar_t cv_targetrackplayers = Player("targetrackplayers", "Yes").yes_no();
 
+// -- Race
+
 // Item/Ringbox Roulette drawn on player
-consvar_t cv_rouletteonplayer = Player("rouletteonplayer", "Vanilla").values({
+consvar_t cv_rouletteonplayer = Player("rouletteonplayer", "Custom").values({
 	{0, "Vanilla"}, 
 	{1, "Custom"}
 }).onchange(Roulette_OnChange);
@@ -593,11 +596,11 @@ consvar_t cv_ringbox_roulette_player_position = Player("ringbox_roulette_player_
 consvar_t cv_item_roulette_player_position = Player("item_roulette_player_position", "Left").values(itemboxposition_cons_t);
 
 // Hide the giant big ass letters at the start of the race
-consvar_t cv_hud_hidecountdown = Player("hidecountdown", "No").yes_no();
+consvar_t cv_hud_hidecountdown = Player("hidecountdown", "On").on_off();
 // Hide the bigass position bulbs at the start of the race
-consvar_t cv_hud_hideposition = Player("hideposition", "No").yes_no();
+consvar_t cv_hud_hideposition = Player("hideposition", "On").on_off();
 // Hide the bigass lap emblem when you start a new lap
-consvar_t cv_hud_hidelapemblem = Player("hidelapemblem", "No").yes_no();
+consvar_t cv_hud_hidelapemblem = Player("hidelapemblem", "On").on_off();
 // Draw high-res portraits in the minirankings
 consvar_t cv_hud_usehighresportraits = Player("usehighresportraits", "Yes").yes_no();
 // Restore SRB2Kart behaviour when viewing in-game rankings (i.e. having to hold the button)
@@ -607,6 +610,23 @@ consvar_t cv_inputdisplaytoggle = Player("inputdisplaytoggle", "Digital").values
 	{'2', "Digital"}, 
 	{'4', "Analog"}
 });
+
+consvar_t cv_toggle_timestamp_race = Player("racetimestamptoggle", "Default").values({
+	{0, "Default"}, 
+	{1, "Minimal"},
+	{2, "Off"}
+});
+
+consvar_t cv_toggle_laps_race = Player("racelapstoggle", "Default").values({
+	{0, "Default"}, 
+	{1, "Minimal"}
+});
+
+consvar_t cv_toggle_race_minimap = Player("raceminimaptoggle", "On").on_off();
+consvar_t cv_toggle_trick_cool = Player("tricktexttoggle", "On").on_off();
+consvar_t cv_toggle_race_standings = Player("racestandingstoggle", "On").on_off();
+consvar_t cv_toggle_rings_excess = Player("showringsoverflow", "On").on_off();
+
 // Chat emotes
 consvar_t cv_chat_emotes = Player("chat_emotes", "On").on_off().onchange(RR_ChatEmotes_OnChange);
 consvar_t cv_chat_emotes_animated = Player("chat_emotes_animate", "On").on_off();

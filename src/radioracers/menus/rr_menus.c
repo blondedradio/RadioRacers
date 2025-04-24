@@ -21,19 +21,37 @@ static menuitem_t OPTIONS_RadioRacersHudRace[] =
 	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle the RING COUNTER's HUD position.",
 		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
 
+	{IT_STRING | IT_CVAR, "Ring Counter Overflow", "Show/hide overflow text on RING COUNTER.",
+		NULL, {.cvar = &cv_toggle_rings_excess}, 0, 0},
+
 	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
 
-	{IT_HEADER, "Hide HUD Elements", NULL,
+	{IT_HEADER, "Toggle HUD Elements", NULL,
 		NULL, {NULL}, 0, 0},
 
-	{IT_STRING | IT_CVAR, "Countdown", "Hide the countdown graphics at the beginning of a race.",
+	{IT_STRING | IT_CVAR, "Timer", "Toggle the display style for the Timer.",
+		NULL, {.cvar = &cv_toggle_timestamp_race}, 0, 0},   
+
+	{IT_STRING | IT_CVAR, "Laps", "Toggle the display style for the Laps.",
+		NULL, {.cvar = &cv_toggle_laps_race}, 0, 0}, 
+
+	{IT_STRING | IT_CVAR, "Minimap", "Hide the minimap.",
+		NULL, {.cvar = &cv_toggle_race_minimap}, 0, 0},   
+
+	{IT_STRING | IT_CVAR, "Player Standings", "Show/hide the player standings.",
+		NULL, {.cvar = &cv_toggle_race_standings}, 0, 0},   
+
+	{IT_STRING | IT_CVAR, "Trick Text", "Show/hide the 'COOL' text when performing a trick.",
+		NULL, {.cvar = &cv_toggle_trick_cool}, 0, 0},   
+
+	{IT_STRING | IT_CVAR, "Countdown", "Show/hide the countdown graphics at the beginning of a race.",
 		NULL, {.cvar = &cv_hud_hidecountdown}, 0, 0},   
             
-	{IT_STRING | IT_CVAR, "POSITION!!!", "Hide the POSITION!!! graphics at the beginning of a race.",
+	{IT_STRING | IT_CVAR, "POSITION!!!", "Show/hide the POSITION!!! graphics at the beginning of a race.",
 		NULL, {.cvar = &cv_hud_hideposition}, 0, 0},
 
-	{IT_STRING | IT_CVAR, "Lap Emblem", "Hide the Lap Emblem when you begin a new lap.",
+	{IT_STRING | IT_CVAR, "Lap Emblem", "Show/hide the Lap Emblem when you begin a new lap.",
 		NULL, {.cvar = &cv_hud_hidelapemblem}, 0, 0}
 };
 
@@ -168,6 +186,9 @@ menu_t OPTIONS_RadioRacersHudDef = {
 // Gameplay
 static menuitem_t OPTIONS_RadioRacersGameplay[] =
 {			
+	{IT_STRING | IT_CVAR, "Drift Spark Pulse Size", "Tweak the scale of the drift spark whilst drifting.",
+		NULL, {.cvar = &cv_driftsparkrate_size}, 0, 0},
+
 	{IT_STRING | IT_CVAR, "Extended Controller Rumbles", "Toggle the extended controller rumble events.",
 		NULL, {.cvar = &cv_morerumbleevents}, 0, 0},
 
@@ -298,7 +319,7 @@ void RumbleEvents_OnChange(void)
 
 	UINT16 newstatus = (cv_morerumbleevents.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
 
-	for (int i = 2; i < 10; i++) {
+	for (int i = 3; i < 11; i++) {
 		OPTIONS_RadioRacersGameplay[i].status = newstatus;
 	}
 
