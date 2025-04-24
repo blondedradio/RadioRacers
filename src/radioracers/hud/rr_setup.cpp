@@ -640,11 +640,11 @@ void RR_AddEmotes(UINT16 wadnum)
     boolean eligible_emote = false;
     boolean eligible_rank_emote = false;
     size_t lump_size;
-    emote_t* rank_emote = static_cast<emote_t*>(malloc(sizeof(emote_t)));
-
+    
     // As long as there's an EMOTEDEF lump
     while((lump = W_CheckNumForNamePwad(GRADE_EMOTE_CONFIG_LUMP, wadnum, lastlump)) != INT16_MAX)
     {
+        emote_t* rank_emote = static_cast<emote_t*>(malloc(sizeof(emote_t)));
         eligible_emote = false;
         eligible_rank_emote = false;
         lastlump = lump + 1;
