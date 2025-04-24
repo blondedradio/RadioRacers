@@ -764,6 +764,38 @@ void RR_drawRidersFinishTicker(void)
     }
 }
 
+/** 
+ * Draw mini laps
+ */
+void RR_DrawKartLapsMini(void)
+{
+    if (r_splitscreen)
+        return;
+    
+    const INT32 MINI_LAPS_Y = LAPS_Y + 5;
+    const INT32 splitflags = V_HUDTRANS|V_SLIDEIN|V_SNAPTOBOTTOM|V_SNAPTOLEFT;
+    using srb2::Draw;
+
+    Draw(LAPS_X + 7, MINI_LAPS_Y)
+        .flags(splitflags)
+        .align(Draw::Align::kCenter)
+        .width(40)
+        .small_sticker();
+
+    V_DrawScaledPatch(
+        LAPS_X + 8, 
+        MINI_LAPS_Y - 2, 
+        splitflags, 
+        static_cast<patch_t *>(W_CachePatchName("K_SPTLAP", PU_HUDGFX))
+    );
+        
+    V_DrawThinTimerString(
+        LAPS_X+24, 
+        MINI_LAPS_Y - 4, 
+        splitflags, 
+        va("%d/%d", std::min(stplyr->laps, numlaps), numlaps)
+    );
+}
 /**
  * Empty the queue!
  */
