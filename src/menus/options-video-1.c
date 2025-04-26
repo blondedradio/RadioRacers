@@ -46,6 +46,13 @@ menuitem_t OPTIONS_Video[] =
 	 * Pause Button -> Options -> Profile Setup -> Scroll to Profile -> Accessibility -> Field of View ....
 	 * 
 	 */
+
+	{IT_STRING | IT_CVAR, "Camera Height", "Tweak the camera HEIGHT for the first player (i.e. you).",
+		NULL, {.cvar = &cv_cam_height[0]}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Camera Distance", "Tweak the camera DISTANCE for the first player (i.e. you).",
+		NULL, {.cvar = &cv_cam_dist[0]}, 0, 0},
+	
 	{IT_STRING | IT_CVAR, "Field of View", "Tweak the FOV for the first player (i.e. you).",
 		NULL, {.cvar = &cv_fov[0]}, 0, 0},
 
