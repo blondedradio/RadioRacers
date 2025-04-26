@@ -507,8 +507,8 @@ consvar_t stereoreverse = Player("stereoreverse", "Off").on_off();
  */
 // Backport of accessibility option from SRB2Kart.
 consvar_t cv_translucenthud = Player("translucenthud", "10").min_max(0, 10);
-
-consvar_t cv_driftsparkrate_size = Player("driftsparkpulsesize", "2.95").floating_point().min_max(0, 30*FRACUNIT).save();
+consvar_t cv_toggle_nametags = Player("nametags", "On").on_off();
+consvar_t cv_driftsparkrate_size = Player("driftsparkpulsesize", "2.95").floating_point().min_max(1, 30*FRACUNIT).step_amount(FRACUNIT).save();
 // Vote Snitch
 consvar_t cv_votesnitch = Player("votesnitch", "On").on_off();
 
@@ -622,6 +622,7 @@ consvar_t cv_toggle_laps_race = Player("racelapstoggle", "Default").values({
 	{1, "Minimal"}
 });
 
+consvar_t cv_toggle_position_number = Player("positionnumbertoggle", "On").on_off();
 consvar_t cv_toggle_race_minimap = Player("raceminimaptoggle", "On").on_off();
 consvar_t cv_toggle_trick_cool = Player("tricktexttoggle", "On").on_off();
 consvar_t cv_toggle_race_standings = Player("racestandingstoggle", "On").on_off();
@@ -1266,14 +1267,14 @@ consvar_t cv_autoring[MAXSPLITSCREENPLAYERS] = {
 };
 
 consvar_t cv_cam_dist[MAXSPLITSCREENPLAYERS] = {
-	Player("cam_dist", "190").floating_point(),
+	Player("cam_dist", "190").floating_point().min_max(190, 300*FRACUNIT).step_amount(FRACUNIT),
 	Player("cam2_dist", "190").floating_point(),
 	Player("cam3_dist", "190").floating_point(),
 	Player("cam4_dist", "190").floating_point(),
 };
 
 consvar_t cv_cam_height[MAXSPLITSCREENPLAYERS] = {
-	Player("cam_height", "95").floating_point(),
+	Player("cam_height", "95").floating_point().min_max(95, 300*FRACUNIT).step_amount(FRACUNIT),
 	Player("cam2_height", "95").floating_point(),
 	Player("cam3_height", "95").floating_point(),
 	Player("cam4_height", "95").floating_point(),
@@ -1361,7 +1362,7 @@ consvar_t cv_followercolor[MAXSPLITSCREENPLAYERS] = {
 
 void Fov_OnChange(void);
 consvar_t cv_fov[MAXSPLITSCREENPLAYERS] = {
-	Player("fov", "100").floating_point().min_max(60*FRACUNIT, 179*FRACUNIT).onchange(Fov_OnChange).dont_save(),
+	Player("fov", "100").floating_point().min_max(60*FRACUNIT, 179*FRACUNIT).step_amount(FRACUNIT).onchange(Fov_OnChange).dont_save(),
 	Player("fov2", "100").floating_point().min_max(60*FRACUNIT, 179*FRACUNIT).onchange(Fov_OnChange).dont_save(),
 	Player("fov3", "100").floating_point().min_max(60*FRACUNIT, 179*FRACUNIT).onchange(Fov_OnChange).dont_save(),
 	Player("fov4", "100").floating_point().min_max(60*FRACUNIT, 179*FRACUNIT).onchange(Fov_OnChange).dont_save(),
