@@ -8554,7 +8554,7 @@ void K_drawKartHUD(void)
 				K_drawKartPlayerCheck();
 
 		// nametags
-		if (LUA_HudEnabled(hud_names) && R_DrawPickups())
+		if (LUA_HudEnabled(hud_names) && R_DrawPickups() && (cv_toggle_nametags.value && !(gametyperules & GTR_POINTLIMIT)))
 			K_drawKartNameTags();
 
 		// Draw WANTED status
@@ -8848,7 +8848,7 @@ void K_drawKartHUD(void)
 						}
 					}
 				}
-				else if (!islonesome && !K_Cooperative())
+				else if (!islonesome && !K_Cooperative() && cv_toggle_position_number.value)
 				{
 					K_DrawKartPositionNum(stplyr->position);
 				}
