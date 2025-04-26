@@ -14,6 +14,8 @@
 
 #include "../../d_main.h"
 #include "../../v_video.h"
+#include "../../k_kart.h"
+#include "../../r_main.h"
 
 // HUD Options - Race
 static menuitem_t OPTIONS_RadioRacersHudRace[] =
@@ -24,14 +26,17 @@ static menuitem_t OPTIONS_RadioRacersHudRace[] =
 	{IT_STRING | IT_CVAR, "Ring Counter Overflow", "Show/hide overflow text on RING COUNTER.",
 		NULL, {.cvar = &cv_toggle_rings_excess}, 0, 0},
 
-	{IT_SPACE | IT_NOTHING, NULL,  NULL,
-		NULL, {NULL}, 0, 0},
-
 	{IT_HEADER, "Toggle HUD Elements", NULL,
 		NULL, {NULL}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Timer", "Toggle the display style for the Timer.",
 		NULL, {.cvar = &cv_toggle_timestamp_race}, 0, 0},   
+		
+	{IT_STRING | IT_CVAR, "Nametags", "Toggle in-game nametags.",
+		NULL, {.cvar = &cv_toggle_nametags}, 0, 0},   
+		
+	{IT_STRING | IT_CVAR, "Position Number", "Toggle position number on the bottom-right.",
+		NULL, {.cvar = &cv_toggle_position_number}, 0, 0},   
 
 	{IT_STRING | IT_CVAR, "Laps", "Toggle the display style for the Laps.",
 		NULL, {.cvar = &cv_toggle_laps_race}, 0, 0}, 
