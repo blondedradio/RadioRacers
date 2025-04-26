@@ -24,9 +24,37 @@
 #include "../../z_zone.h"
 #include "../../r_defs.h"
 #include "../../r_picformats.h"
+#include "../../deh_tables.h"
 
 static const char* EMOTE_FRAME_NAME = "FRAME";
 static const char* EMOTE_ATLAS_FRAME_NAME = "EMOATLAS";
+
+
+std::vector<std::string> OLD_RING_STATES = {
+    "S_RING_OLD",
+    "S_FASTRINGOLD1",
+    "S_FASTRINGOLD2",
+    "S_FASTRINGOLD3",
+    "S_FASTRINGOLD4",
+    "S_FASTRINGOLD5",
+    "S_FASTRINGOLD6",
+    "S_FASTRINGOLD7",
+    "S_FASTRINGOLD8",
+    "S_FASTRINGOLD9",
+    "S_FASTRINGOLD10",
+    "S_FASTRINGOLD11",
+    "S_FASTRINGOLD12",
+};
+/**
+ * freeslotting in lua converts the sprite name (e.g. "SPR_RING" -> "RING") into an integer.
+ * Each letter is an ASCII code (e.g. "R" = 82 = 0x82), and 
+ * the resulting integer is the 4 separate bytes (for each character) as one BIG number!
+ * Clever stuff.
+ * 
+ * So instead of JUST storing a string then converting it.. store the integer representation too.
+ */
+static const char* OLD_RING_SPRNAME = "RNGO";
+static const uint32_t OLD_RING_INTEGER = 0x524E474F;
 
 boolean found_radioracers = false;
 boolean found_radioracers_plus = false;
@@ -850,6 +878,59 @@ void RR_CleanupEmoteFrames(void) {
     emoteLastUpdate.clear();
 }
 
+// Add old ring sprite and state by freeslotting them
+static void AddOldRings(void)
+{
+    // snipping out the SPR and S_ freeslot branches from lib_freeslot
+
+    // freeslot the sprite name
+    int idx;
+    for (idx = SPR_FIRSTFREESLOT; idx <= SPR_LASTFREESLOT; idx++)
+    {
+        spritenum_t j = (spritenum_t)(idx);
+        if (used_spr[(j-SPR_FIRSTFREESLOT)/8] & (1<<(j%8)))
+        {
+            if (!sprnames[j][4] && memcmp(sprnames[j],OLD_RING_SPRNAME,4)==0)
+                sprnames[j][4] = static_cast<char>(OLD_RING_INTEGER);
+            continue; // Already allocated, next.
+        }
+        // Found a free slot!
+        CONS_Printf("RADIO: Sprite SPR_%s allocated.\n", OLD_RING_SPRNAME);
+        memcpy(sprnames[j],OLD_RING_SPRNAME,4);
+        sprnames[j][4] = '\0';
+        used_spr[(j-SPR_FIRSTFREESLOT)/8] |= 1<<(j%8); // Okay, this sprite slot has been named now.
+        break;
+    }
+    if (idx > SPR_LASTFREESLOT)
+        CONS_Alert(CONS_WARNING, "Ran out of free sprite slots!\n");
+
+    // and freeslot the state
+    // loop over state vector and assign all the state properties, the sprite name etc
+    // save the statenum_t (return S_FIRSTFREESLOT+i;)
+    // and then loop get the state by id states[ID] and set all the shit there
+    // check hw_main.c
+    int i;
+    int test = 0;
+    for (i = 0; i < NUMSTATEFREESLOTS; i++) {
+        statenum_t s = (statenum_t)(i);
+
+        if (!FREE_STATES[s]) {
+            CONS_Printf("RADIO: State S_%s allocated.\n","S_RING_OLD");
+            FREE_STATES[s] = static_cast<char*>(Z_Malloc(strlen("S_RING_OLD")+1, PU_STATIC, NULL));
+            strcpy(FREE_STATES[s],"S_RING_OLD");
+            CONS_Printf("idx %d\n", i);
+            test = i;
+            break;
+        }
+    }
+    if (i == NUMSTATEFREESLOTS)
+        CONS_Alert(CONS_WARNING, "Ran out of free State slots!\n");
+
+    // CONS_Printf("RADIO TEST: %s\n", FREE_STATES[test]);
+
+    // and then define the states manually
+}
+
 /** Initialize anything relating to RadioRacers */
 void RR_Init(void) {
     if (dedicated)
@@ -878,6 +959,9 @@ void RR_Init(void) {
             HU_UpdatePatch(&end_key[1], "EMENU_AB");
             radioracers_useendkey = true;
         }
+
+        // Ring style
+        // AddOldRings();
     }
 
     // Any emotes?
