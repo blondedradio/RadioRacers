@@ -55,6 +55,7 @@
 
 // Radio Racers
 #include "radioracers/rr_cvar.h"
+#include "radioracers/rr_util.h"
 
 #define MINZ (FRACUNIT*4)
 #define BASEYCENTER (BASEVIDHEIGHT/2)
@@ -946,7 +947,10 @@ static void R_DrawVisSprite(vissprite_t *vis)
 	R_SetColumnFunc(BASEDRAWFUNC, false); // hack: this isn't resetting properly somewhere.
 	dc.colormap = vis->colormap;
 	dc.fullbright = colormaps;
-	dc.translation = R_GetSpriteTranslation(vis);
+
+	// RADIO: Can't manipulate the mobj's directly because that'll cause desyncs out the ass
+	boolean ghostMo = RR_ShouldGhostRing(vis->mobj) || RR_ShouldGhostRingboxes(vis->mobj);
+	dc.translation = (ghostMo) ? R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(SKINCOLOR_NICKEL), GTC_CACHE) : R_GetSpriteTranslation(vis);
 
 	// Hack: Use a special column function for drop shadows that bypasses
 	// invalid memory access crashes caused by R_ProjectDropShadow putting wrong values
@@ -2204,6 +2208,10 @@ static void R_ProjectSprite(mobj_t *thing)
 		sort_y = FixedMul(FixedMul(FixedMul(spriteyscale, this_scale), sort_z), FINESINE(ang));
 	}
 
+	if (RR_ShouldGhostItemCapsuleNumbers(thing)) {
+		return;
+	}
+
 	if ((thing->flags2 & MF2_LINKDRAW) && thing->tracer) // toast 16/09/16 (SYMMETRY)
 	{
 		interpmobjstate_t tracer_interp = {0};
@@ -2312,6 +2320,9 @@ static void R_ProjectSprite(mobj_t *thing)
 		if (trans >= NUMTRANSMAPS)
 			return; // cap
 	}
+
+	if (RR_ShouldGhostRing(thing) || RR_ShouldGhostRingboxes(thing) || RR_ShouldGhostItemCapsuleParts(thing))
+		trans = (RF_TRANS60 & RF_TRANSMASK) >> RF_TRANSSHIFT;
 
 	// Check if this sprite needs to be rendered like a shadow
 	shadowdraw = (!!(thing->renderflags & RF_SHADOWDRAW) && !(papersprite || splat));

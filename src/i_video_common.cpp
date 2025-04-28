@@ -48,6 +48,11 @@
 #include "st_stuff.h"
 #include "v_video.h"
 
+// RadioRacers
+#include "radioracers/rr_video.h"
+
+boolean isPingDrawn = false;
+
 extern "C" consvar_t cv_scr_scale, cv_scr_x, cv_scr_y;
 
 using namespace srb2;
@@ -117,20 +122,21 @@ static void temp_legacy_finishupdate_draws()
 		return;
 	}
 
+	isPingDrawn = false;
 	if (st_overlay)
 	{
 		if (cv_songcredits.value)
 			HU_DrawSongCredits();
-
-		if (cv_ticrate.value)
-			SCR_DisplayTicRate();
 
 		if (netgame && (consoleplayer != serverplayer || !server_lagless))
 		{
 			if (server_lagless)
 			{
 				if (consoleplayer != serverplayer)
+				{
 					SCR_DisplayLocalPing();
+					isPingDrawn = true;
+				}
 			}
 			else
 			{
@@ -138,6 +144,7 @@ static void temp_legacy_finishupdate_draws()
 				{
 					if (D_IsPlayerHumanAndGaming(player))
 					{
+						isPingDrawn = true;
 						SCR_DisplayLocalPing();
 						break;
 					}
@@ -145,7 +152,14 @@ static void temp_legacy_finishupdate_draws()
 			}
 		}
 		if (cv_mindelay.value && consoleplayer == serverplayer && Playing())
+		{
 			SCR_DisplayLocalPing();
+			isPingDrawn = true;
+		}
+
+		// RADIO: Changed fps/ping layout, so need to define a custom boolean to check if ping is being drawn
+		if (cv_ticrate.value)
+			SCR_DisplayTicRate();
 #ifdef SRB2_CONFIG_ENABLE_WEBM_MOVIES
 		M_AVRecorder_DrawFrameRate();
 #endif

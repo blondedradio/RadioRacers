@@ -30,6 +30,7 @@ extern menuitem_t OPTIONS_RadioRacersHud[];
 extern menu_t OPTIONS_RadioRacersHudDef;
 
 void RadioFunMenu_Init(void);
+void RadioAccessibilityMenu_Init(void);
 
 #ifdef __cplusplus
 } // extern "C"
