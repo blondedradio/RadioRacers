@@ -102,9 +102,10 @@ extern "C" {
 #define EMOTE_PADDING 1
 #define GET_CHAT_EMOTE_SCALE(h, has_text) (((has_text) ? MAX_HEIGHT_WITH_TEXT : MAX_HEIGHT)/static_cast<float_t>(h))
 
-// Thin timer font isn't used anywhere
 #define V_DrawThinTimerString( x,y,option,string ) \
 	V__DrawDupxString (x,y,FRACUNIT,option,NULL,TINYTIMER_FONT,string)
+
+extern boolean isPingDrawn;
 
 #ifdef __cplusplus
 } // extern "C"
