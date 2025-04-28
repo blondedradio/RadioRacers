@@ -10923,8 +10923,11 @@ void K_KartPlayerThink(player_t *player, ticcmd_t *cmd)
 			player->growshrinktimer--;
 			if (player->growshrinktimer && scamming)
 				player->growshrinktimer--;
-		}
 
+			// RADIO: Directly from HOSTMOD for SRB2Kart, so credit to Tyron.
+			RR_PlayCountdownJingle(player->growshrinktimer, player);
+		}
+		
 		if (player->growshrinktimer < 0)
 			player->growshrinktimer++;
 

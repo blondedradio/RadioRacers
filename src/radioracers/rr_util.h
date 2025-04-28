@@ -25,6 +25,13 @@ typedef enum {
 extern int scaleInt(int value, fixed_t scale);
 extern void RR_HandleBlueSphereRumble(player_t *player);
 extern void RR_AnnounceBattleWinner(player_t *player, battle_win_type_t type);
+extern void RR_PlayCountdownJingle(INT16 timer, player_t *player);
+extern boolean RR_ShouldGhostRing(mobj_t *mo);
+extern boolean RR_ShouldGhostRingboxes(mobj_t *mo);
+extern boolean RR_ShouldGhostItemCapsuleParts(mobj_t* mo);
+extern boolean RR_ShouldGhostItemCapsuleNumbers(mobj_t *mo);
+
+#define IS_BEING_CHASED_BY_SPB(p) (p->pflags & PF_RINGLOCK)
 
 #ifdef __cplusplus
 } // extern "C"

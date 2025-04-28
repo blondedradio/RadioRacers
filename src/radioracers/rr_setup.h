@@ -22,6 +22,7 @@ extern boolean radioracers_usehakiencore;
 extern boolean radioracers_useendkey;
 extern patch_t *end_key[2];
 extern sfxenum_t radio_ding_sound;
+extern sfxenum_t radio_last_powerup_jingle_sound;
 extern void RR_Init(void);
 extern void RR_AddAllEmotes(UINT16 wadnum);
 extern void RR_CleanupEmoteFrames(void);
