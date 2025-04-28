@@ -12,10 +12,12 @@
 #include "../../doomstat.h" // encoremode, localencore
 #include "../rr_util.h" // encoremode, localencore
 #include "../rr_cvar.h"
+#include "../rr_setup.h"
 #include "../rr_controller.h"
 #include "../../p_local.h"
 #include "../../hu_stuff.h"
 #include "../../g_game.h"
+#include "../../s_sound.h"
 
 boolean shouldApplyEncore(void)
 {
@@ -65,6 +67,75 @@ void RR_AnnounceBattleWinner(player_t *player, battle_win_type_t type)
 
     // va causes crashes sometimes but ONLY semi-rarely, weird.
     HU_DoCEcho(va(BATTLE_WIN_MESSAGES[type], player_names[player-players]));    
+}
+
+void RR_PlayCountdownJingle(INT16 timer, player_t *player) {
+    if (!cv_powersound.value)
+        return;
+
+    if (stplyr != player)
+        return;
+
+    if (timer > 0 && timer <= 3 * TICRATE)
+    {
+        if (timer % TICRATE == 0)
+        {
+            S_StartSound(NULL, sfx_s242);
+            
+            // (skypegiggle)
+            if (found_radioracers && cv_powersoundjoke.value && radio_last_powerup_jingle_sound != sfx_None && timer == TICRATE) {
+                S_StartSoundAtVolume(NULL, radio_last_powerup_jingle_sound, 255/4);
+            }
+        }
+    }
+}
+	
+static boolean isRing(mobj_t* mo)
+{
+    return (mo->type == MT_RING || mo->type == MT_FLINGRING);
+}
+static boolean isRingBox(mobj_t* mo)
+{
+    statenum_t specialstate = mo->state - states;
+    return (mo->type == MT_RANDOMITEM) && (specialstate >= S_RINGBOX1 && specialstate <= S_RINGBOX12);
+}
+
+static boolean canGhost(void)
+{
+    return cv_accessibility_rings_hide.value && r_splitscreen == 0;
+}
+
+boolean RR_ShouldGhostRing(mobj_t *mo)
+{
+    return canGhost() &&
+    isRing(mo) && 
+    !(!P_MobjWasRemoved(mo->target) && mo->target->type == MT_PLAYER) && 
+    (IS_BEING_CHASED_BY_SPB(stplyr) || RINGTOTAL(stplyr) >= 20);
+}
+
+boolean RR_ShouldGhostRingboxes(mobj_t *mo)
+{
+    return canGhost() &&
+    isRingBox(mo) && 
+    (IS_BEING_CHASED_BY_SPB(stplyr));
+}
+
+boolean RR_ShouldGhostItemCapsuleParts(mobj_t *mo)
+{
+    return canGhost() &&
+    (
+        (mo->type == MT_ITEMCAPSULE_PART && (mo->sprite == SPR_ITEM && mo->frame & KITEM_SUPERRING)) ||
+        (mo->type == MT_ITEMCAPSULE)
+    ) &&
+    IS_BEING_CHASED_BY_SPB(stplyr);
+}
+
+boolean RR_ShouldGhostItemCapsuleNumbers(mobj_t *mo)
+{
+    // isSuperRingItemNumber is only set to true in p_mobj.c in P_RefreshItemCapsuleParts
+    return canGhost() && 
+    mo->isSuperRingItemNumber &&
+    IS_BEING_CHASED_BY_SPB(stplyr);
 }
 
 int scaleInt(int value, fixed_t scale)

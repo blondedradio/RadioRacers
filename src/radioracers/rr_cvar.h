@@ -26,7 +26,12 @@ extern consvar_t cv_votesnitch;         // Vote Snitch
 extern consvar_t cv_ringsonplayer;      // Rings drawn on player
 extern consvar_t cv_rouletteonplayer;   // Item/Ring Roulette drawn on player
 extern consvar_t cv_applylocalencore;    // Clientside encore palettes
+
+// Accessibility
 extern consvar_t cv_applyhaki;           // Observation Haki mode
+extern consvar_t cv_accessibility_rings_hide; // Ghost rings and ringboxes when you're unable to collect any rings.
+extern consvar_t cv_powersound; // Straight from HOSTMOD, thanks Tyron
+extern consvar_t cv_powersoundjoke;
 
 // Battle
 extern consvar_t cv_customemeraldhud;    // Alternate Emerald display for Battle Mode
@@ -37,6 +42,7 @@ extern consvar_t cv_targetrackplayers;  // Toggle the TARGET HUD graphics for ot
 
 void KartLocalEncore_OnChange(void);
 void KartHaki_OnChange(void);
+void KartExtraPowerSound_OnChange(void);
 void KartFinishLineTicker_OnChange(void);
 void RR_ChatEmotes_OnChange(void);
 void RR_ChatEmoteSort_OnChange(void);
@@ -72,6 +78,7 @@ extern consvar_t cv_hud_hidelapemblem; // Hide the bigass lap emblem when you st
 extern consvar_t cv_hud_usehighresportraits; // Draw higher-res portraits in the minirankings
 extern consvar_t cv_holdbuttonforscoreboard; // Restore SRB2Kart behaviour when viewing in-game scoreboards
 extern consvar_t cv_inputdisplaytoggle; // Toggle betweeen DIGITAL and ANALOG input display controller
+extern consvar_t cv_inputdisplaytogglesize; // Toggle controller display size (mini or big)
 extern consvar_t cv_show_riders_finish_ticker; // Show the Sonic Riders :tm: finish line ticker
 extern consvar_t cv_chat_emotes;                    // Self-explanatory
 extern consvar_t cv_chat_emotes_animated;           // Should emotes animate?

@@ -9077,8 +9077,13 @@ void K_KartPlayerThink(player_t *player, ticcmd_t *cmd)
 
 	if ((player->respawn.state == RESPAWNST_NONE) && player->growshrinktimer != 0)
 	{
-		if (player->growshrinktimer > 0 && (onground == true || player->ignoreAirtimeLeniency > 0))
+		if (player->growshrinktimer > 0 && (onground == true || player->ignoreAirtimeLeniency > 0)) {
 			player->growshrinktimer--;
+
+			// RADIO: Directly from HOSTMOD for SRB2Kart, so credit to Tyron.
+			RR_PlayCountdownJingle(player->growshrinktimer, player);
+		}
+		
 		if (player->growshrinktimer < 0)
 			player->growshrinktimer++;
 
