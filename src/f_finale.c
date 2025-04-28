@@ -1893,6 +1893,10 @@ void F_VersionDrawer(void)
 		}
 
 #else // Regular build
+		// RADIO: Branding, branding, branding
+		addtext(trans, va("%s [%s]", compdate, comptime));
+		addtext(trans, va("%s", D_GetFancyBranchName()));
+		addtext(trans, va("\x82radio\x80 [\x82%s\x80]", comprevision));
 		addtext(trans, va("%s", VERSIONSTRING));
 #endif
 

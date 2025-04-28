@@ -68,6 +68,10 @@ void M_MPRoomSelectInit(INT32 choice)
 {
 	(void)choice;
 
+	/**
+	 * RADIO: Prefer SRB2Kart's approach to this.
+	 * Warn the player AS they attempt to connect to a server, but don't stop them from being able to search.
+	 */
 	if (modifiedgame)
 	{
 		M_StartMessage("Server Browser & Add-Ons", M_GetText("You have add-ons loaded.\nYou won't be able to join netgames!\n\nTo play online, restart the game\nand don't load any addons.\n\n\"Dr. Robotnik's Ring Racers\" will\nautomatically add everything\nyou need when you join.\n"), NULL, MM_NOTHING, NULL, NULL);
