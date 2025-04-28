@@ -29,7 +29,7 @@ void RR_VoteSnitchNewVote(midVoteType_e type, player_t *victim, player_t *caller
 	const char *levelTitle = mapheaderinfo[gamemap-1]->lvlttl;
 	switch (type){
 		case MVT_KICK: // Kick
-			voteReason = va("\x82KICK \x89%s \x86", player_names[victim - players]);
+			voteReason = va("\x82KICK \x89%s\x86", player_names[victim - players]);
 			break;
 		case MVT_RTV: // Skip
 			if (*levelTitle != '\0') {

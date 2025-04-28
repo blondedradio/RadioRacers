@@ -76,6 +76,7 @@
 #include "byteptr.h"
 
 #include "radioracers/rr_hud.h"
+#include "radioracers/rr_util.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_light.h"
@@ -1835,6 +1836,9 @@ static void P_CheckInvincibilityTimer(player_t *player)
 	if (!player->invincibilitytimer)
 		return;
 
+	// RADIO: Directly from HOSTMOD for SRB2Kart, so credit to Tyron.
+	RR_PlayCountdownJingle(player->invincibilitytimer, player);
+	
 	// Resume normal music stuff.
 	if (player->invincibilitytimer == 1)
 	{

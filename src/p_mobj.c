@@ -4555,6 +4555,9 @@ static void P_RefreshItemCapsuleParts(mobj_t *mobj)
 		part = part->tracer;
 		part->sprite = SPR_ITMN;
 		part->frame = FF_FULLBRIGHT|(count % 10);
+
+		// RADIO: Setting this boolean here
+		part->isSuperRingItemNumber = (itemType == KITEM_SUPERRING);
 		count /= 10;
 		numNumbers++;
 	}

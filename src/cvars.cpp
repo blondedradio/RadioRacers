@@ -518,6 +518,13 @@ consvar_t cv_applylocalencore = Player("localencore", "Off").values({{0, "Off"},
 // Observation Haki
 consvar_t cv_applyhaki = Player("hakimode", "Off").values({{0, "Off"}, {1, "On"}}).dont_save().onchange_noinit(KartHaki_OnChange);
 
+// Rings Ghost Accessibility
+consvar_t cv_accessibility_rings_hide = Player("ringsaccessibility", "On").on_off();
+
+// Powerup jingle - straight from HOSTMOD, thanks Tyron.
+consvar_t cv_powersound = Player("powersoundhc", "Off").on_off();
+consvar_t cv_powersoundjoke = Player("powersoundjokehc", "On").on_off().onchange(KartExtraPowerSound_OnChange);
+
 consvar_t cv_show_riders_finish_ticker = Player("ridersfinishticker", "On").on_off().onchange_noinit(KartFinishLineTicker_OnChange);
 
 // Rumble Events
@@ -609,6 +616,10 @@ consvar_t cv_holdbuttonforscoreboard = Player("holdbuttonforscoreboard", "No").y
 consvar_t cv_inputdisplaytoggle = Player("inputdisplaytoggle", "Digital").values({
 	{'2', "Digital"}, 
 	{'4', "Analog"}
+});
+consvar_t cv_inputdisplaytogglesize = Player("inputdisplaytogglesize", "Mini").values({
+	{0, "Normal"}, 
+	{1, "Mini"}
 });
 
 consvar_t cv_toggle_timestamp_race = Player("racetimestamptoggle", "Default").values({

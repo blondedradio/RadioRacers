@@ -64,6 +64,7 @@ boolean radioracers_useendkey = false;
 patch_t* end_key[2];
 
 sfxenum_t radio_ding_sound;
+sfxenum_t radio_last_powerup_jingle_sound; // Very important
 
 /**
  * 300 frames is really generous. 
@@ -943,6 +944,9 @@ void RR_Init(void) {
     if (found_radioracers) {
         // Yeah
         radio_ding_sound = S_AddSoundFx("emenup", false, 0, false);
+
+        // VERY important
+        radio_last_powerup_jingle_sound = S_AddSoundFx("pujvlj", false, 0, false);
     
         // Mute icon for Pause Menu
         if (W_LumpExists("M_ICOMUT") && W_LumpExists("M_ICOMU2")) {

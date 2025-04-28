@@ -3000,7 +3000,8 @@ void K_DrawKartPositionNumXY(
 static void K_DrawKartPositionNum(UINT8 num)
 {
 	UINT8 splitIndex = (r_splitscreen > 0) ? 1 : 0;
-	fixed_t scale = FRACUNIT;
+	// RADIO: It's pretty big already
+	fixed_t scale = FRACUNIT/2;
 	fixed_t fx = 0, fy = 0;
 	transnum_t trans = static_cast<transnum_t>(0);
 	INT32 fflags = 0;
@@ -3030,8 +3031,9 @@ static void K_DrawKartPositionNum(UINT8 num)
 	// pain and suffering defined below
 	if (!r_splitscreen)
 	{
+		const boolean isDrawingInput = gamestate == GS_LEVEL && cv_drawinput.value && cv_inputdisplaytogglesize.value;
 		fx = BASEVIDWIDTH << FRACBITS;
-		fy = BASEVIDHEIGHT << FRACBITS;
+		fy = (BASEVIDHEIGHT - (isDrawingInput ? 14 : 10)) << FRACBITS;
 		fflags = V_SNAPTOBOTTOM|V_SNAPTORIGHT;
 	}
 	else if (r_splitscreen == 1)	// for this splitscreen, we'll use case by case because it's a bit different.
@@ -7741,6 +7743,12 @@ static void K_drawInput(void)
 		mode = cv_inputdisplaytoggle.value;
 	}
 	mode += (r_splitscreen > 1);
+
+	if (cv_inputdisplaytogglesize.value) {
+		mode += 1;
+		def[k][0] = 290;
+		def[k][1] = 178;
+	}
 	bool local = !demo.playback && P_IsMachineLocalPlayer(stplyr);
 	fixed_t slide = K_GetDialogueSlide(FRACUNIT);
 	INT32 tallySlide = []() -> INT32
@@ -8639,6 +8647,12 @@ void K_drawKartHUD(void)
 			bool ta = modeattacking && !demo.playback;
 
 			tic_t realtime = stplyr->realtime;
+
+			// RADIO: Little thing
+			if (leveltime < starttime)
+			{
+				realtime = starttime - leveltime;
+			}
 
 			if (stplyr->karthud[khud_lapanimation]
 				&& !stplyr->exiting
