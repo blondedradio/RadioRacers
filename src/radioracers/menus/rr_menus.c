@@ -20,12 +20,6 @@
 // HUD Options - Race
 static menuitem_t OPTIONS_RadioRacersHudRace[] =
 {
-	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle the RING COUNTER's HUD position.",
-		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
-
-	{IT_STRING | IT_CVAR, "Ring Counter Overflow", "Show/hide overflow text on RING COUNTER.",
-		NULL, {.cvar = &cv_toggle_rings_excess}, 0, 0},
-
 	{IT_HEADER, "Toggle HUD Elements", NULL,
 		NULL, {NULL}, 0, 0},
 
@@ -139,11 +133,23 @@ menuitem_t OPTIONS_RadioRacersHud[] =
 	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
 
+	{IT_HEADER, "Ring Counter Options", NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle the RING COUNTER's HUD position.",
+		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Ring Counter Overflow", "Show/hide overflow text on RING COUNTER.",
+		NULL, {.cvar = &cv_toggle_rings_excess}, 0, 0},
+
 	{IT_HEADER, "General Options", NULL,
 		NULL, {NULL}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Input Display Type", "Toggle between the DIGITAL and ANALOG controller types in the input display.",
 		NULL, {.cvar = &cv_inputdisplaytoggle}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Input Display Size", "Toggle the size of the input display size",
+		NULL, {.cvar = &cv_inputdisplaytogglesize}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Hold Rankings Button", "Press and hold the rankings button to view the rankings, just like in SRB2Kart.",
 		NULL, {.cvar = &cv_holdbuttonforscoreboard}, 0, 0},
@@ -184,6 +190,53 @@ menu_t OPTIONS_RadioRacersHudDef = {
 	M_DrawOptionsCogs,
 	M_OptionsTick,
 	Roulette_OnChange,
+	NULL,
+	NULL,
+};
+
+// Accessibility
+static menuitem_t OPTIONS_RadioRacersAccessibility[] =
+{
+	{IT_STRING | IT_CVAR, "Observation Haki", "Apply a grayscale filter to the level, keeping important elements in colour.",
+		NULL, {.cvar = &cv_applyhaki}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Ghost Rings", "Ghost rings and ringboxes when you're unable to collect any rings.",
+		NULL, {.cvar = &cv_accessibility_rings_hide}, 0, 0},
+
+	{IT_SPACE | IT_NOTHING, NULL,  NULL,
+		NULL, {NULL}, 0, 0},
+	
+	{IT_HEADER, "Powerups", NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Powerup Countdown Jingle", "Play an audible countdown when your invincibility/grow powerup is about to end.",
+		NULL, {.cvar = &cv_powersound}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Extra Countdown Jingle", "Play an extra sound on the last second the coutdown jingle.",
+		NULL, {.cvar = &cv_powersoundjoke}, 0, 0},
+};
+
+void RadioAccessibilityMenu_Init(void)
+{
+	if (!found_radioracers || radio_last_powerup_jingle_sound == sfx_None) {
+		OPTIONS_RadioRacersAccessibility[5].status = IT_GRAYEDOUT;	
+	}
+}
+
+static menu_t OPTIONS_RadioRacersAccessibilityDef = {
+	sizeof (OPTIONS_RadioRacersAccessibility) / sizeof (menuitem_t),
+	&OPTIONS_RadioRacersMenuDef,
+	0,
+	OPTIONS_RadioRacersAccessibility,
+	48, 80,
+	SKINCOLOR_SUNSLAM, 0,
+	MBF_DRAWBGWHILEPLAYING,
+	NULL,
+	2, 5,
+	M_DrawGenericOptions,
+	M_DrawOptionsCogs,
+	M_OptionsTick,
+	RadioAccessibilityMenu_Init,
 	NULL,
 	NULL,
 };
@@ -246,11 +299,8 @@ static menu_t OPTIONS_RadioRacersGameplayDef = {
 // Fun features
 static menuitem_t OPTIONS_RadioRacersFun[] =
 {
-	{IT_STRING | IT_CVAR, "Enable Encore Palettes", "Toggle encore palettes clientside for levels, if available.",
+	{IT_STRING | IT_CVAR, "Enable Encore Palettes (Clientside)", "Toggle encore palettes clientside for levels, if available.",
 		NULL, {.cvar = &cv_applylocalencore}, 0, 0},
-
-	{IT_STRING | IT_CVAR, "Observation Haki", "Apply a grayscale filter to the level, keeping important elements in colour.",
-		NULL, {.cvar = &cv_applyhaki}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Riders Finish Line Ticker", "Show a finish line ticker, like in Sonic Riders!",
 		NULL, {.cvar = &cv_show_riders_finish_ticker}, 0, 0},
@@ -289,6 +339,9 @@ menuitem_t OPTIONS_RadioRacersMenu[] =
 
 	{IT_STRING | IT_SUBMENU, "Gameplay..", "Gameplay-enhancing options.",
 		NULL, {.submenu = &OPTIONS_RadioRacersGameplayDef}, 0, 0},
+
+	{IT_STRING | IT_SUBMENU, "Accessibility..", "Accessibility options.",
+		NULL, {.submenu = &OPTIONS_RadioRacersAccessibilityDef}, 0, 0},
 
 	{IT_STRING | IT_SUBMENU, "\\(^_^)/", "Fun stuff!",
 		NULL, {.submenu = &OPTIONS_RadioRacersFunDef}, 0, 0},
@@ -350,7 +403,7 @@ void Roulette_OnChange(void)
 
 	UINT16 newstatus = (cv_rouletteonplayer.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
 
-	for (int i = 9; i < 13; i++) {
+	for (int i = 13; i < 17; i++) {
 		OPTIONS_RadioRacersHud[i].status = newstatus;
 	}
 }

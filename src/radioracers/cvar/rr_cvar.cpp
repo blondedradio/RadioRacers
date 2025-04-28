@@ -39,6 +39,22 @@ void KartHaki_OnChange(void)
     CONS_Printf(M_GetText("Your observation haki will be turned \x82%s\x80 next round.\n"), cv_applyhaki.string);
 }
 
+void KartExtraPowerSound_OnChange(void)
+{
+    boolean extra_power_sound = (boolean)cv_powersoundjoke.value;
+    if (extra_power_sound)
+    {
+        if ((!found_radioracers || radio_last_powerup_jingle_sound == sfx_None) ) {
+            CONS_Alert(
+                CONS_NOTICE,
+                M_GetText("This feature cannot be enabled, missing the sound lump.\n")
+            );
+            CV_StealthSetValue(&cv_powersoundjoke, 0);
+            return;
+        }
+    }
+}
+
 void KartFinishLineTicker_OnChange(void)
 {
     // Immediately empty the queue

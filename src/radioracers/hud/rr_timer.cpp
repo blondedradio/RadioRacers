@@ -100,7 +100,7 @@ void RR_DrawKartMiniTimestamp(tic_t drawtime, INT32 TX, INT32 TY, INT32 splitfla
         V_DrawThinTimerString(TX+12, TY+3, splitflags, va("'"));
 
         // quotation mark location    _ __"__
-        V_DrawTimerString(TX+30, TY+3, splitflags, va("\""));
+        V_DrawThinTimerString(TX+30, TY+3, splitflags, va("\""));
     }
     else
     {
