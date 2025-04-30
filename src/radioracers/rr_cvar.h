@@ -32,6 +32,7 @@ extern consvar_t cv_applyhaki;           // Observation Haki mode
 extern consvar_t cv_accessibility_rings_hide; // Ghost rings and ringboxes when you're unable to collect any rings.
 extern consvar_t cv_powersound; // Straight from HOSTMOD, thanks Tyron
 extern consvar_t cv_powersoundjoke;
+extern consvar_t cv_gingeritemtimers; // Show certain item timers, old debugging tool from 2020
 
 // Battle
 extern consvar_t cv_customemeraldhud;    // Alternate Emerald display for Battle Mode
