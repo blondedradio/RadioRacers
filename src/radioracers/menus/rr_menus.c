@@ -203,6 +203,9 @@ static menuitem_t OPTIONS_RadioRacersAccessibility[] =
 	{IT_STRING | IT_CVAR, "Ghost Rings", "Ghost rings and ringboxes when you're unable to collect any rings.",
 		NULL, {.cvar = &cv_accessibility_rings_hide}, 0, 0},
 
+	{IT_STRING | IT_CVAR, "Item Timers", "Show item timers in the middle-bottom of your HUD.",
+		NULL, {.cvar = &cv_gingeritemtimers}, 0, 0},
+
 	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
 	
