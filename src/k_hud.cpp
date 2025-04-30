@@ -8649,7 +8649,7 @@ void K_drawKartHUD(void)
 			tic_t realtime = stplyr->realtime;
 
 			// RADIO: Little thing
-			if (leveltime < starttime)
+			if (leveltime < starttime && gametype == GT_RACE)
 			{
 				realtime = starttime - leveltime;
 			}
@@ -9092,7 +9092,11 @@ void K_drawKartHUD(void)
 		K_drawMiniPing();
 	}
 
-	K_drawKartPowerUps();
+	if (cv_gingeritemtimers.value) {
+		RR_DrawItemTimers();
+	} else {
+		K_drawKartPowerUps();
+	}
 
 	if (K_DirectorIsAvailable(viewnum) == true && LUA_HudEnabled(hud_textspectator))
 	{

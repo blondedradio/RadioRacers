@@ -521,9 +521,12 @@ consvar_t cv_applyhaki = Player("hakimode", "Off").values({{0, "Off"}, {1, "On"}
 // Rings Ghost Accessibility
 consvar_t cv_accessibility_rings_hide = Player("ringsaccessibility", "On").on_off();
 
+// Item timers (not all)
+consvar_t cv_gingeritemtimers = Player("huditemtimers", "On").on_off();
+
 // Powerup jingle - straight from HOSTMOD, thanks Tyron.
 consvar_t cv_powersound = Player("powersoundhc", "Off").on_off();
-consvar_t cv_powersoundjoke = Player("powersoundjokehc", "On").on_off().onchange(KartExtraPowerSound_OnChange);
+consvar_t cv_powersoundjoke = Player("powersoundjokehc", "On").on_off().onchange_noinit(KartExtraPowerSound_OnChange);
 
 consvar_t cv_show_riders_finish_ticker = Player("ridersfinishticker", "On").on_off().onchange_noinit(KartFinishLineTicker_OnChange);
 

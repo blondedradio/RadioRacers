@@ -294,6 +294,11 @@ void RR_DrawGradeEmote(player_grade_info_t grade_info);
  */
 extern void RR_DrawKartMiniTimestamp(tic_t drawtime, INT32 TX, INT32 TY, INT32 splitflags, UINT8 mode);
 
+/**
+ * Item timers
+ */
+extern void RR_DrawItemTimers(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
