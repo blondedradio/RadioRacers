@@ -33,6 +33,7 @@ constexpr const int SHIFT_X = 17; // To the left, to the left
 
 const std::vector start_boost_patches = {"DBOSA5", "DBOSB5", "DBOSC5"};
 const std::vector drift_patches = {"DRIFC3C7", "DRIFD3D7", "DRIFA3A7"};
+const std::vector voltage_patches = {"TRC3B0", "TRC3C0", "TRC3D0", "TRC3E0", "TRC3F0"};
 
 // STRUCTS
 
@@ -120,6 +121,14 @@ std::vector<ItemTimer> getTimers(void) {
         0.2, 
         {14, 17}, 
         K_RainbowColor(leveltime)
+    });
+
+    // Voltage timer (trick boost)
+    timers.push_back({
+        stplyr->trickcharge, 
+        voltage_patches[leveltime % voltage_patches.size()],
+        0.3,
+        {14, 15}
     });
 
     // FAULT!
