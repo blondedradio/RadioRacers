@@ -89,6 +89,9 @@ std::vector<ItemTimer> getTimers(void) {
     // Boost
     timers.push_back({stplyr->sneakertimer, "K_ISSHOE"});
 
+    // Hyuu
+    timers.push_back({stplyr->hyudorotimer, "K_ISHYUD"});
+
     // Drift charge
     
     std::pair<int, int> drift_patches_offsets = {12, 17};
