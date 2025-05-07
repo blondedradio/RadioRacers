@@ -6703,7 +6703,16 @@ void K_drawKartHUD(void)
 				K_drawKartPlayerCheck();
 
 		// nametags
-		if (LUA_HudEnabled(hud_names) && cv_drawpickups.value && (cv_toggle_nametags.value && !(gametyperules & GTR_POINTLIMIT)))
+
+		// radio
+		boolean force_show_nametags = cv_toggle_nametags.value;
+
+		// if the player has nametags disabled, but they're playing battle..
+		if (gametyperules & GTR_POINTLIMIT) {
+			force_show_nametags = true;
+		}
+
+		if (LUA_HudEnabled(hud_names) && cv_drawpickups.value && force_show_nametags)
 			K_drawKartNameTags();
 
 		// Draw WANTED status
