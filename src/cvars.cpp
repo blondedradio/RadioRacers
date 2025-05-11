@@ -521,6 +521,9 @@ consvar_t cv_applyhaki = Player("hakimode", "Off").values({{0, "Off"}, {1, "On"}
 // Rings Ghost Accessibility
 consvar_t cv_accessibility_rings_hide = Player("ringsaccessibility", "On").on_off();
 
+// Draw any danger checks on the side of the HUD
+consvar_t cv_show_dangerous_player_check = Player("showdangerplayercheck", "Off").on_off();
+
 // Item timers (not all)
 consvar_t cv_gingeritemtimers = Player("huditemtimers", "On").on_off();
 

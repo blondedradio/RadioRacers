@@ -224,6 +224,11 @@ typedef struct
 extern void RR_EmoteTally_Tick(void);
 
 /**
+ * HUD TRACKING
+ */
+ extern void RR_DrawDangerousPlayerCheck(player_t *dangerousPlayer, fixed_t distance, trackingResult_t* result);
+
+/**
  * Item box graphic is 50 x 50. (42 x 42 excluding any empty space).
  * Ring box graphic is 56 x 48.
  * 

@@ -5857,11 +5857,19 @@ static void K_drawKartPlayerCheck(void)
 
 		colormap = R_GetTranslationColormap(TC_DEFAULT, static_cast<skincolornum_t>(checkplayer->mo->color), GTC_CACHE);
 
-		if (distance > maxdistance)
+		// RADIO
+		K_ObjectTracking(&result, &v, true);
+
+		// Otherwise, too far away
+		if (distance < maxdistance)
 		{
-			// Too far away
-			continue;
-		}
+			boolean is_charging = checkplayer->instaWhipCharge >= INSTAWHIP_CHARGETIME;
+
+			fixed_t patch_scale = FRACUNIT;
+			
+			if (is_charging && (leveltime % 2) == 0) {
+				patch_scale = FloatToFixed(1.3f);
+			}
 
 		if ((checkplayer->invincibilitytimer <= 0) && (leveltime & 2) && !(cv_reducevfx.value))
 		{
@@ -5890,6 +5898,7 @@ static void K_drawKartPlayerCheck(void)
 		{
 			V_DrawFixedPatch(result.x, y, FRACUNIT, V_HUDTRANS|V_SPLITSCREEN|splitflags, kp_check[pnum], colormap);
 		}
+
 	}
 }
 
