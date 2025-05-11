@@ -6,7 +6,7 @@
 // terms of the GNU General Public License, version 2.
 // See the 'LICENSE' file for more details.
 //-----------------------------------------------------------------------------
-/// \file radioracers/rr_item_timers.cpp
+/// \file radioracers/hud/rr_item_timers.cpp
 /// \brief Backporting a debugging script I wrote back in 2020
 
 #include <algorithm>
