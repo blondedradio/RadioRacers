@@ -206,6 +206,9 @@ static menuitem_t OPTIONS_RadioRacersAccessibility[] =
 	{IT_STRING | IT_CVAR, "Item Timers", "Show item timers in the middle-bottom of your HUD.",
 		NULL, {.cvar = &cv_gingeritemtimers}, 0, 0},
 
+	{IT_STRING | IT_CVAR, "Dangerous Player Checks", "Draw warning symbols to the side of the HUD for any incoming danger.",
+		NULL, {.cvar = &cv_show_dangerous_player_check}, 0, 0},
+
 	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
 	

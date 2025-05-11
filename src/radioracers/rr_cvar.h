@@ -95,6 +95,7 @@ extern consvar_t cv_toggle_laps_race;       // Toggle the display style for the 
 extern consvar_t cv_toggle_race_minimap;    // Toggle the minimap
 extern consvar_t cv_toggle_race_standings;    // Toggle the player standings
 extern consvar_t cv_toggle_trick_cool;    // Toggle the "COOL!" graphic when you do a successful trick
+extern consvar_t cv_show_dangerous_player_check; // Draw arrows on the side of the HUD showing any incoming danger
 
 // HUD -- Battle
 extern consvar_t cv_battle_toggle_emerald_on_minimap; 
