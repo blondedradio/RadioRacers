@@ -518,6 +518,9 @@ consvar_t cv_applylocalencore = Player("localencore", "Off").values({{0, "Off"},
 // Observation Haki
 consvar_t cv_applyhaki = Player("hakimode", "Off").values({{0, "Off"}, {1, "On"}}).dont_save().onchange_noinit(KartHaki_OnChange);
 
+// Show 'S' ranks in the tally and player standings
+consvar_t cv_show_s_ranks = Player("showperfectranks", "On").on_off();
+
 // Rings Ghost Accessibility
 consvar_t cv_accessibility_rings_hide = Player("ringsaccessibility", "On").on_off();
 

@@ -949,13 +949,19 @@ void Y_PlayerStandingsDrawer(y_data_t *standings, INT32 xoffset)
 			}
 			else if (standings->grade[pnum] != GRADE_INVALID)
 			{
-				patch_t *gradePtc = static_cast<patch_t*>(W_CachePatchName(va("R_INRNK%c", K_GetGradeChar(static_cast<gp_rank_e>(standings->grade[pnum]))), PU_PATCH));
+				// Radio hook
+				gp_rank_e playerGrade = static_cast<gp_rank_e>(standings->grade[pnum]);
+				if (cv_show_s_ranks.value && players[pnum].tally.perfectRace) {
+					playerGrade = GRADE_S;
+				}
+
+				patch_t *gradePtc = static_cast<patch_t*>(W_CachePatchName(va("R_INRNK%c", K_GetGradeChar(playerGrade)), PU_PATCH));
 				patch_t *gradeBG = NULL;
 
 				UINT16 gradeColor = SKINCOLOR_NONE;
 				UINT8 *gradeClm = NULL;
 
-				gradeColor = K_GetGradeColor(static_cast<gp_rank_e>(standings->grade[pnum]));
+				gradeColor = K_GetGradeColor(playerGrade);
 				if (gradeColor != SKINCOLOR_NONE)
 				{
 					gradeClm = R_GetTranslationColormap(TC_DEFAULT, static_cast<skincolornum_t>(gradeColor), GTC_CACHE);

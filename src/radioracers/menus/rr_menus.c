@@ -310,6 +310,9 @@ static menuitem_t OPTIONS_RadioRacersFun[] =
 
 	{IT_STRING | IT_CVAR, "Riders Finish Line Ticker", "Show a finish line ticker, like in Sonic Riders!",
 		NULL, {.cvar = &cv_show_riders_finish_ticker}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Show 'S' ranks", "Show S ranks in the player tally and standings (purely cosmetic).",
+		NULL, {.cvar = &cv_show_s_ranks}, 0, 0},
 };
 
 void RadioFunMenu_Init(void)
