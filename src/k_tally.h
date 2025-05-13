@@ -98,6 +98,15 @@ struct level_tally_t
 	boolean done;
 	boolean releasedFastForward;
 
+	// Radio hook
+	boolean perfectRace;
+	boolean perfectLapBonus;
+	boolean perfectRingBonus;
+	boolean perfectPrisonBonus;
+	boolean lapBonusEvaluated;
+	boolean prisonBonusEvaluated;
+	boolean ringBonusEvaluated;
+
 #ifdef __cplusplus
 	boolean UseBonuses(void);
 	void DetermineBonuses(void);
