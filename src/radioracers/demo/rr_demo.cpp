@@ -99,7 +99,7 @@ static void Command_DemoEmotes(void)
     if (!file)
         return;
 
-    if (!W_LumpExists(va("DEMO%s", demo_n)))
+    if (!W_LumpExists(va("O_DEMO%s", demo_n)))
     {
         CONS_Printf("Demo music lump missing! (%s)\n", va("DEMO%s", demo_n));
         return;
@@ -113,9 +113,12 @@ static void Command_DemoEmotes(void)
         std::string lyric = line.substr(line.find(";") + 1); 
         emote_demo.lyric.emplace(_timeToTics(time), lyric);
     }
+
+    file.close();
     
     // and initialize the demo
-    Music_Remap("stereo", "DEMO1");
+    const char* actual_demo_song = Z_StrDup(va("DEMO%s", demo_n));
+    Music_Remap("stereo", actual_demo_song);
     Music_Play("stereo");
     emote_demo.start_time = I_GetTime();
     demo_state = DEMO_PLAYING;
