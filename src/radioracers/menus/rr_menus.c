@@ -209,6 +209,12 @@ static menuitem_t OPTIONS_RadioRacersAccessibility[] =
 	{IT_STRING | IT_CVAR, "Dangerous Player Checks", "Draw warning symbols to the side of the HUD for any incoming danger.",
 		NULL, {.cvar = &cv_show_dangerous_player_check}, 0, 0},
 
+	{IT_STRING | IT_CVAR, "Obvious Tripwires", "Draw color-coded tripwires to indicate whether you can pass through or not.",
+		NULL, {.cvar = &cv_obvious_tripwire}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Obvious Voltage", "Re-colour your voltage aura depending on your driftcharge.",
+		NULL, {.cvar = &cv_obvious_voltage}, 0, 0},
+
 	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
 	
@@ -225,7 +231,14 @@ static menuitem_t OPTIONS_RadioRacersAccessibility[] =
 void RadioAccessibilityMenu_Init(void)
 {
 	if (!found_radioracers || radio_last_powerup_jingle_sound == sfx_None) {
-		OPTIONS_RadioRacersAccessibility[5].status = IT_GRAYEDOUT;	
+		OPTIONS_RadioRacersAccessibility[9].status = IT_GRAYEDOUT;	
+	}
+
+	// Can't use these options, they rely on custom graphics
+	// Haki mode and voltage
+	if (!found_radioracers) {
+		OPTIONS_RadioRacersAccessibility[0].status = IT_GRAYEDOUT;
+		OPTIONS_RadioRacersAccessibility[4].status = IT_GRAYEDOUT;
 	}
 }
 

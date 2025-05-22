@@ -61,6 +61,14 @@ boolean found_radioracers_plus = false;
 boolean radioracers_usemuteicons = false;
 boolean radioracers_usehakiencore = false;
 boolean radioracers_useendkey = false;
+boolean radioracers_usealternatetripwire = false;
+
+const char* RADIO_BADWIRE_TEX_NAME = "BADTWIRE";
+const char* RADIO_GOODWIRE_TEX_NAME = "GUDTWIRE";
+
+INT32 RADIO_BADWIRE_TEX_ID = -1;
+INT32 RADIO_GOODWIRE_TEX_ID = -1;
+
 patch_t* end_key[2];
 
 sfxenum_t radio_ding_sound;
@@ -966,6 +974,12 @@ void RR_Init(void) {
 
         // Ring style
         // AddOldRings();
+        
+        // Check if the tripwire texture IDs have been initialized 
+        radioracers_usealternatetripwire = (
+            RADIO_BADWIRE_TEX_ID != -1 &&
+            RADIO_GOODWIRE_TEX_ID != -1
+        );
     }
 
     // Any emotes?
@@ -973,4 +987,5 @@ void RR_Init(void) {
     RR_LoadMostUsedEmotes();
     RR_LoadFavouriteEmotes();
     RR_InitEmotes();
+
 }

@@ -55,6 +55,26 @@ void KartExtraPowerSound_OnChange(void)
     }
 }
 
+static boolean RR_MissingWad_OnChange(consvar_t *cvar)
+{
+    boolean enabled = (boolean)cvar->value;
+    if (!found_radioracers && enabled) {
+        CONS_Alert(
+            CONS_NOTICE,
+            M_GetText("This feature cannot be enabled, missing radioracers.pk3.\n")
+        );
+        CV_StealthSetValue(cvar, 0);
+        return false;
+    }
+    return true;
+}
+
+void RR_ObviousTripwire_OnChange(void) {
+    if (!RR_MissingWad_OnChange(&cv_obvious_tripwire)) {
+        return;
+    }
+}
+
 void KartFinishLineTicker_OnChange(void)
 {
     // Immediately empty the queue
