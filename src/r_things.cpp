@@ -54,6 +54,7 @@
 #include "r_fps.h"
 
 // Radio Racers
+#include "k_kart.h"
 #include "radioracers/rr_cvar.h"
 #include "radioracers/rr_util.h"
 
@@ -947,10 +948,19 @@ static void R_DrawVisSprite(vissprite_t *vis)
 	R_SetColumnFunc(BASEDRAWFUNC, false); // hack: this isn't resetting properly somewhere.
 	dc.colormap = vis->colormap;
 	dc.fullbright = colormaps;
+	dc.translation = R_GetSpriteTranslation(vis);
 
 	// RADIO: Can't manipulate the mobj's directly because that'll cause desyncs out the ass
 	boolean ghostMo = RR_ShouldGhostRing(vis->mobj) || RR_ShouldGhostRingboxes(vis->mobj);
-	dc.translation = (ghostMo) ? R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(SKINCOLOR_NICKEL), GTC_CACHE) : R_GetSpriteTranslation(vis);
+	boolean isVoltageAura = RR_ShouldRecolorVoltage(vis->mobj);
+	if (ghostMo || isVoltageAura) {
+		if (ghostMo) {
+			dc.translation = R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(SKINCOLOR_NICKEL), GTC_CACHE);
+		} else if (isVoltageAura) {
+			UINT8 sparkColor = K_DriftSparkColor(stplyr, stplyr->driftcharge);
+			dc.translation = R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(sparkColor), GTC_CACHE);
+		}
+	}
 
 	// Hack: Use a special column function for drop shadows that bypasses
 	// invalid memory access crashes caused by R_ProjectDropShadow putting wrong values
