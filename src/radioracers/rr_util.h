@@ -30,6 +30,8 @@ extern boolean RR_ShouldGhostRing(mobj_t *mo);
 extern boolean RR_ShouldGhostRingboxes(mobj_t *mo);
 extern boolean RR_ShouldGhostItemCapsuleParts(mobj_t* mo);
 extern boolean RR_ShouldGhostItemCapsuleNumbers(mobj_t *mo);
+extern boolean RR_ShouldRecolorVoltage(mobj_t *mo); // Voltage
+extern INT32 RR_FetchAlternateTripwire(INT32 original_textnum); // Tripwire
 
 #define IS_BEING_CHASED_BY_SPB(p) (p->pflags & PF_RINGLOCK)
 
