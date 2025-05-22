@@ -524,6 +524,12 @@ consvar_t cv_show_s_ranks = Player("showperfectranks", "On").on_off();
 // Rings Ghost Accessibility
 consvar_t cv_accessibility_rings_hide = Player("ringsaccessibility", "On").on_off();
 
+// Tripwire
+consvar_t cv_obvious_tripwire = Player("obvioustripwire", "On").on_off().onchange_noinit(	RR_ObviousTripwire_OnChange);
+
+// Voltage
+consvar_t cv_obvious_voltage = Player("obviousvoltage", "On").on_off();
+
 // Draw any danger checks on the side of the HUD
 consvar_t cv_show_dangerous_player_check = Player("showdangerplayercheck", "Off").on_off();
 

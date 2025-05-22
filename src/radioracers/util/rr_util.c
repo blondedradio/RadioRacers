@@ -18,6 +18,8 @@
 #include "../../hu_stuff.h"
 #include "../../g_game.h"
 #include "../../s_sound.h"
+#include "../../k_kart.h"
+#include "../../r_textures.h"
 
 boolean shouldApplyEncore(void)
 {
@@ -136,6 +138,51 @@ boolean RR_ShouldGhostItemCapsuleNumbers(mobj_t *mo)
     return canGhost() && 
     mo->isSuperRingItemNumber &&
     IS_BEING_CHASED_BY_SPB(stplyr);
+}
+
+/**
+ * https://github.com/blondedradio/RadioRacers/issues/14
+ * 
+ * Getting a voltage charge increases the speed of a player's drift sparks.
+ * To *better* convey this to the player, 
+ * re-colour the aura VFX with the colour as their drift sparks.
+ */
+boolean RR_ShouldRecolorVoltage(mobj_t *mo) 
+{
+    boolean isVoltage = (mo->type == MT_CHARGEAURA);
+    boolean hasValidTarget = !P_MobjWasRemoved(mo->target) 
+				&& mo->target->player
+				&& mo->target->player == stplyr;
+
+    return cv_obvious_voltage.value && r_splitscreen == 0 && isVoltage && hasValidTarget;
+}
+
+INT32 RR_FetchAlternateTripwire(INT32 original_textnum)
+{
+    if (!found_radioracers || !radioracers_usealternatetripwire || !cv_obvious_tripwire.value || r_splitscreen > 0) 
+        return original_textnum;
+
+    char texname[9];
+    strncpy(texname, textures[original_textnum]->name, 8);
+    texname[8] = '\0';
+
+    boolean is_tripwire_texture = strstr(texname, "TRIPWIRE") != NULL;
+    boolean is_tripwire_animated_texture = strstr(texname, "TWIRE") != NULL;
+
+    // Is this actually a tripwire texture?
+    if (!is_tripwire_texture && !is_tripwire_animated_texture) {
+        return original_textnum;
+    }
+
+    // Player's tripwire eligiblity
+    tripwirepass_t cond = K_TripwirePassConditions(stplyr);
+	if (cond == TRIPWIRE_NONE) {
+        // Show BAD tripwire (red)
+        return (is_tripwire_texture) ? RADIO_BADWIRE_TEX_ID : R_GetTextureNum(RADIO_BADWIRE_TEX_ID);
+	} else {
+        // Show GOOD tripwire (green)
+        return (is_tripwire_texture) ? RADIO_GOODWIRE_TEX_ID : R_GetTextureNum(RADIO_GOODWIRE_TEX_ID);
+    }
 }
 
 int scaleInt(int value, fixed_t scale)

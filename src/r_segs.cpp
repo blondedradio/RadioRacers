@@ -37,6 +37,11 @@
 #include "core/thread_pool.h"
 #include "k_terrain.h"
 #include "r_debug.hpp"
+#include "k_kart.h"
+
+// Radio
+#include "radioracers/rr_setup.h"
+#include "radioracers/rr_util.h"
 
 extern "C" consvar_t cv_debugfinishline;
 
@@ -687,6 +692,13 @@ void R_RenderMaskedSegRange(drawseg_t *drawseg, INT32 x1, INT32 x2)
 
 	rw_scalestep = drawseg->scalestep;
 	spryscale = drawseg->scale1 + (x1 - drawseg->x1)*rw_scalestep;
+
+	/** 
+	 * RADIO: Tripwire accessbility option
+	 */
+	if (P_IsLineTripWire(ldef)) {
+		texnum = RR_FetchAlternateTripwire(texnum);
+	}
 
 	// Texture must be cached before setting colfunc_2s,
 	// otherwise texture[texnum]->holes may be false when it shouldn't be
