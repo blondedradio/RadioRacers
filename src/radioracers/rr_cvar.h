@@ -29,11 +29,13 @@ extern consvar_t cv_applylocalencore;    // Clientside encore palettes
 extern consvar_t cv_show_s_ranks;       // Show 'S' ranks during tally
 
 // Accessibility
-extern consvar_t cv_applyhaki;           // Observation Haki mode
-extern consvar_t cv_accessibility_rings_hide; // Ghost rings and ringboxes when you're unable to collect any rings.
-extern consvar_t cv_powersound; // Straight from HOSTMOD, thanks Tyron
+extern consvar_t cv_applyhaki;                      // Observation Haki mode
+extern consvar_t cv_accessibility_rings_hide;       // Ghost rings and ringboxes when you're unable to collect any rings.
+extern consvar_t cv_powersound;                     // Straight from HOSTMOD, thanks Tyron
 extern consvar_t cv_powersoundjoke;
-extern consvar_t cv_gingeritemtimers; // Show certain item timers, old debugging tool from 2020
+extern consvar_t cv_gingeritemtimers;               // Show certain item timers, old debugging tool from 2020
+extern consvar_t cv_obvious_tripwire;               // Replace default tripwire texture with more obvious graphics
+extern consvar_t cv_obvious_voltage;                // Re-colour voltage VFX with same colour as drift spark
 
 // Battle
 extern consvar_t cv_customemeraldhud;    // Alternate Emerald display for Battle Mode
@@ -48,6 +50,7 @@ void KartExtraPowerSound_OnChange(void);
 void KartFinishLineTicker_OnChange(void);
 void RR_ChatEmotes_OnChange(void);
 void RR_ChatEmoteSort_OnChange(void);
+void RR_ObviousTripwire_OnChange(void);
 /**
  * Checks if either the encoremode flag or the clientside flag is on
  * \sa cv_applylocalencore encoremode

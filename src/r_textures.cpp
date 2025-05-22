@@ -33,6 +33,9 @@
 #include "dehacked.h"
 #include "k_terrain.h"
 
+// Radio
+#include "radioracers/rr_setup.h"
+
 #ifdef HWRENDER
 #include "hardware/hw_glob.h" // HWR_LoadMapTextures
 #endif
@@ -1329,6 +1332,17 @@ Rloadtextures (INT32 i, INT32 w)
 
 			// Set texture properties.
 			M_Memcpy(texture->name, W_CheckNameForNumPwad(wadnum, lumpnum), sizeof(texture->name));
+
+			// RADIO: Reliable place to get the texture name and compare
+			if (strcmp(texture->name, RADIO_BADWIRE_TEX_NAME) == 0) {
+				RADIO_BADWIRE_TEX_ID = i;
+				CONS_Printf("Found texture ID for 'BAD' tripwire #%d\n", i);
+			}
+			// RADIO: Reliable place to get the texture name and compare
+			if (strcmp(texture->name, RADIO_GOODWIRE_TEX_NAME) == 0) {
+				RADIO_GOODWIRE_TEX_ID = i;
+				CONS_Printf("Found texture ID for 'GOOD' tripwire #%d\n", i);
+			}
 			texture->hash = quickncasehash(texture->name, 8);
 
 			texture->width = width;
