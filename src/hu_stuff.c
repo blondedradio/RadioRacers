@@ -1259,7 +1259,7 @@ static boolean RR_HU_Responder(INT32 c)
 		if (!CHAT_MUTE)
 		{
 			if(is_emote_menu_on) {
-				RR_CheckChatEnterforEmoteMenu();
+				// Don't close the chatbox, wait until the player closes it
 				return true;
 			}
 			if(is_emote_preview_on) {
@@ -1277,6 +1277,11 @@ static boolean RR_HU_Responder(INT32 c)
 	} else if ((c == 'f' || c == 'F') && ctrldown) { // Favouriting
 		if (is_emote_menu_on) {
 			RR_UpdateFavouriteEmotes();
+			return true;
+		}
+	} else if(c == '=' && ctrldown) { // Sorting
+		if (!is_emote_preview_on && is_emote_menu_on) {
+			CV_AddValue(&cv_chat_emotes_sort, 1);
 			return true;
 		}
 	} else if (c == KEY_ESCAPE
@@ -1358,8 +1363,8 @@ static boolean RR_HU_Responder(INT32 c)
 			RR_SelectEmoteFromPreview();
 			return true;
 		}
-		if (!is_emote_preview_on && is_emote_menu_on) {
-			CV_AddValue(&cv_chat_emotes_sort, 1);
+		if(!is_emote_preview_on && is_emote_menu_on) {
+			RR_CheckChatEnterforEmoteMenu();
 			return true;
 		}
 	}
