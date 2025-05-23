@@ -1684,7 +1684,7 @@ void RR_DrawChatEmoteMenu(
     // sort
     const UINT8 menuSortLine_y = background_y - 10;
     V_DrawFill(x, menuSortLine_y, MENU_WIDTH, 5, 22 | V_SNAPTOBOTTOM | V_SNAPTOLEFT);
-    const char* sortString = va("\x83Tab: \x81%s", cv_chat_emotes_sort.string);
+    const char* sortString = va("\x83\Ctrl+=: \x81%s", cv_chat_emotes_sort.string);
 
     fixed_t sortStringWidth = V_StringScaledWidth( FRACUNIT/2, FRACUNIT, FRACUNIT, V_SNAPTOBOTTOM | V_SNAPTOLEFT, TINY_FONT, sortString);
     fixed_t menuSortLine_x = ((x + MENU_WIDTH) << FRACBITS) - sortStringWidth;
@@ -1698,7 +1698,7 @@ void RR_DrawChatEmoteMenu(
         V_SNAPTOBOTTOM | V_SNAPTOLEFT,
         NULL,
         TINY_FONT,
-        va("Tab: \x82%s", cv_chat_emotes_sort.string)
+        va("Ctrl+=: \x82%s", cv_chat_emotes_sort.string)
     );
 
 
