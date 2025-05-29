@@ -1,4 +1,19 @@
 $basepath src/radioracers/
 $output out/radioracers.pk3
 
+# Textures need to be sorted in a certain order
+
+textures/tripwire/bad/4x/4ADTWIRE.lmp
+textures/tripwire/bad/4x/**
+textures/tripwire/bad/Vertical/BADVWIRE.lmp
+textures/tripwire/bad/Vertical/**
+textures/tripwire/bad/BADTWIRE.lmp
+textures/tripwire/bad/**
+textures/tripwire/good/4x/4UDTWIRE.lmp
+textures/tripwire/good/4x/**
+textures/tripwire/good/Vertical/GUDVWIRE.lmp
+textures/tripwire/good/Vertical/**
+textures/tripwire/good/GUDTWIRE.lmp
+textures/tripwire/good/**
+
 **
