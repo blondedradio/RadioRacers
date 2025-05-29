@@ -1338,10 +1338,26 @@ Rloadtextures (INT32 i, INT32 w)
 				RADIO_BADWIRE_TEX_ID = i;
 				CONS_Printf("Found texture ID for 'BAD' tripwire #%d\n", i);
 			}
-			// RADIO: Reliable place to get the texture name and compare
+			if (strcmp(texture->name, RADIO_BADWIRE_4X_TEX_NAME) == 0) {
+				RADIO_BADWIRE_4X_TEX_ID = i;
+				CONS_Printf("Found texture ID for 'BAD' 4x tripwire #%d\n", i);
+			}
+			if (strcmp(texture->name, RADIO_BADWIRE_VERTICAL_TEX_NAME) == 0) {
+				RADIO_BADWIRE_VERTICAL_TEX_ID = i;
+				CONS_Printf("Found texture ID for 'BAD' VERTICAL tripwire #%d\n", i);
+			}
+
 			if (strcmp(texture->name, RADIO_GOODWIRE_TEX_NAME) == 0) {
 				RADIO_GOODWIRE_TEX_ID = i;
 				CONS_Printf("Found texture ID for 'GOOD' tripwire #%d\n", i);
+			}
+			if (strcmp(texture->name, RADIO_GOODWIRE_4X_TEX_NAME) == 0) {
+				RADIO_GOODWIRE_4X_TEX_ID = i;
+				CONS_Printf("Found texture ID for 'GOOD' 4x tripwire #%d\n", i);
+			}
+			if (strcmp(texture->name, RADIO_GOODWIRE_VERTICAL_TEX_NAME) == 0) {
+				RADIO_GOODWIRE_VERTICAL_TEX_ID = i;
+				CONS_Printf("Found texture ID for 'GOOD' VERTICAL tripwire #%d\n", i);
 			}
 			texture->hash = quickncasehash(texture->name, 8);
 
