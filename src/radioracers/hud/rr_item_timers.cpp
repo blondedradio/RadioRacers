@@ -134,6 +134,14 @@ std::vector<ItemTimer> getTimers(void) {
         {14, 15}
     });
 
+    // Wavedash
+    timers.push_back({
+        stplyr->wavedashboost,
+        "SLPTHLHR",
+        0.3,
+        {14, 15}
+    });
+
     // FAULT!
     if (stplyr->pflags & PF_VOID) {
         timers.push_back({stplyr->mo->hitlag, "K_NOBLNS", {}, {7, 6}});
