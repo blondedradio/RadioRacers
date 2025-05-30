@@ -183,8 +183,7 @@ INT32 RR_FetchAlternateTripwire(INT32 original_textnum)
     }
 
     // Player's tripwire eligiblity
-    tripwirepass_t cond = K_TripwirePassConditions(stplyr);
-	if (cond == TRIPWIRE_NONE) {
+	if (!K_TripwirePass(stplyr)) {
         // Show BAD tripwire (red)
         if (is_tripwire) {
             // Static
