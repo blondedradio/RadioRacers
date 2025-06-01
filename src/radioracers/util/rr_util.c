@@ -19,7 +19,9 @@
 #include "../../g_game.h"
 #include "../../s_sound.h"
 #include "../../k_kart.h"
+#include "../../k_hud.h"
 #include "../../r_textures.h"
+#include "../../r_fps.h"
 
 boolean shouldApplyEncore(void)
 {
@@ -229,6 +231,26 @@ INT32 RR_FetchAlternateTripwire(INT32 original_textnum)
 
     // If all else fails
     return original_textnum;
+}
+
+void RR_GetTrackingCoordinatesForPlayer(trackingResult_t *result, boolean playerHasMobj) {
+    vector3_t v;
+
+    if (playerHasMobj)
+    {
+        v.x = R_InterpolateFixed(stplyr->mo->old_x, stplyr->mo->x);
+        v.y = R_InterpolateFixed(stplyr->mo->old_y, stplyr->mo->y);
+        v.z = R_InterpolateFixed(stplyr->mo->old_z, stplyr->mo->z);
+
+        // Legacy GL perspective
+        v.z += FixedMul(-15*FRACUNIT, stplyr->mo->scale);
+
+        /*
+        * Many thanks to Nev3r for figuring out the math for this functionality, opens up a lot of
+        possiblities.
+        */
+        K_ObjectTracking(result, &v, false);
+    } 
 }
 
 int scaleInt(int value, fixed_t scale)
