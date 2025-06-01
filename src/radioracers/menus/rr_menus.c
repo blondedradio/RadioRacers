@@ -133,8 +133,11 @@ menuitem_t OPTIONS_RadioRacersHud[] =
 	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
 
-	{IT_HEADER, "Ring Counter Options", NULL,
+	{IT_HEADER, "Sppedometer/Ring Options", NULL,
 		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Speedometer Position", "Toggle the SPEEDOMETER's HUD position.",
+		NULL, {.cvar = &cv_speedometeronplayer}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle the RING COUNTER's HUD position.",
 		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
@@ -425,7 +428,7 @@ void Roulette_OnChange(void)
 
 	UINT16 newstatus = (cv_rouletteonplayer.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
 
-	for (int i = 13; i < 17; i++) {
+	for (int i = 14; i < 18; i++) {
 		OPTIONS_RadioRacersHud[i].status = newstatus;
 	}
 }
