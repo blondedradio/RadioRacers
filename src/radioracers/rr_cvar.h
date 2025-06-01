@@ -24,6 +24,7 @@ extern "C" {
 // Player (Clientside)
 extern consvar_t cv_votesnitch;         // Vote Snitch
 extern consvar_t cv_ringsonplayer;      // Rings drawn on player
+extern consvar_t cv_speedometeronplayer;      // Speedometer drawn on player
 extern consvar_t cv_rouletteonplayer;   // Item/Ring Roulette drawn on player
 extern consvar_t cv_applylocalencore;    // Clientside encore palettes
 extern consvar_t cv_show_s_ranks;       // Show 'S' ranks during tally
