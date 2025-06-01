@@ -559,6 +559,12 @@ consvar_t cv_ringsonplayer = Player("ringsonplayer", "Custom").values({
 	{1, "Custom"}
 });
 
+// Speedometer draw on player (akin to driftguage)
+consvar_t cv_speedometeronplayer = Player("speedometeronplayer", "Vanilla").values({
+	{0, "Vanilla"}, 
+	{1, "Custom"}
+});
+
 // -- Battle
 
 // Blue Sphere meter drawn on player
@@ -618,11 +624,11 @@ consvar_t cv_ringbox_roulette_player_position = Player("ringbox_roulette_player_
 consvar_t cv_item_roulette_player_position = Player("item_roulette_player_position", "Left").values(itemboxposition_cons_t);
 
 // Hide the giant big ass letters at the start of the race
-consvar_t cv_hud_hidecountdown = Player("hidecountdown", "On").on_off();
+consvar_t cv_hud_hidecountdown = Player("hidecountdown", "Off").on_off();
 // Hide the bigass position bulbs at the start of the race
-consvar_t cv_hud_hideposition = Player("hideposition", "On").on_off();
+consvar_t cv_hud_hideposition = Player("hideposition", "Off").on_off();
 // Hide the bigass lap emblem when you start a new lap
-consvar_t cv_hud_hidelapemblem = Player("hidelapemblem", "On").on_off();
+consvar_t cv_hud_hidelapemblem = Player("hidelapemblem", "Off").on_off();
 // Draw high-res portraits in the minirankings
 consvar_t cv_hud_usehighresportraits = Player("usehighresportraits", "Yes").yes_no();
 // Restore SRB2Kart behaviour when viewing in-game rankings (i.e. having to hold the button)

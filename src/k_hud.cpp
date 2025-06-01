@@ -4970,7 +4970,7 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 	else
 	{
 		const boolean DRAW_RINGS_ON_PLAYER = cv_ringsonplayer.value == 1;
-		const BOOLEAN DRAW_SPEEDO_ON_PLAYER = false;  //TODO: Replace with actual cvar check
+		const boolean DRAW_SPEEDO_ON_PLAYER = (cv_kartspeedometer.value && cv_speedometeronplayer.value);
 		INT32 ringcounterflags = V_HUDTRANS|V_SLIDEIN|splitflags;
 		INT32 RINGC_X = LAPS_X;
 
@@ -4979,7 +4979,6 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 
 		// RadioRacers: Copying driftgauge here
 		if (DRAW_RINGS_ON_PLAYER) {
-			vector3_t v;
 			trackingResult_t result;
 
 			ringcounterflags &= ~V_SLIDEIN;
@@ -4988,17 +4987,8 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 			const boolean doesPlayerHaveMo = !((stplyr->mo == NULL || P_MobjWasRemoved(stplyr->mo)));
 			if (doesPlayerHaveMo)
 			{
-				v.x = R_InterpolateFixed(stplyr->mo->old_x, stplyr->mo->x);
-				v.y = R_InterpolateFixed(stplyr->mo->old_y, stplyr->mo->y);
-				v.z = R_InterpolateFixed(stplyr->mo->old_z, stplyr->mo->z);
-
-				// Legacy GL perspective
-				v.z += FixedMul(-15*FRACUNIT, stplyr->mo->scale);
-				/*
-				* Many thanks to Nev3r for figuring out the math for this functionality, opens up a lot of
-				possiblities.
-				*/
-				K_ObjectTracking(&result, &v, false);
+				// Get X,Y coordinates for player relative to the HUD
+				RR_GetTrackingCoordinatesForPlayer(&result, doesPlayerHaveMo);
 
 				// Add some offset so it's directly below the player (in Software)
 				fy = (result.y / FRACUNIT); 
@@ -5104,8 +5094,13 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 		}
 
 		// SPB ring lock
-		if (stplyr->pflags & PF_RINGLOCK)
-			V_DrawScaledPatch(RINGC_X-5, fy-17, ringcounterflags, kp_ringspblock[stplyr->karthud[khud_ringspblock]]);
+		if (stplyr->pflags & PF_RINGLOCK) {
+			// Use the debt animation when drawing rings on player
+			// The overanimated SPB icon can be distracting
+			int framenum = (DRAW_RINGS_ON_PLAYER) ? (14 + (leveltime % 2)) : stplyr->karthud[khud_ringspblock];
+
+			V_DrawScaledPatch(RINGC_X-5, fy-17, ringcounterflags, kp_ringspblock[framenum]);
+		}
 
 		UINT32 greyout = V_HUDTRANS;
 
@@ -5115,7 +5110,7 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 		}
 
 		// Speedometer
-		if (DRAW_SPEEDO_ON_PLAYER)
+		if (DRAW_SPEEDO_ON_PLAYER && DRAW_RINGS_ON_PLAYER)
 		{
 			uint8_t speedometer_numbers[3];
 			K_GetKartSpeedometerNumbers(speedometer_numbers);
@@ -5123,10 +5118,10 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 			int ringtext_x = RINGC_X - 42;
 
 			using srb2::Draw;
-			V_DrawScaledPatch(ringtext_x+7, fy, V_HUDTRANS|splitflags, kp_facenum[speedometer_numbers[0]]);
-			V_DrawScaledPatch(ringtext_x+13, fy, V_HUDTRANS|splitflags, kp_facenum[speedometer_numbers[1]]);
-			V_DrawScaledPatch(ringtext_x+19, fy, V_HUDTRANS|splitflags, kp_facenum[speedometer_numbers[2]]);
-			V_DrawScaledPatch(ringtext_x+29, fy, V_HUDTRANS|splitflags, kp_speedometerlabel[K_GetKartSpeedometerLabel()]);
+			V_DrawScaledPatch(ringtext_x+7, fy, ringcounterflags, kp_facenum[speedometer_numbers[0]]);
+			V_DrawScaledPatch(ringtext_x+13, fy, ringcounterflags, kp_facenum[speedometer_numbers[1]]);
+			V_DrawScaledPatch(ringtext_x+19, fy, ringcounterflags, kp_facenum[speedometer_numbers[2]]);
+			V_DrawScaledPatch(ringtext_x+29, fy, ringcounterflags, kp_speedometerlabel[K_GetKartSpeedometerLabel()]);
 		}
 
 		// Lives
@@ -5313,6 +5308,11 @@ static void K_drawKartSpeedometer(boolean gametypeinfoshown)
 	UINT8 numbers[3];
 	INT32 splitflags = V_SNAPTOBOTTOM|V_SNAPTOLEFT|V_SPLITSCREEN;
 
+	// Radio
+	boolean isBattle = false;
+	INT32 SPEEDC_X = LAPS_X;
+	INT32 speedometerFlags = V_HUDTRANS|V_SLIDEIN|splitflags;
+
 	boolean showbluespheres = (gametyperules & GTR_SPHERES);
 	INT32 fy = LAPS_Y - ((cv_ringsonplayer.value == 1 && !showbluespheres && !G_GametypeUsesLives()) ? 0 : 14);
 
@@ -5358,8 +5358,10 @@ static void K_drawKartSpeedometer(boolean gametypeinfoshown)
 	{
 		fy -= 11;
 
-		if ((gametyperules & (GTR_BUMPERS|GTR_CIRCUIT)) == GTR_BUMPERS)
+		if ((gametyperules & (GTR_BUMPERS|GTR_CIRCUIT)) == GTR_BUMPERS) {
+			isBattle = true;
 			fy -= 4;
+		}
 	}
 	else
 	{
@@ -5372,17 +5374,45 @@ static void K_drawKartSpeedometer(boolean gametypeinfoshown)
 		fy += 14;
 	}
 
-	using srb2::Draw;
-	Draw(LAPS_X+7, fy+1).flags(V_HUDTRANS|V_SLIDEIN|splitflags).align(Draw::Align::kCenter).width(42).small_sticker();
-	V_DrawScaledPatch(LAPS_X+7, fy, V_HUDTRANS|V_SLIDEIN|splitflags, kp_facenum[numbers[0]]);
-	V_DrawScaledPatch(LAPS_X+13, fy, V_HUDTRANS|V_SLIDEIN|splitflags, kp_facenum[numbers[1]]);
-	V_DrawScaledPatch(LAPS_X+19, fy, V_HUDTRANS|V_SLIDEIN|splitflags, kp_facenum[numbers[2]]);
-	V_DrawScaledPatch(LAPS_X+29, fy, V_HUDTRANS|V_SLIDEIN|splitflags, kp_speedometerlabel[labeln]);
+	// Radio
+	// Don't track on player during battle
+	if (!isBattle) {
+		const boolean DRAW_RINGS_ON_PLAYER = cv_ringsonplayer.value == 1;
+		const boolean DRAW_SPEEDO_ON_PLAYER = cv_speedometeronplayer.value == 1;
 
-	/*
-	// debug for Speed Assist
-	V_DrawThinString(LAPS_X+7, fy-10, V_HUDTRANS|V_SLIDEIN|splitflags, va("%d\%", stplyr->loneliness*100/FRACUNIT));
-	*/
+		/**
+		 * Speedometer and rings being drawn on player at the same time?
+		 * Handled in K_drawRingCounter
+		 */
+		if (DRAW_SPEEDO_ON_PLAYER) {
+			if (!DRAW_RINGS_ON_PLAYER) {
+				trackingResult_t result;
+
+				speedometerFlags &= ~V_SLIDEIN;
+				speedometerFlags &= ~splitflags;
+
+				const boolean doesPlayerHaveMo = !((stplyr->mo == NULL || P_MobjWasRemoved(stplyr->mo)));
+				if (doesPlayerHaveMo)
+				{
+					// Get X,Y coordinates for player relative to the HUD
+					RR_GetTrackingCoordinatesForPlayer(&result, doesPlayerHaveMo);
+
+					// Add some offset so it's directly below the player (in Software)
+					fy = (result.y / FRACUNIT); 
+					SPEEDC_X = (result.x / FRACUNIT) - 25;
+				} 
+			} else {
+				return;
+			}
+		}
+	}
+
+	using srb2::Draw;
+	Draw(SPEEDC_X+7, fy+1).flags(speedometerFlags).align(Draw::Align::kCenter).width(42).small_sticker();
+	V_DrawScaledPatch(SPEEDC_X+7, fy, speedometerFlags, kp_facenum[numbers[0]]);
+	V_DrawScaledPatch(SPEEDC_X+13, fy, speedometerFlags, kp_facenum[numbers[1]]);
+	V_DrawScaledPatch(SPEEDC_X+19, fy, speedometerFlags, kp_facenum[numbers[2]]);
+	V_DrawScaledPatch(SPEEDC_X+29, fy, speedometerFlags, kp_speedometerlabel[labeln]);
 
 	K_drawKartAccessibilityIcons(gametypeinfoshown, 56);
 }
@@ -9077,7 +9107,7 @@ void K_drawKartHUD(void)
 			K_drawKartFinish(true);
 		else if (!(gametyperules & GTR_CIRCUIT))
 			;
-		else if (stplyr->karthud[khud_lapanimation] && !r_splitscreen && cv_hud_hidelapemblem.value)
+		else if (stplyr->karthud[khud_lapanimation] && !r_splitscreen && !cv_hud_hidelapemblem.value)
 			K_drawLapStartAnim();
 	}
 
