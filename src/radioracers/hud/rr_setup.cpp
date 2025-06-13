@@ -959,7 +959,7 @@ void RR_Init(void) {
 #endif
 
     // debugging
-    RR_FeedCom();
+    // RR_FeedCom();
     
     if (found_radioracers) {
         // Yeah
