@@ -4698,6 +4698,15 @@ static void HandleConnect(SINT8 node)
 	}
 }
 
+// Radio
+static void reconnect_to_server(INT32 choice)
+{
+	if (choice == MA_YES && tempJoinedIP[0])
+	{
+		M_JoinIP(tempJoinedIP);
+	}
+}
+
 /** Called when a PT_SERVERSHUTDOWN packet is received
   *
   * \param node The packet sender (should be the server)
@@ -4708,7 +4717,14 @@ static void HandleShutdown(SINT8 node)
 	(void)node;
 	LUA_HookBool(false, HOOK(GameQuit));
 	Command_ExitGame_f();
-	M_StartMessage("Server Disconnected", M_GetText("Server has shutdown\n"), NULL, MM_NOTHING, NULL, "Back to Menu");
+	M_StartMessage(
+		"Server Disconnected", 
+		M_GetText("Server has shutdown\nWould you like to \x83re-connect\x80?"), 
+		&reconnect_to_server, 
+		MM_YESNO, 
+		"Yes, please", 
+		"No!!!!"
+	);
 }
 
 /** Called when a PT_NODETIMEOUT packet is received
@@ -4721,7 +4737,13 @@ static void HandleTimeout(SINT8 node)
 	(void)node;
 	LUA_HookBool(false, HOOK(GameQuit));
 	Command_ExitGame_f();
-	M_StartMessage("Server Disconnected", M_GetText("Server Timeout\n"), NULL, MM_NOTHING, NULL, "Back to Menu");
+	M_StartMessage("Server Disconnected", 
+		M_GetText("Server Timeout\nWould you like to \x83re-connect\x80?"), 
+		&reconnect_to_server, 
+		MM_YESNO, 
+		"Yes, please", 
+		"No!!!!"
+	);
 }
 
 // Called when a signature check fails and we suspect the server is playing games.
@@ -4735,7 +4757,14 @@ void HandleSigfail(const char *string)
 
 	LUA_HookBool(false, HOOK(GameQuit));
 	Command_ExitGame_f();
-	M_StartMessage("Server Disconnected", va(M_GetText("Signature check failed.\n(%s)\n"), string), NULL, MM_NOTHING, NULL, "Back to Menu");
+	M_StartMessage(
+		"Server Disconnected", 
+		va(M_GetText("Signature check failed.\n(%s)\nWould you like to \x83re-connect\x80?"), string), 
+		&reconnect_to_server, 
+		MM_YESNO, 
+		"Yes, please", 
+		"No!!!!"
+	);
 }
 
 /** Called when a PT_SERVERINFO packet is received
