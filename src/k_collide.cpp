@@ -16,6 +16,7 @@
 #include "p_mobj.h"
 #include "k_kart.h"
 #include "p_local.h"
+#include "radioracers/rr_hud.h"
 #include "s_sound.h"
 #include "r_main.h" // R_PointToAngle2, R_PointToDist2
 #include "hu_stuff.h" // Sink snipe print
@@ -56,6 +57,8 @@ angle_t K_GetCollideAngle(mobj_t *t1, mobj_t *t2)
 
 boolean K_BananaBallhogCollide(mobj_t *t1, mobj_t *t2)
 {
+	// Radio
+	boolean issnipe = false;
 	boolean damageitem = false;
 
 	if (((t1->target == t2) || (!(t2->flags & (MF_ENEMY|MF_BOSS)) && (t1->target == t2->target))) && (t1->threshold > 0 || (t2->type != MT_PLAYER && t2->threshold > 0)))
@@ -77,8 +80,10 @@ boolean K_BananaBallhogCollide(mobj_t *t1, mobj_t *t2)
 			return true;
 
 		// Banana snipe!
-		if (t1->type == MT_BANANA && t1->health > 1)
+		if (t1->type == MT_BANANA && t1->health > 1) {
 			S_StartSound(t2, sfx_bsnipe);
+			issnipe = true;
+		}
 
 		damageitem = true;
 
@@ -94,6 +99,9 @@ boolean K_BananaBallhogCollide(mobj_t *t1, mobj_t *t2)
 		}
 		else
 		{
+			if (issnipe && t1->target) {
+				RR_PushPlayerInteractionToFeed(t1->target, t2, ATTACK_SNIPE);
+			}
 			P_DamageMobj(t2, t1, t1->target, 1, DMG_NORMAL|DMG_WOMBO);
 		}
 	}
@@ -418,6 +426,9 @@ boolean K_MineCollide(mobj_t *t1, mobj_t *t2)
 
 boolean K_LandMineCollide(mobj_t *t1, mobj_t *t2)
 {
+	// Radio
+	boolean issnipe = false;
+
 	if (((t1->target == t2) || (!(t2->flags & (MF_ENEMY|MF_BOSS)) && (t1->target == t2->target))) && (t1->threshold > 0 || (t2->type != MT_PLAYER && t2->threshold > 0)))
 		return true;
 
@@ -443,6 +454,8 @@ boolean K_LandMineCollide(mobj_t *t1, mobj_t *t2)
 			}
 
 			S_StartSound(t2, sfx_bsnipe);
+			// Radio
+			issnipe = true;
 		}
 
 		if (t2->player->flamedash && t2->player->itemtype == KITEM_FLAMESHIELD)
@@ -454,6 +467,9 @@ boolean K_LandMineCollide(mobj_t *t1, mobj_t *t2)
 		else
 		{
 			// Player Damage
+			if (issnipe && t1->target) {
+				RR_PushPlayerInteractionToFeed(t1->target, t2, ATTACK_SNIPE);
+			}
 			P_DamageMobj(t2, t1, t1->target, 1, DMG_TUMBLE);
 		}
 
@@ -655,6 +671,26 @@ boolean K_DropTargetCollide(mobj_t *t1, mobj_t *t2)
 	}
 
 	t1->flags |= MF_SHOOTABLE;
+
+	// Radio:
+	// The P_DamageMobj call below changes the owner of the droptarget
+	// so keep track of the original one
+	mobj_t* radio_originaltarget = (t1->target) ? t1->target : NULL;
+	playerattacks_t hudfeed_attacktype = ATTACK_DROPTARGET;
+
+	// Set the attack type depending on the drop target's health
+	// This will recolor the graphic in the feed to the appropriate colour
+	switch (t1->health)
+	{
+		case 2:
+			hudfeed_attacktype = ATTACK_DROPTARGET_MEDIUM_HEALTH;
+			break;
+
+		case 1:
+			hudfeed_attacktype = ATTACK_DROPTARGET_LOW_HEALTH;
+			break;
+	}
+
 	// The following sets t1->target to t2, so draggeddroptarget keeps it persisting...
 	P_DamageMobj(t1, t2, (t2->target ? t2->target : t2), 1, DMG_NORMAL);
 
@@ -671,6 +707,11 @@ boolean K_DropTargetCollide(mobj_t *t1, mobj_t *t2)
 		case 1:
 			t1->color = SKINCOLOR_CRIMSON;
 			break;
+	}
+
+	// Radio: .. and THEN we add it to the feed
+	if (radio_originaltarget) {
+		RR_PushPlayerInteractionToFeed(radio_originaltarget, t2, hudfeed_attacktype);
 	}
 
 	t1->flags &= ~MF_SHOOTABLE;
@@ -765,6 +806,9 @@ static inline BlockItReturn_t PIT_LightningShieldAttack(mobj_t *thing)
 #endif
 
 	P_DamageMobj(thing, lightningSource, lightningSource, 1, DMG_VOLTAGE|DMG_CANTHURTSELF|DMG_WOMBO);
+	
+	// Radio: Lightning shield workaround
+	RR_PushPlayerInteractionToFeed(lightningSource, thing, ATTACK_LIGHTNING_SHIELD);
 	return BMIT_CONTINUE;
 }
 
@@ -960,6 +1004,7 @@ boolean K_InstaWhipCollide(mobj_t *shield, mobj_t *victim)
 				P_PlayVictorySound(victim);
 
 				P_DamageMobj(attacker, attacker, victim, 1, DMG_TUMBLE);
+				// Radio: TODO: leaving this note for later if feed gets used in Battle
 
 				S_StartSound(victim, sfx_mbv92);
 				K_AddHitLag(attacker, victimHitlag, true);
@@ -1052,6 +1097,11 @@ boolean K_KitchenSinkCollide(mobj_t *t1, mobj_t *t2)
 			return true;
 
 		S_StartSound(NULL, sfx_bsnipe); // let all players hear it.
+
+		// Radio
+		if (t1->target) {
+			RR_PushPlayerInteractionToFeed(t1->target, t2, ATTACK_SNIPE);
+		}
 
 		HU_SetCEchoFlags(0);
 		HU_SetCEchoDuration(5);
@@ -1187,7 +1237,10 @@ boolean K_PvPTouchDamage(mobj_t *t1, mobj_t *t2)
 
 	auto doStumble = [](mobj_t *t1, mobj_t *t2)
 	{
-		K_StumblePlayer(t2->player);
+		K_StumblePlayer(t2->player);		
+		// Radio: Workaround for Grow
+		RR_PushPlayerInteractionToFeed(t1, t2, ATTACK_GROW);
+
 	};
 
 	if (forEither(shouldStumble, doStumble))

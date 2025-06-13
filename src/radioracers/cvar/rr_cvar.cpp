@@ -55,6 +55,14 @@ void KartExtraPowerSound_OnChange(void)
     }
 }
 
+static void resetCvarWithNotice(consvar_t *cvar) {
+    CONS_Alert(
+        CONS_NOTICE,
+        M_GetText("This feature cannot be enabled, missing radioracers.pk3.\n")
+    );
+    CV_StealthSetValue(cvar, 0);
+}
+
 static boolean RR_MissingWad_OnChange(consvar_t *cvar)
 {
     boolean enabled = (boolean)cvar->value;
@@ -72,6 +80,19 @@ static boolean RR_MissingWad_OnChange(consvar_t *cvar)
 void RR_ObviousTripwire_OnChange(void) {
     if (!RR_MissingWad_OnChange(&cv_obvious_tripwire)) {
         return;
+    }
+}
+
+void RR_Hudfeed_OnChange(void) {
+    boolean enabled = (boolean)(cv_hudfeed_enabled.value);
+    if (enabled) {
+        if (!found_radioracers || !radioracers_usehudfeed) {
+            resetCvarWithNotice(&cv_hudfeed_enabled);
+            return;
+        }
+    } else {
+        // Being turned off, clear the feed
+        RR_ClearHudFeed();
     }
 }
 
