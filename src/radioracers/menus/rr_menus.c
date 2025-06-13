@@ -11,6 +11,7 @@
 #include "../rr_menu.h"
 #include "../rr_cvar.h"
 #include "../rr_setup.h"
+#include "../rr_hud.h"
 
 #include "../../d_main.h"
 #include "../../v_video.h"
@@ -121,6 +122,48 @@ static menu_t OPTIONS_RadioRacersHudBattleDef =
 	NULL,
 };
 
+// HUD Options - Hudfeed
+static menuitem_t OPTIONS_RadioRacersHudfeed[] = 
+{
+	{IT_STRING | IT_CVAR, "Enabled?", "Show the feed.",
+		NULL, {.cvar = &cv_hudfeed_enabled}, 0, 0},
+
+	{IT_SPACE | IT_NOTHING, NULL,  NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_HEADER, "Options", NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Position", "Feed position on HUD. (Changing this will clear the feed.)",
+		NULL, {.cvar = &cv_hudfeed_position}, 0, 0}
+};
+
+void RadioHudfeedMenu_Init(void)
+{
+	if (!found_radioracers || !radioracers_usehudfeed) {
+		OPTIONS_RadioRacersHudfeed[3].status = IT_GRAYEDOUT;	
+	}
+}
+
+static menu_t OPTIONS_RadioRacersHudfeedDef =
+{
+	sizeof (OPTIONS_RadioRacersHudfeed) / sizeof (menuitem_t),
+	&OPTIONS_RadioRacersHudDef,
+	0,
+	OPTIONS_RadioRacersHudfeed,
+	48, 80,
+	SKINCOLOR_SUNSLAM, 0,
+	MBF_DRAWBGWHILEPLAYING,
+	NULL,
+	2, 5,
+	M_DrawGenericOptions,
+	M_DrawOptionsCogs,
+	M_OptionsTick,
+	RadioHudfeedMenu_Init,
+	NULL,
+	NULL,
+};
+
 // HUD
 menuitem_t OPTIONS_RadioRacersHud[] =
 {	
@@ -129,6 +172,9 @@ menuitem_t OPTIONS_RadioRacersHud[] =
 
 	{IT_STRING | IT_SUBMENU, "Battle..", "Extended HUD options for Battle Mode.",
 		NULL, {.submenu = &OPTIONS_RadioRacersHudBattleDef}, 0, 0},
+
+	{IT_STRING | IT_SUBMENU, "Hudfeed..", "An in-game feed of player events during races.",
+		NULL, {.submenu = &OPTIONS_RadioRacersHudfeedDef}, 0, 0},
 
 	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
@@ -428,8 +474,13 @@ void Roulette_OnChange(void)
 
 	UINT16 newstatus = (cv_rouletteonplayer.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
 
-	for (int i = 14; i < 18; i++) {
+	for (int i = 15; i < 19; i++) {
 		OPTIONS_RadioRacersHud[i].status = newstatus;
+	}
+
+	// Updating this cvar shifts the Hudfeed to the left
+	if (cv_hudfeed_enabled.value && cv_hudfeed_position.value == 0) {
+		RR_UpdateHudFeedConfig();
 	}
 }
 

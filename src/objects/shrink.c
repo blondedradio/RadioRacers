@@ -25,6 +25,9 @@
 #include "../music.h"
 #include "../m_easing.h"
 
+// Radio
+#include "../radioracers/rr_hud.h"
+
 #define POHBEE_HOVER (128 << FRACBITS)
 #define POHBEE_SPEED (128 << FRACBITS)
 #define POHBEE_TIME (30 * TICRATE)
@@ -623,6 +626,11 @@ boolean Obj_ShrinkLaserCollide(mobj_t *gun, mobj_t *victim)
 			// Start shrinking!
 			victim->player->growshrinktimer -= FixedInt(FixedMul(FRACUNIT*5*TICRATE, scale));
 			S_StartSound(victim, sfx_kc59); // I don't think you ever get to hear this while the pohbee laser is in your teeth, but best effort.
+
+			// RadioRacers: .. right around here
+			if (owner != NULL) {
+				RR_PushPlayerInteractionToFeed(owner->mo, victim, ATTACK_SHRINK);
+			}
 
 			if (prevTimer >= 0)
 			{

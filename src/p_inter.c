@@ -49,7 +49,9 @@
 #include "m_easing.h"
 #include "k_hud.h" // K_AddMessage
 
+// Radio
 #include "radioracers/rr_util.h"
+#include "radioracers/rr_hud.h"
 
 // CTF player names
 #define CTFTEAMCODE(pl) pl->ctfteam ? (pl->ctfteam == 1 ? "\x85" : "\x84") : ""
@@ -652,6 +654,9 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			special->z = toucher->z;
 
 			S_StartSound(toucher, sfx_s1b2);
+
+			// Radio: Push to the feed, after the player hears the sound
+			RR_PushPlayerInteractionToFeed(special->target, toucher, ATTACK_BUBBLESHIELD_TRAP);
 			return;
 
 		case MT_HYUDORO:
@@ -2966,6 +2971,8 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 da
 		// Instant-Death
 		if ((damagetype & DMG_DEATHMASK))
 		{
+			// Radio: Workaround for Sink
+			RR_PushPlayerDeathToFeed(source, target, inflictor);
 			if (!P_KillPlayer(player, inflictor, source, damagetype))
 				return false;
 		}
@@ -3350,6 +3357,11 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 da
 			if (inflictor && !P_MobjWasRemoved(inflictor) && inflictor->type == MT_BANANA)
 			{
 				player->flipDI = true;
+			}
+
+			// RadioRacers: .. right around here
+			if (inflictor) {
+				RR_PushPlayerDamageToFeed(source, target, inflictor);
 			}
 		}
 	}
