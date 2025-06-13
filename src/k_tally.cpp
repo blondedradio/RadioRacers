@@ -40,6 +40,7 @@
 
 // Radio
 #include "radioracers/rr_cvar.h"
+#include "radioracers/rr_hud.h"
 #include "k_objects.h"
 #include "k_director.h"
 
@@ -598,6 +599,9 @@ void level_tally_t::Init(player_t *player)
 		{
 			gradeVoice = skins[skinid]->soundsid[S_sfx[sfx_kwin].skinsound];
 		}
+
+		// Radio:
+		RR_PushGlobalGradeEventToFeed(player, static_cast<gp_rank_e>(rank), perfectRace);
 	}
 
 	delay = K_TallyDelay(); // sync up with musiccountdown

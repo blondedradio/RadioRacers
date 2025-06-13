@@ -73,6 +73,10 @@ void RR_AnnounceBattleWinner(player_t *player, battle_win_type_t type)
     HU_DoCEcho(va(BATTLE_WIN_MESSAGES[type], player_names[player-players]));    
 }
 
+boolean RR_IsBattle(void) {
+    return (gametyperules & GTR_BUMPERS);
+}
+
 void RR_PlayCountdownJingle(INT16 timer, player_t *player) {
     if (!cv_powersound.value)
         return;

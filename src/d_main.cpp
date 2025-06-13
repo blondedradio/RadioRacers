@@ -93,7 +93,10 @@
 #include "r_debug.hpp"
 #include "k_director.h"
 #include "m_pw.h"
+
+// Radio
 #include "radioracers/rr_setup.h"
+#include "radioracers/rr_hud.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_main.h" // 3D View Rendering
@@ -1280,6 +1283,7 @@ void D_ClearState(void)
 
 	// RADIO:
 	RR_CleanupEmoteFrames();
+	RR_ClearHudFeed();
 
 	demo.waitingfortally = false;
 }

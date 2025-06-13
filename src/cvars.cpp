@@ -37,6 +37,7 @@
 
 // RadioRacers
 #include "radioracers/rr_cvar.h"
+#include "radioracers/rr_hud.h"
 
 // There is a memset in one of consvar_t's constructors. It
 // SHOULD be safe if there is no polymorphism, but just
@@ -509,6 +510,7 @@ consvar_t stereoreverse = Player("stereoreverse", "Off").on_off();
 consvar_t cv_translucenthud = Player("translucenthud", "10").min_max(0, 10);
 consvar_t cv_toggle_nametags = Player("nametags", "On").on_off();
 consvar_t cv_driftsparkrate_size = Player("driftsparkpulsesize", "2.95").floating_point().min_max(1, 30*FRACUNIT).step_amount(FRACUNIT).save();
+
 // Vote Snitch
 consvar_t cv_votesnitch = Player("votesnitch", "On").on_off();
 
@@ -523,6 +525,15 @@ consvar_t cv_show_s_ranks = Player("showperfectranks", "On").on_off();
 
 // Rings Ghost Accessibility
 consvar_t cv_accessibility_rings_hide = Player("ringsaccessibility", "On").on_off();
+
+// Hudfeed
+consvar_t cv_hudfeed_enabled = Player("hudfeed", "Yes").yes_no().onchange_noinit(RR_Hudfeed_OnChange);
+consvar_t cv_hudfeed_position = Player("hudfeedposition", "Top-Middle").values({
+	{0, "Default"},
+	{1, "Top-Middle"},
+	{2, "Top-Right"},
+	{3, "Bottom-Middle"},
+}).onchange_noinit(RR_UpdateHudFeedConfig);
 
 // Tripwire
 consvar_t cv_obvious_tripwire = Player("obvioustripwire", "On").on_off().onchange_noinit(	RR_ObviousTripwire_OnChange);

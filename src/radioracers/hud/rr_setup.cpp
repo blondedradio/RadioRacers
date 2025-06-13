@@ -61,6 +61,7 @@ boolean found_radioracers_plus = false;
 boolean radioracers_usemuteicons = false;
 boolean radioracers_usehakiencore = false;
 boolean radioracers_useendkey = false;
+boolean radioracers_usehudfeed = false;
 boolean radioracers_usealternatetripwire = false;
 
 const char* RADIO_BADWIRE_TEX_NAME = "BADTWIRE";
@@ -956,6 +957,9 @@ void RR_Init(void) {
 #ifndef ENABLE_RADIO_DEMOS
     RR_InitDemoCommands();
 #endif
+
+    // debugging
+    RR_FeedCom();
     
     if (found_radioracers) {
         // Yeah
@@ -979,6 +983,10 @@ void RR_Init(void) {
             HU_UpdatePatch(&end_key[1], "EMENU_AB");
             radioracers_useendkey = true;
         }
+
+        // Hudfeed
+        // none of the patches should be missing, so, just check for one
+        radioracers_usehudfeed = W_LumpExists("RRFSNIP1");
 
         // Ring style
         // AddOldRings();
