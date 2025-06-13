@@ -31,6 +31,7 @@ extern menu_t OPTIONS_RadioRacersHudDef;
 
 void RadioFunMenu_Init(void);
 void RadioAccessibilityMenu_Init(void);
+void RadioHudfeedMenu_Init(void);
 
 #ifdef __cplusplus
 } // extern "C"

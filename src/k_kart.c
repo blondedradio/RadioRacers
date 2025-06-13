@@ -66,6 +66,7 @@
 #include "k_endcam.h"
 
 #include "radioracers/rr_cvar.h"
+#include "radioracers/rr_hud.h"
 #include "radioracers/rr_controller.h"
 #include "radioracers/rr_util.h"
 
@@ -6462,6 +6463,10 @@ static mobj_t *K_SpawnKartMissile(mobj_t *source, mobjtype_t type, angle_t an, I
 			break;
 		case MT_SPB:
 			Obj_SPBThrown(th, finalspeed);
+			// Radio: SPB global event
+			if (source->player != NULL) {
+				RR_PushGlobalEventToFeed(source->player, EVENT_SPB);
+			}
 			break;
 		case MT_BUBBLESHIELDTRAP:
 			P_SetScale(th, ((5*th->destscale)>>2)*4);
@@ -15636,6 +15641,9 @@ void K_MoveKartPlayer(player_t *player, boolean onground)
 								player->itemamount--;
 								K_PlayPowerGloatSound(player->mo);
 								player->botvars.itemconfirm = 0;
+
+								// RadioRacers: .. right around here
+								RR_PushGlobalEventToFeed(player, EVENT_SHRINK);
 							}
 							break;
 						case KITEM_LIGHTNINGSHIELD:
