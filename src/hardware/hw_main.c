@@ -49,6 +49,9 @@
 #include "../r_fps.h"
 #include "../r_plane.h" // R_FlatDimensionsFromLumpSize
 
+#include "../radioracers/rr_util.h"
+#include "../k_kart.h"
+
 /// FINALLY some real clipping that doesn't make walls dissappear AND speeds the game up
 /// (that was the original comment from SRB2CB, sadly it is a lie and actually slows game down)
 /// on the bright side it fixes some weird issues with translucent walls
@@ -1274,6 +1277,9 @@ static void HWR_ProcessSeg(void) // Sort of like GLWall::Process in GZDoom
 			}
 		}
 		gl_midtexture = R_GetTextureNum(gl_sidedef->midtexture);
+		if (tripwire) {
+			gl_midtexture = RR_FetchAlternateTripwire(gl_midtexture);
+		}
 		if (gl_midtexture)
 		{
 			FBITFIELD blendmode;
@@ -3931,6 +3937,11 @@ static void HWR_DrawSprite(gl_vissprite_t *spr)
 			if (trans >= NUMTRANSMAPS)
 				return; // cap
 
+			if (RR_ShouldGhostRing(spr->mobj) || RR_ShouldGhostRingboxes(spr->mobj) || RR_ShouldGhostItemCapsuleParts(spr->mobj)) {
+				blendmode = AST_TRANSLUCENT;
+				trans = tr_trans60;
+			}
+		
 			blend = HWR_SurfaceBlend(blendmode, trans, &Surf);
 
 			// if sprite has PF_ALWAYSONTOP, draw on top of everything.
@@ -5192,6 +5203,16 @@ static void HWR_ProjectSprite(mobj_t *thing)
 
 		if (encoremap && !(thing->flags & MF_DONTENCOREMAP))
 			vis->colormap += COLORMAP_REMAPOFFSET;
+	}
+	boolean ghostMo = RR_ShouldGhostRing(vis->mobj) || RR_ShouldGhostRingboxes(vis->mobj);
+	boolean isVoltageAura = RR_ShouldRecolorVoltage(vis->mobj);
+	if (ghostMo || isVoltageAura) {
+		if (ghostMo) {
+			vis->colormap = R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_NICKEL, GTC_CACHE);
+		} else if (isVoltageAura) {
+			UINT8 sparkColor = K_DriftSparkColor(stplyr, stplyr->driftcharge);
+			vis->colormap = R_GetTranslationColormap(TC_RAINBOW,sparkColor, GTC_CACHE);
+		}
 	}
 
 	// set top/bottom coords
