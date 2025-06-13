@@ -1250,6 +1250,7 @@ void P_Ticker(boolean run)
 		K_TickDialogue();
 		K_TickMessages();
 		RR_ridersFinishTick();
+		RR_TickHudFeed();
 	}
 
 	if (run)

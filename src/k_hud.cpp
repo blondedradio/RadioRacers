@@ -8829,6 +8829,7 @@ void K_drawKartHUD(void)
 
 	// RadioRacers: right about ... here
 	RR_drawRidersFinishTicker();
+	RR_DrawHudFeed();
 
 	if (!stplyr->spectator && !freecam) // Bottom of the screen elements, don't need in spectate mode
 	{

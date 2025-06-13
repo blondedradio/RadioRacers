@@ -24,6 +24,9 @@
 #include "../k_hitlag.h"
 #include "../p_slopes.h"
 
+// Radio
+#include "../radioracers/rr_hud.h"
+
 enum {
 	HYU_PATROL,
 	HYU_RETURN,
@@ -614,6 +617,9 @@ hyudoro_patrol_hit_player
 	hyudoro_timer(hyu) = 18;
 
 	P_SetMobjState(hyu, S_HYUDORO_RETURNING);
+
+	// Radio
+	RR_PushPlayerInteractionToFeed(master, toucher, ATTACK_HYUDORO);
 
 	return true;
 }
