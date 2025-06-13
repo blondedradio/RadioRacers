@@ -249,6 +249,9 @@ static menuitem_t OPTIONS_RadioRacersAccessibility[] =
 	{IT_STRING | IT_CVAR, "Observation Haki", "Apply a grayscale filter to the level, keeping important elements in colour.",
 		NULL, {.cvar = &cv_applyhaki}, 0, 0},
 
+	{IT_STRING | IT_CVAR, "Precise Countdown", "Show a more precise countdown, accompanied with a little bar.",
+		NULL, {.cvar = &cv_precise_countdown}, 0, 0},
+
 	{IT_STRING | IT_CVAR, "Ghost Rings", "Ghost rings and ringboxes when you're unable to collect any rings.",
 		NULL, {.cvar = &cv_accessibility_rings_hide}, 0, 0},
 
@@ -280,14 +283,14 @@ static menuitem_t OPTIONS_RadioRacersAccessibility[] =
 void RadioAccessibilityMenu_Init(void)
 {
 	if (!found_radioracers || radio_last_powerup_jingle_sound == sfx_None) {
-		OPTIONS_RadioRacersAccessibility[9].status = IT_GRAYEDOUT;	
+		OPTIONS_RadioRacersAccessibility[10].status = IT_GRAYEDOUT;	
 	}
 
 	// Can't use these options, they rely on custom graphics
 	// Haki mode and voltage
 	if (!found_radioracers) {
 		OPTIONS_RadioRacersAccessibility[0].status = IT_GRAYEDOUT;
-		OPTIONS_RadioRacersAccessibility[4].status = IT_GRAYEDOUT;
+		OPTIONS_RadioRacersAccessibility[5].status = IT_GRAYEDOUT;
 	}
 }
 

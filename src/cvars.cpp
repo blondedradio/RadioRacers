@@ -508,8 +508,12 @@ consvar_t stereoreverse = Player("stereoreverse", "Off").on_off();
  */
 // Backport of accessibility option from SRB2Kart.
 consvar_t cv_translucenthud = Player("translucenthud", "10").min_max(0, 10);
+
 consvar_t cv_toggle_nametags = Player("nametags", "On").on_off();
 consvar_t cv_driftsparkrate_size = Player("driftsparkpulsesize", "2.95").floating_point().min_max(1, 30*FRACUNIT).step_amount(FRACUNIT).save();
+
+// Precise countdown
+consvar_t cv_precise_countdown = Player("precisecountdown", "On").on_off();
 
 // Vote Snitch
 consvar_t cv_votesnitch = Player("votesnitch", "On").on_off();

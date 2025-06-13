@@ -7595,6 +7595,38 @@ static void K_drawKartStartCountdown(void)
 			pnum += 10;
 
 		V_DrawScaledPatch(STCD_X - (SHORT(kp_startcountdown[pnum]->width)/2), STCD_Y - (SHORT(kp_startcountdown[pnum]->height)/2), V_SPLITSCREEN|hudtransflags, kp_startcountdown[pnum]);
+
+		// replace with cvar check
+		if (!r_splitscreen && leveltime < starttime && cv_precise_countdown.value) {
+			const tic_t centiseconds = G_TicsToCentiseconds(starttime - leveltime);
+			const INT32 centi_x = (STCD_X + (SHORT(kp_startcountdown[pnum]->width)/3));
+			const INT32 centi_y = (STCD_Y + (SHORT(kp_startcountdown[pnum]->height)/2) - 10);
+			const INT32 bar_x = (STCD_X - 50);
+			const INT32 bar_y = (STCD_Y + (SHORT(kp_startcountdown[pnum]->height)/2) + 4);
+
+			V_DrawStringScaled(
+				(centi_x) << FRACBITS,
+				(centi_y) << FRACBITS,
+				FloatToFixed(1.2f), FRACUNIT, FRACUNIT, V_HUDTRANS, NULL, HU_FONT,
+				va(".%d", centiseconds)
+			);
+
+			const int width = 100 * static_cast<float>(centiseconds/100.0f);
+			const float width_f = 100 * static_cast<float>(centiseconds/100.0f);
+
+			// Prevent awkward moments where the countdown starts and the bar is all the way on the left
+			// because this block of code starts on an exact second
+			if (centiseconds == 0) return;
+
+			V_DrawFill(bar_x, bar_y, width, 6, 132);
+
+			// Smoother movement
+			using srb2::Draw;
+			Draw(static_cast<float>(bar_x) + width_f, static_cast<float>(bar_y - 3))
+			.flags(V_HUDTRANS)
+			.patch("K_SPTLAP");
+		} 
+
 	}
 }
 
