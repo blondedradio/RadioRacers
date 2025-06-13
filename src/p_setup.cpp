@@ -8789,6 +8789,7 @@ boolean P_LoadLevel(boolean fromnetsave, boolean reloadinggamestate)
 
 	// RADIO: Jaden!
 	RR_resetRidersFinishTicker();
+	RR_ClearHudFeed();
 	// RR_InitGradeEmoteTally();
 	RR_CleanupEmoteFrames(); // Do this here too, if need be
 
@@ -8816,7 +8817,7 @@ boolean P_LoadLevel(boolean fromnetsave, boolean reloadinggamestate)
 
 				dummy_vlump->size = W_LumpLength(grayencore);
 				memcpy(dummy_vlump->name, W_CheckNameForNum(grayencore), 8);
-				dummy_vlump->name[8] = '\0';  // Ensure null termination
+				dummy_vlump->name[8] = '\0';
 				dummy_vlump->data = static_cast<UINT8*>(W_CacheLumpNum(grayencore, PU_LEVEL));
 				/// -- radio
 				encoreLump = dummy_vlump;

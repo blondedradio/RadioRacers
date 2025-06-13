@@ -20,6 +20,7 @@ extern boolean found_radioracers_plus;
 extern boolean radioracers_usemuteicons;
 extern boolean radioracers_usehakiencore;
 extern boolean radioracers_useendkey;
+extern boolean radioracers_usehudfeed;
 extern boolean radioracers_usealternatetripwire;
 
 /**

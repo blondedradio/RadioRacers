@@ -52,6 +52,7 @@ void KartFinishLineTicker_OnChange(void);
 void RR_ChatEmotes_OnChange(void);
 void RR_ChatEmoteSort_OnChange(void);
 void RR_ObviousTripwire_OnChange(void);
+void RR_Hudfeed_OnChange(void);
 /**
  * Checks if either the encoremode flag or the clientside flag is on
  * \sa cv_applylocalencore encoremode
@@ -101,6 +102,10 @@ extern consvar_t cv_toggle_race_minimap;    // Toggle the minimap
 extern consvar_t cv_toggle_race_standings;    // Toggle the player standings
 extern consvar_t cv_toggle_trick_cool;    // Toggle the "COOL!" graphic when you do a successful trick
 extern consvar_t cv_show_dangerous_player_check; // Draw arrows on the side of the HUD showing any incoming danger
+
+// HUD -- Hudfeed
+extern consvar_t cv_hudfeed_enabled; // Self-explanatory
+extern consvar_t cv_hudfeed_position; // Position of the feed in the HUD
 
 // HUD -- Battle
 extern consvar_t cv_battle_toggle_emerald_on_minimap; 

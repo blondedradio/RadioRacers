@@ -304,6 +304,44 @@ extern void RR_DrawKartMiniTimestamp(tic_t drawtime, INT32 TX, INT32 TY, INT32 s
  */
 extern void RR_DrawItemTimers(void);
 
+/**
+ * HUD feed
+ */
+typedef enum
+{
+    ATTACK_NONE = -1,
+    ATTACK_FLAMEDASH,
+    ATTACK_INVINCIBILITY,
+    ATTACK_HYUDORO,
+    ATTACK_LIGHTNING_SHIELD,
+    ATTACK_GROW,
+    ATTACK_SNIPE,
+    ATTACK_DROPTARGET,
+    ATTACK_DROPTARGET_MEDIUM_HEALTH,
+    ATTACK_DROPTARGET_LOW_HEALTH,
+    ATTACK_SHRINK,
+    ATTACK_BUBBLESHIELD,
+    ATTACK_BUBBLESHIELD_TRAP
+} playerattacks_t;
+
+typedef enum
+{
+    EVENT_SPB = 0,
+    EVENT_SHRINK,
+    EVENT_GRADE
+} globalfeedevent_t;
+
+extern void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor);
+extern void RR_PushPlayerDeathToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor);
+extern void RR_PushPlayerInteractionToFeed(mobj_t *source, mobj_t *target, playerattacks_t attack);
+extern void RR_PushGlobalEventToFeed(player_t* player, globalfeedevent_t event);
+extern void RR_PushGlobalGradeEventToFeed(player_t* player, gp_rank_e rank, boolean perfectRace);
+extern void RR_DrawHudFeed(void);
+extern void RR_TickHudFeed(void);
+extern void RR_ClearHudFeed(void);
+extern void RR_UpdateHudFeedConfig(void);
+extern void RR_FeedCom(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
