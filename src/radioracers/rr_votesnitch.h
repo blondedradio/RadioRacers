@@ -10,7 +10,7 @@
 /// \brief Vote Snitching - Functions
 
 #ifndef __RR_VOTESNITCH__
-#define _RR_VOTESNITCH__
+#define __RR_VOTESNITCH__
 
 #ifdef __cplusplus
 extern "C" {

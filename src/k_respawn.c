@@ -24,6 +24,8 @@
 #include "p_slopes.h"
 #include "r_defs.h"
 
+#include "radioracers/rr_hud.h"
+
 /*--------------------------------------------------
 	fixed_t K_RespawnOffset(player_t *player, boolean flip)
 
@@ -174,6 +176,9 @@ void K_DoIngameRespawn(player_t *player)
 		else if (!(mapheaderinfo[gamemap-1]->levelflags & LF_SECTIONRACE) && finish != NULL)
 			player->respawn.wp = finish->prevwaypoints[0];
 		K_DoFault(player);
+
+		// Radio
+		RR_PushGlobalFaultEventToFeed(player);
 	}
 
 	if (player->rings <= -20 && !player->respawn.fromRingShooter)
