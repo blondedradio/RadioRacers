@@ -54,6 +54,7 @@
 #include "k_battle.h" // battleprisons
 
 #include "radioracers/rr_cvar.h"
+#include "radioracers/rr_hud.h"
 
 // Not sure if this is necessary, but it was in w_wad.c, so I'm putting it here too -Shadow Hog
 #include <errno.h>
@@ -1964,6 +1965,9 @@ static void K_HandleLapIncrement(player_t *player)
 			{
 				S_StartSound(player->mo, sfx_s3kb2);
 			}
+
+			// Radio - can happen here too
+			RR_PushGlobalFaultEventToFeed(player);
 
 			return;
 		}

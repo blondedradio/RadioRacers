@@ -107,6 +107,9 @@ extern consvar_t cv_show_dangerous_player_check; // Draw arrows on the side of t
 // HUD -- Hudfeed
 extern consvar_t cv_hudfeed_enabled; // Self-explanatory
 extern consvar_t cv_hudfeed_position; // Position of the feed in the HUD
+extern consvar_t cv_hudfeed_show_faults; // Show faults in the feed?
+extern consvar_t cv_hudfeed_show_grades; // Show grades in the feed?
+extern consvar_t cv_hudfeed_show_snipes; // Show snipes (SEGA!) in the feed?
 
 // HUD -- Battle
 extern consvar_t cv_battle_toggle_emerald_on_minimap; 

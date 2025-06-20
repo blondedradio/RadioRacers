@@ -143,8 +143,9 @@ std::vector<ItemTimer> getTimers(void) {
     });
 
     // FAULT!
-    if (stplyr->pflags & PF_VOID) {
-        timers.push_back({stplyr->mo->hitlag, "K_NOBLNS", {}, {7, 6}});
+    if ((stplyr->pflags & PF_VOID || stplyr->pflags & PF_FAULT)) {
+        if (stplyr->mo)
+            timers.push_back({stplyr->mo->hitlag, "K_NOBLNS", {}, {7, 6}});
     }
 
     // Battle powerups
