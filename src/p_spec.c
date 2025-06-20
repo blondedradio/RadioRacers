@@ -58,6 +58,7 @@
 #include "k_grandprix.h" // grandprixinfo
 
 #include "radioracers/rr_cvar.h"
+#include "radioracers/rr_hud.h"
 
 // Not sure if this is necessary, but it was in w_wad.c, so I'm putting it here too -Shadow Hog
 #include <errno.h>
@@ -1999,6 +2000,9 @@ static void K_HandleLapIncrement(player_t *player)
 			player->karthud[khud_splittime] = (INT32)(starttime - leveltime);
 			player->karthud[khud_splittimer] = 3*TICRATE;
 			player->karthud[khud_splitwin] = -2;
+
+			// Radio - can happen here too
+			RR_PushGlobalFaultEventToFeed(player);
 
 			return;
 		}

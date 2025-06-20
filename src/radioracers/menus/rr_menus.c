@@ -135,13 +135,25 @@ static menuitem_t OPTIONS_RadioRacersHudfeed[] =
 		NULL, {NULL}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Position", "Feed position on HUD. (Changing this will clear the feed.)",
-		NULL, {.cvar = &cv_hudfeed_position}, 0, 0}
+		NULL, {.cvar = &cv_hudfeed_position}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Show Faults?", "Show player faults in the feed?",
+		NULL, {.cvar = &cv_hudfeed_show_faults}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Show Grades?", "Show player's grades/ranks in the feed?",
+		NULL, {.cvar = &cv_hudfeed_show_grades}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Show Snipes?", "Show any snipes (SEGA!) in the feed?",
+		NULL, {.cvar = &cv_hudfeed_show_snipes}, 0, 0}
 };
 
 void RadioHudfeedMenu_Init(void)
 {
 	if (!found_radioracers || !radioracers_usehudfeed) {
-		OPTIONS_RadioRacersHudfeed[3].status = IT_GRAYEDOUT;	
+		OPTIONS_RadioRacersHudfeed[3].status = IT_GRAYEDOUT;
+		OPTIONS_RadioRacersHudfeed[4].status = IT_GRAYEDOUT;
+		OPTIONS_RadioRacersHudfeed[5].status = IT_GRAYEDOUT;
+		OPTIONS_RadioRacersHudfeed[6].status = IT_GRAYEDOUT;
 	}
 }
 

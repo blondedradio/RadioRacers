@@ -532,6 +532,9 @@ consvar_t cv_accessibility_rings_hide = Player("ringsaccessibility", "On").on_of
 
 // Hudfeed
 consvar_t cv_hudfeed_enabled = Player("hudfeed", "Yes").yes_no().onchange_noinit(RR_Hudfeed_OnChange);
+consvar_t cv_hudfeed_show_faults = Player("hudfeed_show_faults", "Yes").yes_no();
+consvar_t cv_hudfeed_show_grades = Player("hudfeed_show_grades", "Yes").yes_no();
+consvar_t cv_hudfeed_show_snipes = Player("hudfeed_show_snipes", "Yes").yes_no();
 consvar_t cv_hudfeed_position = Player("hudfeedposition", "Top-Middle").values({
 	{0, "Default"},
 	{1, "Top-Middle"},
