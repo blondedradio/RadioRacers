@@ -34,6 +34,7 @@
 #include "../../info.h"
 #include "../../v_video.h"
 #include "../../command.h"
+#include "../../m_random.h"
 #include "../../v_draw.hpp" // srb2:Draw
 
 using srb2::Draw;
@@ -392,9 +393,16 @@ class GlobalPlayerFeedUpdate : public BaseFeedUpdate {
             INT32 hud_flags = config.hudflags;
             boolean reverse = config.position == FEED_POSITION_RIGHT;
             boolean center = config.position == FEED_POSITION_MIDDLE;
+
+            // If the update doesn't concern the main player
+            // then draw at a higher translucency
+            INT32 low_priority_trans = (!is_about_self) ? 5 : -1;
             
             if (is_entering() || is_exiting()) {
-                hud_flags |= (updatetrans << V_ALPHASHIFT);
+                hud_flags |= (clamp_translucency(low_priority_trans) << V_ALPHASHIFT);
+            } else {
+                if (!is_about_self)
+                    hud_flags |= (low_priority_trans << V_ALPHASHIFT);
             }
 
             // Config for drawing the patch
@@ -733,6 +741,7 @@ void RR_PushPlayerInteractionToFeed(mobj_t *source, mobj_t *target, playerattack
     if (!canUseHudfeed()) return;
 
     if (attack == ATTACK_NONE) return;
+    if (attack == ATTACK_SNIPE && !cv_hudfeed_show_snipes.value) return; // So boring
     if (!arePlayersValid(source, target)) return;
 
     // Verify if the attack is something the feed is configured to show
@@ -777,6 +786,7 @@ void RR_PushGlobalEventToFeed(player_t* player, globalfeedevent_t event) {
 
 void RR_PushGlobalGradeEventToFeed(player_t* player, gp_rank_e rank, boolean perfectRace) {
     if (!canUseHudfeed()) return;
+    if (!cv_hudfeed_show_grades.value) return;
     if (rank == GRADE_INVALID) return;
 
     const boolean showSRanks = (cv_show_s_ranks.value && perfectRace);
@@ -800,6 +810,35 @@ void RR_PushGlobalGradeEventToFeed(player_t* player, gp_rank_e rank, boolean per
     hudfeed.push(std::make_unique<GlobalPlayerFeedUpdate>(
         player_name, 
         gradeConfig,
+        stplyr == player
+    ));
+}
+
+void RR_PushGlobalFaultEventToFeed(player_t* player) {
+    if (!canUseHudfeed()) return;
+    if (!cv_hudfeed_show_faults.value) return;
+
+    // Big red 'X'
+    ItemConfigForFeedUpdate faultConfig = {
+        .patch = "K_NOBLNS",
+        .width = 25,
+        .height = 22,
+    };
+
+    // 20% chance
+    if(M_RandomChance(FRACUNIT/20)) {
+        faultConfig = {
+            .patch = "RRHFFAUL",
+            .width = 37,
+            .height = 47,
+            .patch_scale = .18f
+        };
+    }
+
+    // Push to the feed
+    hudfeed.push(std::make_unique<GlobalPlayerFeedUpdate>(
+        player_names[player-players], 
+        faultConfig,
         stplyr == player
     ));
 }
