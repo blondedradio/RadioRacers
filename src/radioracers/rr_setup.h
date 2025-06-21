@@ -15,6 +15,10 @@
 extern "C" {
 #endif
 
+// Music
+#define MAXRANDOMSTARTMUS 5
+extern UINT8 radio_mapmusrng;
+
 extern boolean found_radioracers;
 extern boolean found_radioracers_plus;
 extern boolean radioracers_usemuteicons;
@@ -47,6 +51,8 @@ extern const char* RADIO_GOODWIRE_VERTICAL_TEX_NAME;
 extern patch_t *end_key[2];
 extern sfxenum_t radio_ding_sound;
 extern sfxenum_t radio_last_powerup_jingle_sound;
+extern sfxenum_t radio_s_rank_voiceline;
+extern sfxenum_t radio_perfectboost_line;
 extern void RR_Init(void);
 extern void RR_AddAllEmotes(UINT16 wadnum);
 extern void RR_CleanupEmoteFrames(void);

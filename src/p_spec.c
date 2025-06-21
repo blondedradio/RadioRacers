@@ -55,6 +55,7 @@
 
 #include "radioracers/rr_cvar.h"
 #include "radioracers/rr_hud.h"
+#include "radioracers/rr_setup.h"
 
 // Not sure if this is necessary, but it was in w_wad.c, so I'm putting it here too -Shadow Hog
 #include <errno.h>
@@ -2050,6 +2051,10 @@ static void K_HandleLapIncrement(player_t *player)
 			if (rainbowstartavailable == true && player->mo->hitlag == 0)
 			{
 				S_StartSound(player->mo, sfx_s23c);
+
+				// Radio
+				if (stplyr == player && radio_perfectboost_line != sfx_None)
+					S_StartSound(NULL, radio_perfectboost_line);
 				player->startboost = 125;
 
 				K_SpawnDriftBoostExplosion(player, 4);
