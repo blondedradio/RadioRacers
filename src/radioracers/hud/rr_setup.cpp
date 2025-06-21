@@ -29,6 +29,9 @@
 static const char* EMOTE_FRAME_NAME = "FRAME";
 static const char* EMOTE_ATLAS_FRAME_NAME = "EMOATLAS";
 
+// Music randomizing
+UINT8 radio_mapmusrng;
+
 
 std::vector<std::string> OLD_RING_STATES = {
     "S_RING_OLD",
@@ -82,6 +85,8 @@ patch_t* end_key[2];
 
 sfxenum_t radio_ding_sound;
 sfxenum_t radio_last_powerup_jingle_sound; // Very important
+sfxenum_t radio_s_rank_voiceline;
+sfxenum_t radio_perfectboost_line;
 
 /**
  * 300 frames is really generous. 
@@ -967,6 +972,12 @@ void RR_Init(void) {
 
         // VERY important
         radio_last_powerup_jingle_sound = S_AddSoundFx("pujvlj", false, 0, false);
+
+        // S Ranks
+        radio_s_rank_voiceline = S_AddSoundFx("srankl", false, 0, false);
+
+        // Perfect boost
+        radio_perfectboost_line = S_AddSoundFx("rrpfst", false, 0, false);
     
         // Mute icon for Pause Menu
         if (W_LumpExists("M_ICOMUT") && W_LumpExists("M_ICOMU2")) {

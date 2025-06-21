@@ -41,6 +41,7 @@
 // Radio
 #include "radioracers/rr_cvar.h"
 #include "radioracers/rr_hud.h"
+#include "radioracers/rr_setup.h"
 #include "k_objects.h"
 #include "k_director.h"
 
@@ -601,6 +602,8 @@ void level_tally_t::Init(player_t *player)
 		}
 
 		// Radio:
+		if (cv_show_s_ranks.value && perfectRace && radio_s_rank_voiceline != sfx_None)
+			gradeVoice = radio_s_rank_voiceline;
 		RR_PushGlobalGradeEventToFeed(player, static_cast<gp_rank_e>(rank), perfectRace);
 	}
 
