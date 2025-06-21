@@ -81,7 +81,8 @@ extern char joinedIPlist[NUMLOGIP][2][MAX_LOGIP];
 extern char joinedIP[MAX_LOGIP];
 
 // Radio - keep track of the very last server we tried to join
-extern char tempJoinedIP[MAX_LOGIP];
+extern char tempJoinedIP[16];
+extern char tempJoinedIPManual[MAX_LOGIP];
 
 void M_InitJoinedIPArray(void);
 void M_AddToJoinedIPs(char *address, char *servname);
