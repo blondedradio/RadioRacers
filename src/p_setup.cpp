@@ -8390,6 +8390,9 @@ void P_ResetLevelMusic(void)
 	}
 
 	mapmusrng = idx;
+
+	// Radio - we don't care about how many tracks are in a map (yet)
+	radio_mapmusrng = random % MAXRANDOMSTARTMUS;
 }
 
 boolean P_UseContinuousLevelMusic(void)
