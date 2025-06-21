@@ -158,7 +158,8 @@ moviemode_t moviemode = MM_OFF;
 
 char joinedIPlist[NUMLOGIP][2][MAX_LOGIP];
 char joinedIP[MAX_LOGIP];
-char tempJoinedIP[MAX_LOGIP]; // Radio
+char tempJoinedIP[16]; // Radio
+char tempJoinedIPManual[MAX_LOGIP]; // Radio
 
 // This initializes the above array to have NULL evrywhere it should.
 void M_InitJoinedIPArray(void)
@@ -173,9 +174,6 @@ void M_InitJoinedIPArray(void)
 // This adds an entry to the above array
 void M_AddToJoinedIPs(char *address, char *servname)
 {
-	// Radio:
-	strlcpy(tempJoinedIP, address, MAX_LOGIP);
-
 	UINT8 i = 0;
 
 	// Check for dupes...
