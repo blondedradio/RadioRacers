@@ -1447,25 +1447,6 @@ static void IdentifyVersion(void)
 	D_AddFile(startupiwads, num_startupiwads++, va(pandf,srb2waddir,"patch.pk3"), ASSET_HASH_PATCH_PK3);
 #endif
 
-	// RadioRacers
-	if (FIL_ReadFileOK(va(pandf,srb2waddir,"radioracers.pk3"))) {
-		D_AddFile(startupiwads, va(pandf,srb2waddir,"radioracers.pk3"));
-		found_radioracers = true;
-	}
-	if (FIL_ReadFileOK(va(pandf,srb2path,"radioracers.pk3"))) {
-		D_AddFile(startupiwads, va(pandf,srb2path,"radioracers.pk3"));
-		found_radioracers = true;
-	}
-	if (FIL_ReadFileOK(va(pandf,srb2waddir,"radioracers_plus.pk3"))) {
-		D_AddFile(startupiwads, va(pandf,srb2waddir,"radioracers_plus.pk3"));
-		found_radioracers_plus = true;
-	}
-	if (FIL_ReadFileOK(va(pandf,srb2path,"radioracers_plus.pk3"))) {
-		D_AddFile(startupiwads, va(pandf,srb2path,"radioracers_plus.pk3"));
-		found_radioracers_plus = true;
-	}
-
-
 #define MUSICTEST(str) \
 		musicpath = va(spandf,srb2waddir,"data",str);\
 		handle = W_OpenWadFile(&musicpath, NULL, false); \
@@ -1492,6 +1473,24 @@ static void IdentifyVersion(void)
 	}
 
 #undef MUSICTEST
+
+	// RadioRacers
+	if (FIL_ReadFileOK(va(pandf,srb2waddir,"radioracers.pk3"))) {
+		D_AddFile(startupiwads, va(pandf,srb2waddir,"radioracers.pk3"));
+		found_radioracers = true;
+	}
+	if (FIL_ReadFileOK(va(pandf,srb2path,"radioracers.pk3"))) {
+		D_AddFile(startupiwads, va(pandf,srb2path,"radioracers.pk3"));
+		found_radioracers = true;
+	}
+	if (FIL_ReadFileOK(va(pandf,srb2waddir,"radioracers_plus.pk3"))) {
+		D_AddFile(startupiwads, va(pandf,srb2waddir,"radioracers_plus.pk3"));
+		found_radioracers_plus = true;
+	}
+	if (FIL_ReadFileOK(va(pandf,srb2path,"radioracers_plus.pk3"))) {
+		D_AddFile(startupiwads, va(pandf,srb2path,"radioracers_plus.pk3"));
+		found_radioracers_plus = true;
+	}
 }
 
 static void
