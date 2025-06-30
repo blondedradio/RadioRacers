@@ -98,10 +98,10 @@ sfxenum_t radio_perfectboost_line;
 
 // Global trackers
 std::unordered_map<emote_t*, size_t> emoteFrameMap;
-std::unordered_map<emote_t*, size_t> emoteLastUpdate;
+std::unordered_map<emote_t*, tic_t> emoteLastUpdate;
 
 std::unordered_map<emote_t*, size_t> chatEmoteFrameMap;
-std::unordered_map<emote_t*, size_t> chatEmoteLastUpdate;
+std::unordered_map<emote_t*, tic_t> chatEmoteLastUpdate;
 
 // Emotes
 // Checks if the emote is already IN the vector
