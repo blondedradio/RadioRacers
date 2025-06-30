@@ -96,6 +96,14 @@
 			}
 		},
 		{
+			"name": "__compiler-mingw-w64-x86_64",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_C_COMPILER": "x86_64-w64-mingw32-gcc",
+				"CMAKE_CXX_COMPILER": "x86_64-w64-mingw32-g++"
+			}
+		},
+		{
 			"name": "__mingw-dynamic",
 			"hidden": true,
 			"cacheVariables": {
@@ -111,13 +119,11 @@
 			}
 		},
 		{
-			"name": "__x64-windows",
+			"name": "__mingw-x64-static",
 			"hidden": true,
 			"cacheVariables": {
-				"CMAKE_C_COMPILER": "clang-cl",
-				"CMAKE_CXX_COMPILER": "clang-cl",
-				"VCPKG_HOST_TRIPLET": "x64-windows-static-md",
-				"VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
+				"VCPKG_HOST_TRIPLET": "x64-mingw-static",
+				"VCPKG_TARGET_TRIPLET": "x64-mingw-static"
 			}
 		},
 		{
@@ -188,7 +194,6 @@
 			"binaryDir": "build/${presetName}",
 			"inherits": [ "__testers", "__ninja", "__vcpkg-toolchain" ]
 		},
-
 		{
 			"name": "ninja-x86_mingw_static_vcpkg-debug",
 			"hidden": false,
@@ -208,29 +213,35 @@
 			"inherits": [ "__release", "__compiler-mingw-w64-i686", "__ninja", "__vcpkg-toolchain", "__mingw-static" ]
 		},
 		{
+			"name": "ninja-x86_64_mingw_static_vcpkg-release",
+			"hidden": false,
+			"binaryDir": "build/${presetName}",
+			"inherits": ["__release", "__compiler-mingw-w64-x86_64", "__ninja", "__vcpkg-toolchain", "__mingw-x64-static"]
+		},
+		{
 			"name": "ninja-x86_mingw_static_vcpkg-testers",
 			"hidden": false,
 			"binaryDir": "build/${presetName}",
 			"inherits": [ "__testers", "__compiler-mingw-w64-i686", "__ninja", "__vcpkg-toolchain", "__mingw-static" ]
 		},
-
+		
 		{
-			"name": "ninja-x64_windows_vcpkg-debug",
+			"name": "ninja-x86_64_mingw_static_vcpkg-debug",
 			"hidden": false,
-			"binaryDir": "${sourceDir}/build/${presetName}",
-			"inherits": [ "__debug-cl", "__ninja", "__vcpkg-toolchain", "__x64-windows" ]
+			"binaryDir": "build/${presetName}",
+			"inherits": ["__debug", "__compiler-mingw-w64-x86_64", "__ninja", "__vcpkg-toolchain", "__mingw-x64-static"]
 		},
 		{
-			"name": "ninja-x64_windows_vcpkg-develop",
+			"name": "ninja-x86_64_mingw_static_vcpkg-develop",
 			"hidden": false,
-			"binaryDir": "${sourceDir}/build/${presetName}",
-			"inherits": [ "__develop-cl", "__ninja", "__vcpkg-toolchain", "__x64-windows" ]
+			"binaryDir": "build/${presetName}",
+			"inherits": ["__develop", "__compiler-mingw-w64-x86_64", "__ninja", "__vcpkg-toolchain", "__mingw-x64-static"]
 		},
 		{
-			"name": "ninja-x64_windows_vcpkg-release",
+			"name": "ninja-x86_64_mingw_static_vcpkg-testers",
 			"hidden": false,
-			"binaryDir": "${sourceDir}/build/${presetName}",
-			"inherits": [ "__release-cl", "__ninja", "__vcpkg-toolchain", "__x64-windows" ]
+			"binaryDir": "build/${presetName}",
+			"inherits": ["__testers", "__compiler-mingw-w64-x86_64", "__ninja", "__vcpkg-toolchain", "__mingw-x64-static"]
 		},
 
 		{
@@ -314,16 +325,16 @@
 			"configurePreset": "ninja-x86_mingw_static_vcpkg-testers"
 		},
 		{
-			"name": "ninja-x64_windows_vcpkg-debug",
-			"configurePreset": "ninja-x64_windows_vcpkg-debug"
+			"name": "ninja-x86_64_mingw_static_vcpkg-debug",
+			"configurePreset": "ninja-x86_64_mingw_static_vcpkg-debug"
 		},
 		{
-			"name": "ninja-x64_windows_vcpkg-develop",
-			"configurePreset": "ninja-x64_windows_vcpkg-develop"
+			"name": "ninja-x86_64_mingw_static_vcpkg-develop",
+			"configurePreset": "ninja-x86_64_mingw_static_vcpkg-develop"
 		},
 		{
-			"name": "ninja-x64_windows_vcpkg-release",
-			"configurePreset": "ninja-x64_windows_vcpkg-release"
+			"name": "ninja-x86_64_mingw_static_vcpkg-release",
+			"configurePreset": "ninja-x86_64_mingw_static_vcpkg-release"
 		},
 		{
 			"name": "ninja-x64_osx_vcpkg-debug",
