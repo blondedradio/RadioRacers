@@ -76,10 +76,10 @@ extern std::vector<emote_t> B_RANK_EMOTES;
 extern std::vector<emote_t> A_RANK_EMOTES;
 
 extern std::unordered_map<emote_t*, size_t> emoteFrameMap;
-extern std::unordered_map<emote_t*, size_t> emoteLastUpdate;
+extern std::unordered_map<emote_t*, tic_t> emoteLastUpdate;
 
 extern std::unordered_map<emote_t*, size_t> chatEmoteFrameMap;
-extern std::unordered_map<emote_t*, size_t> chatEmoteLastUpdate;
+extern std::unordered_map<emote_t*, tic_t> chatEmoteLastUpdate;
 
 extern std::vector<std::vector<patch_t*>> chat_log_emote_patches;
 extern std::vector<std::vector<emote_t*>> chat_log_emotes;
