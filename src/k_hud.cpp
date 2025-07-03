@@ -9140,7 +9140,7 @@ void K_drawKartHUD(void)
 			K_drawKartFinish(true);
 		else if (!(gametyperules & GTR_CIRCUIT))
 			;
-		else if (stplyr->karthud[khud_lapanimation] && !r_splitscreen && !cv_hud_hidelapemblem.value)
+		else if (stplyr->karthud[khud_lapanimation] && !r_splitscreen && cv_hud_hidelapemblem.value)
 			K_drawLapStartAnim();
 	}
 
