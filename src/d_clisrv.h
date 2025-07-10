@@ -700,6 +700,14 @@ void DoSayPacket(SINT8 target, UINT8 flags, UINT8 source, char *message);
 void DoSayPacketFromCommand(SINT8 target, size_t usedargs, UINT8 flags);
 void SendServerNotice(SINT8 target, char *message);
 
+// 
+// Radio
+//
+typedef struct {
+	char *downloadsize;
+} serverextrainfo_t;
+extern serverextrainfo_t serverextrainfo[MAXNETNODES];
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
