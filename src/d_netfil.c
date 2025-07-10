@@ -251,6 +251,41 @@ void D_ParseFileneeded(INT32 fileneedednum_parm, UINT8 *fileneededstr, UINT16 fi
 	}
 }
 
+/// 
+// RADIO
+///
+
+/** Parses the serverinfo packet and returns the total filesize for all the hosted addons
+  *
+  * \param fileneedednum_parm The number of files (sent in this page) needed to join the server
+  * \param fileneededstr The memory block containing the list of needed files
+  * \param firstfile The first file index to read from
+  */
+UINT32 D_ParseFilesize(INT32 fileneedednum_parm, UINT8 *fileneededstr, UINT16 firstfile)
+{
+	// Just copying what D_ParseFileneeded already does
+	// Would extract to a static function, but a very small amount of code is being repeated here
+
+	UINT32 total = 0;
+
+	INT32 i;
+	UINT8 *p;
+	
+	fileneedednum = firstfile + fileneedednum_parm;
+	p = (UINT8 *)fileneededstr;
+
+	for (i = firstfile; i < fileneedednum; i++)
+	{
+		// Read the first byte, which we don't care about in this case
+		READUINT8(p);
+
+		// Then read the next four, which are the file size
+		total += READUINT32(p);
+	}
+
+	return total;
+}
+
 void CL_PrepareDownloadSaveGame(const char *tmpsave)
 {
 	lastfilenum = -1;

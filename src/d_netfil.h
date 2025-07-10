@@ -164,6 +164,11 @@ filestatus_t checkfilemd5(char *filename, const UINT8 *wantedmd5sum);
 void nameonly(char *s);
 size_t nameonlylength(const char *s);
 
+///
+// RADIO
+///
+UINT32 D_ParseFilesize(INT32 fileneedednum_parm, UINT8 *fileneededstr, UINT16 firstfile);
+
 #ifdef HAVE_CURL
 void CURLPrepareFile(const char* url, int dfilenum);
 void CURLAbortFile(void);
