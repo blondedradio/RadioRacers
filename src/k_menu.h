@@ -983,8 +983,11 @@ void M_DifficultySelectInputs(INT32 choice);
 // Keep track of multiplayer menu related data
 // We'll add more stuff here as we need em...
 
-#define SERVERSPERPAGE 8
-#define SERVERSPACE 18
+// Radio
+#define SERVERSPERPAGE 2
+#define SERVERSPACE 23
+// #define SERVERSPERPAGE 8
+// #define SERVERSPACE 18
 
 extern struct mpmenu_s {
 	UINT8 modechoice;

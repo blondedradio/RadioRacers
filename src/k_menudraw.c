@@ -92,6 +92,9 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "discord.h"
 #endif
 
+// Radio
+#include "d_clisrv.h"
+
 fixed_t M_TimeFrac(tic_t tics, tic_t duration)
 {
 	return tics < duration ? (tics * FRACUNIT + rendertimefrac_unpaused) / duration : FRACUNIT;
@@ -4486,6 +4489,26 @@ static void M_DrawServerCountAndHorizontalBar(void)
 	}
 }
 
+// Radio
+
+static inline INT32 getScaledWidthForServerBrowser(const char* txt) {
+	return (V_StringScaledWidth(FRACUNIT/2, FRACUNIT, FRACUNIT, 0, HU_FONT, txt)) >> FRACBITS;
+}
+
+static inline void drawAsterisk(INT32 x, INT32 y, INT32 transflag) {
+	V_DrawStringScaled(
+		(x) << FRACBITS,
+		(y) << FRACBITS,
+		FRACUNIT/2,
+		FRACUNIT,
+		FRACUNIT,
+		transflag | V_GRAYMAP,
+		NULL,
+		HU_FONT,
+		"*"
+	);
+}
+
 void M_DrawMPServerBrowser(void)
 {
 	const char *header[3][2] = {
@@ -4515,7 +4538,7 @@ void M_DrawMPServerBrowser(void)
 
 	const UINT8 startx = 18;
 	const UINT8 basey = 56;
-	const INT32 starty = basey - 18*mpmenu.scrolln + mpmenu.slide;
+	const INT32 starty = basey - (SERVERSPACE)*mpmenu.scrolln + mpmenu.slide;
 	INT32 ypos = 0;
 
 	// background stuff
@@ -4599,6 +4622,104 @@ void M_DrawMPServerBrowser(void)
 				pwrtext = "No Pwr";
 			}
 			V_DrawRightAlignedThinString(startx + 276, starty + ypos, transflag, pwrtext);
+
+			// Radio
+
+			// Background
+			INT32 extrainfo_y = starty + ypos + 16;
+			INT32 extrainfo_x = startx + 10;
+			V_DrawFill(
+				startx + 7,
+				extrainfo_y,
+				275,
+				6,
+				31 | transflag
+			);
+
+			// Now for the text
+			extrainfo_y += 1;
+
+			const boolean modded = serverlist[i].info.modifiedgame;
+			const boolean isdedicated = serverlist[i].info.kartvars & SV_DEDICATED;
+
+			// Dedicated server?
+			const char* dedicatedstr = "Listen Server";
+			INT32 dedicatedflag = transflag | V_ORANGEMAP;
+			
+			if (isdedicated) {
+				dedicatedstr = "Dedicated Server";
+				dedicatedflag = transflag | V_GREENMAP;
+			}
+
+			V_DrawStringScaled(
+				(extrainfo_x) << FRACBITS,
+				(extrainfo_y) << FRACBITS,
+				FRACUNIT/2,
+				FRACUNIT,
+				FRACUNIT,
+				dedicatedflag,
+				NULL,
+				HU_FONT,
+				dedicatedstr
+			);
+			
+			// Modded server
+			if (modded) {
+				// *
+				extrainfo_x += getScaledWidthForServerBrowser(dedicatedstr) + 3;
+				drawAsterisk(extrainfo_x, extrainfo_y, transflag);
+				extrainfo_x += getScaledWidthForServerBrowser("*") + 3;
+
+				// Has HTTP source?
+				boolean hashttpsource = serverlist[i].info.httpsource[0] != '\0';
+				const char* httpbadge = "NO HTTP";
+				INT32 httpsourceflag = transflag | V_REDMAP;
+
+				if (hashttpsource) {
+					httpbadge = "HTTP";
+					httpsourceflag = transflag | V_GREENMAP;
+				}
+
+				V_DrawStringScaled(
+					(extrainfo_x) << FRACBITS,
+					(extrainfo_y) << FRACBITS,
+					FRACUNIT/2,
+					FRACUNIT,
+					FRACUNIT,
+					httpsourceflag,
+					NULL,
+					HU_FONT,
+					httpbadge
+				);
+
+				extrainfo_x += getScaledWidthForServerBrowser(httpbadge) + 3;
+
+				// *
+				drawAsterisk(extrainfo_x, extrainfo_y, transflag);
+				extrainfo_x += getScaledWidthForServerBrowser("*") + 3;
+
+				// Addon size
+				if (serverextrainfo[serverlist[i].node].downloadsize) {
+					boolean lotsofaddons = serverlist[i].info.kartvars & SV_LOTSOFADDONS;
+					INT32 addonsizeflag = transflag | V_GREENMAP;
+	
+					// Just to hammer home how much you'll need to (potentially) download
+					if (lotsofaddons)
+						addonsizeflag = transflag | V_REDMAP;
+	
+					V_DrawStringScaled(
+						(extrainfo_x) << FRACBITS,
+						(extrainfo_y) << FRACBITS,
+						FRACUNIT/2,
+						FRACUNIT,
+						FRACUNIT,
+						addonsizeflag,
+						NULL,
+						HU_FONT,
+						serverextrainfo[serverlist[i].node].downloadsize
+					);
+				}
+			}
 
 			// game speed if applicable:
 			if (serverlist[i].cachedgtcalc != GTCALC_BATTLE)

@@ -729,6 +729,14 @@ void DoSayPacketFromCommand(SINT8 target, size_t usedargs, UINT8 flags);
 void DoVoicePacket(SINT8 target, UINT64 frame, const UINT8* opusdata, size_t len);
 void SendServerNotice(SINT8 target, char *message);
 
+// 
+// Radio
+//
+typedef struct {
+	char *downloadsize;
+} serverextrainfo_t;
+extern serverextrainfo_t serverextrainfo[MAXNETNODES];
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

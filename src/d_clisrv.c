@@ -1595,7 +1595,11 @@ UINT32 serverlistultimatecount = 0;
 boolean serverlistmode = false;
 
 static boolean resendserverlistnode[MAXNETNODES];
+
+// Radio
 static char serverlisttempnodes[MAXNETNODES][16];
+serverextrainfo_t serverextrainfo[MAXNETNODES];
+
 static tic_t serverlistepoch;
 
 static void SL_ClearServerList(INT32 connectedserver)
@@ -1612,6 +1616,7 @@ static void SL_ClearServerList(INT32 connectedserver)
 
 	memset(resendserverlistnode, 0, sizeof resendserverlistnode);
 	memset(serverlisttempnodes, 0, sizeof serverlisttempnodes);
+	memset(serverextrainfo, 0, sizeof serverextrainfo);
 }
 
 static UINT32 SL_SearchServer(INT32 node)
@@ -1686,6 +1691,22 @@ static boolean SL_InsertServer(serverinfo_pak* info, SINT8 node)
 	serverlist[i].info = *info;
 	serverlist[i].node = node;
 	serverlist[i].cachedgtcalc = gtcalc;
+
+	// Radio
+	serverextrainfo_t extrainfo = {
+		.downloadsize = NULL
+	};
+	if (info->modifiedgame)
+	{
+		UINT32 totalfilesize = D_ParseFilesize(serverlist[i].info.fileneedednum, serverlist[i].info.fileneeded, 0);
+
+		// From CL_FinishedFileList
+		if (totalfilesize>>20 >= 10)
+			extrainfo.downloadsize = Z_StrDup(va("%u MB",totalfilesize>>20));
+		else
+			extrainfo.downloadsize = Z_StrDup(va("%u KB",totalfilesize>>10));
+	}
+	serverextrainfo[node] = extrainfo;
 
 	// resort server list
 	M_SortServerList();
