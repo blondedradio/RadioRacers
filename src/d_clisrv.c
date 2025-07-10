@@ -4749,6 +4749,18 @@ static void reconnect_to_server(INT32 choice)
 	}
 }
 
+// Also Radio
+static void ShowReconnectPrompt(const char* string) {
+	M_StartMessage(
+		"Server Disconnected", 
+		string, 
+		&reconnect_to_server, 
+		MM_YESNO, 
+		"Yes, please", 
+		"No!!!!"
+	);
+}
+
 /** Called when a PT_SERVERSHUTDOWN packet is received
   *
   * \param node The packet sender (should be the server)
@@ -4759,13 +4771,9 @@ static void HandleShutdown(SINT8 node)
 	(void)node;
 	LUA_HookBool(false, HOOK(GameQuit));
 	Command_ExitGame_f();
-	M_StartMessage(
-		"Server Disconnected", 
-		M_GetText("Server has shutdown\nWould you like to \x83re-connect\x80?"), 
-		&reconnect_to_server, 
-		MM_YESNO, 
-		"Yes, please", 
-		"No!!!!"
+
+	ShowReconnectPrompt(
+		M_GetText("Server has shutdown\nWould you like to \x83re-connect\x80?")
 	);
 }
 
@@ -4779,12 +4787,8 @@ static void HandleTimeout(SINT8 node)
 	(void)node;
 	LUA_HookBool(false, HOOK(GameQuit));
 	Command_ExitGame_f();
-	M_StartMessage("Server Disconnected", 
-		M_GetText("Server Timeout\nWould you like to \x83re-connect\x80?"), 
-		&reconnect_to_server, 
-		MM_YESNO, 
-		"Yes, please", 
-		"No!!!!"
+	ShowReconnectPrompt(
+		M_GetText("Server Timeout\nWould you like to \x83re-connect\x80?")
 	);
 }
 
@@ -4799,13 +4803,8 @@ void HandleSigfail(const char *string)
 
 	LUA_HookBool(false, HOOK(GameQuit));
 	Command_ExitGame_f();
-	M_StartMessage(
-		"Server Disconnected", 
-		va(M_GetText("Signature check failed.\n(%s)\nWould you like to \x83re-connect\x80?"), string), 
-		&reconnect_to_server, 
-		MM_YESNO, 
-		"Yes, please", 
-		"No!!!!"
+	ShowReconnectPrompt(
+		va(M_GetText("Signature check failed.\n(%s)\nWould you like to \x83re-connect\x80?"), string)
 	);
 }
 
