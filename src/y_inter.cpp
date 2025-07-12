@@ -57,6 +57,7 @@
 #include "music.h"
 
 #include "radioracers/rr_cvar.h"
+#include "d_netcmd.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_main.h"
@@ -392,10 +393,11 @@ static void Y_CalculateMatchData(UINT8 rankingsmode, void (*comparison)(INT32))
 
 				if (players[i].skin < numskins)
 				{
+					const boolean canShowSkin = R_CanShowSkinInDemo(players[i].skin) && !IsPlayerMuted(i);
 					snprintf(data.headerstring,
 						sizeof data.headerstring,
 						"%s",
-						R_CanShowSkinInDemo(players[i].skin) ? skins[players[i].skin].realname : "???");
+						canShowSkin ? skins[players[i].skin].realname : "???");
 				}
 
 				data.showroundnum = true;
@@ -562,9 +564,9 @@ void Y_PlayerStandingsDrawer(y_data_t *standings, INT32 xoffset)
 		else
 		{
 			UINT8 *charcolormap = NULL;
-			if (!R_CanShowSkinInDemo(standings->character[i]))
+			if (!R_CanShowSkinInDemo(standings->character[i]) || IsPlayerMuted(pnum))
 			{
-				charcolormap = R_GetTranslationColormap(TC_BLINK, static_cast<skincolornum_t>(standings->color[i]), GTC_CACHE);
+				charcolormap = R_GetTranslationColormap(TC_BLINK, SKINCOLOR_GREY, GTC_CACHE);
 			}
 			else if (standings->color[i] != SKINCOLOR_NONE)
 			{
@@ -655,20 +657,23 @@ void Y_PlayerStandingsDrawer(y_data_t *standings, INT32 xoffset)
 				{
 					charcolormap = R_GetTranslationColormap(standings->character[i], static_cast<skincolornum_t>(standings->color[i]), GTC_CACHE);
 					
+					const boolean canShowSkin = R_CanShowSkinInDemo(standings->character[i]) && !IsPlayerMuted(pnum);
+					const UINT8* mutedcolormap = R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_GREY, GTC_CACHE);
+
 					if (cv_hud_usehighresportraits.value) {
 						V_DrawFixedPatch(
 							(x+14) << FRACBITS, (y-4) << FRACBITS,
 							(3*FRACUNIT)/4,
 							0,
-							R_CanShowSkinInDemo(standings->character[i]) ?
+							canShowSkin ?
 							faceprefix[standings->character[i]][FACE_RANK] : kp_unknownminimap,
-							charcolormap
+							canShowSkin ? charcolormap : mutedcolormap
 						);
 					} else {
 						V_DrawMappedPatch(x+14, y-5, 0,
-							R_CanShowSkinInDemo(standings->character[i]) ?
+							canShowSkin ?
 							faceprefix[standings->character[i]][FACE_MINIMAP] : kp_unknownminimap,
-							charcolormap); 
+							canShowSkin ? charcolormap : mutedcolormap); 
 					}
 
 				}
@@ -712,7 +717,7 @@ void Y_PlayerStandingsDrawer(y_data_t *standings, INT32 xoffset)
 						? hilicol
 						: 0
 				),
-				player_names[pnum]
+				IsPlayerMuted(pnum) ? "???" : player_names[pnum]
 			);
 
 			V_DrawRightAlignedThinString(

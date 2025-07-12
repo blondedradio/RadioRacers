@@ -76,6 +76,8 @@
 
 #include "radioracers/rr_hud.h"
 #include "radioracers/rr_util.h"
+#include "radioracers/rr_setup.h"
+#include "d_netcmd.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_light.h"
@@ -3785,7 +3787,7 @@ boolean P_SpectatorJoinGame(player_t *player)
 	else if (changeto == 2)
 		text = va("\x82*%s switched to the %c%s%c team.\n", player_names[player-players], '\x85', "BLU", '\x82');
 	else
-		text = va("\x82*%s entered the game.", player_names[player-players]);
+		text = va("\x82*%s entered the game.", IsPlayerMuted(player-players) ? "???" : player_names[player-players]);
 
 	HU_AddChatText(text, false);
 	return true; // no more player->mo, cannot continue.

@@ -1235,7 +1235,11 @@ static void Got_NameAndColor(const UINT8 **cp, INT32 playernum)
 
 					if (players[i].spectator)
 					{
-						HU_AddChatText(va("\x82*%s became a spectator.", player_names[playernum]), false);
+						const char* player_name = player_names[playernum];
+						if (IsPlayerMuted(playernum))
+							player_name = "???";
+						
+						HU_AddChatText(va("\x82*%s became a spectator.", player_name), false);
 
 						FinalisePlaystateChange(playernum);
 					}
