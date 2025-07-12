@@ -50,6 +50,9 @@
 #include "../k_hitlag.h" // HITLAGJITTERS
 #include "../r_fps.h"
 
+// Radio
+#include "../radioracers/rr_util.h"
+
 #ifdef HAVE_PNG
 
 #ifndef _MSC_VER
@@ -1534,7 +1537,7 @@ boolean HWR_DrawModel(gl_vissprite_t *spr)
 			}
 
 			// Hide not-yet-unlocked characters in replays from other people
-			if (skinnum >= 0 && !R_CanShowSkinInDemo(skinnum))
+			if (skinnum >= 0 && (!R_CanShowSkinInDemo(skinnum) || RR_IsPlayerMutedForRndr(spr->mobj)))
 			{
 				skinnum = TC_BLINK;
 			}

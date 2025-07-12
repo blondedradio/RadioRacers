@@ -15,6 +15,8 @@
 #include "r_splats.h"
 #include "r_things.h"
 
+#include "radioracers/rr_util.h"
+
 INT32 R_ThingLightLevel(mobj_t* thing)
 {
 	INT32 lightlevel = thing->lightlevel;
@@ -45,7 +47,12 @@ INT32 R_ThingLightLevel(mobj_t* thing)
 			lightlevel -= 255;
 		}
 
-		if (!R_CanShowSkinInDemo(((skin_t*)thing->skin)->skinnum)
+		// Radio: or hide muted players
+		if (
+			(
+				!R_CanShowSkinInDemo(((skin_t*)thing->skin)->skinnum) || 
+				RR_IsPlayerMutedForRndr(thing)
+			)
 		&& ((cv_reducevfx.value) || (!thing->colorized && !thing->hitlag)))
 		{
 			lightlevel -= 128;
