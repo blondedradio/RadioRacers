@@ -69,6 +69,7 @@
 #include "radioracers/rr_cvar.h" // cv_holdbuttonforscoreboard
 #include "radioracers/rr_hud.h"
 #include "radioracers/rr_video.h"
+#include "d_netcmd.h"
 #ifndef ENABLE_RADIO_DEMOS
 #include "radioracers/rr_demo.h"
 #endif
@@ -2751,8 +2752,10 @@ static inline void HU_DrawSpectatorTicker(void)
 	INT32 dupadjust = (vid.width/vid.dupx), duptweak = (dupadjust - BASEVIDWIDTH)/2;
 
 	for (i = 0; i < MAXPLAYERS; i++)
-		if (playeringame[i] && players[i].spectator)
-			totallength += (signed)strlen(player_names[i]) * 8 + 16;
+		if (playeringame[i] && players[i].spectator) {
+			const char* player_name = IsPlayerMuted(i) ? "???" : player_names[i];
+			totallength += (signed)strlen(player_name) * 8 + 16;
+		}
 
 	length -= (leveltime % (totallength + dupadjust+8));
 	length += dupadjust;
@@ -2766,9 +2769,12 @@ static inline void HU_DrawSpectatorTicker(void)
 			char current[MAXPLAYERNAME+1];
 			INT32 len;
 
-			len = ((signed)strlen(player_names[i]) * 8 + 16);
+			// Radio
+			const char* player_name = IsPlayerMuted(i) ? "???" : player_names[i];
 
-			strcpy(initial, player_names[i]);
+			len = ((signed)strlen(player_name) * 8 + 16);
+
+			strcpy(initial, player_name);
 			pos = initial;
 
 			if (length >= -len)
