@@ -34,6 +34,7 @@
 #include "../../info.h"
 #include "../../v_video.h"
 #include "../../command.h"
+#include "../../d_netcmd.h"
 #include "../../m_random.h"
 #include "../../v_draw.hpp" // srb2:Draw
 
@@ -650,6 +651,12 @@ static boolean canUseHudfeed(void) {
     return !RR_IsBattle() && radioracers_usehudfeed && cv_hudfeed_enabled.value;
 }
 
+static const char* filterPlayerName(player_t* p) {
+    if (IsPlayerMuted(p-players))
+        return "???";
+    return player_names[p-players];
+}
+
 // Push a player interaction to the feed.
 void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor) {
     if (!canUseHudfeed()) return;
@@ -687,8 +694,8 @@ void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor
     player_t* source_plyr = source->player;
     player_t* target_plyr = target->player;
 
-    std::string attacker = player_names[source_plyr-players];
-    std::string victim = player_names[target_plyr-players];
+    std::string attacker = filterPlayerName(source_plyr);
+    std::string victim = filterPlayerName(target_plyr);
 
     // Cap off player names if they're too long
     // (maybe?)
@@ -720,8 +727,8 @@ void RR_PushPlayerDeathToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor)
     player_t* source_plyr = source->player;
     player_t* target_plyr = target->player;
 
-    std::string attacker = player_names[source_plyr-players];
-    std::string victim = player_names[target_plyr-players];
+    std::string attacker = filterPlayerName(source_plyr);
+    std::string victim = filterPlayerName(target_plyr);
 
     const boolean self_hit = source_plyr == target_plyr;
     
@@ -752,8 +759,8 @@ void RR_PushPlayerInteractionToFeed(mobj_t *source, mobj_t *target, playerattack
     player_t* source_plyr = source->player;
     player_t* target_plyr = target->player;
 
-    std::string attacker = player_names[source_plyr-players];
-    std::string victim = player_names[target_plyr-players];
+    std::string attacker = filterPlayerName(source_plyr);
+    std::string victim = filterPlayerName(target_plyr);
 
     // Cap off player names if they're too long
     // (maybe?)
@@ -778,7 +785,7 @@ void RR_PushGlobalEventToFeed(player_t* player, globalfeedevent_t event) {
     ItemConfigForFeedUpdate itemConfig = getItemConfigForGlobalFeedUpdate(event);
     if (itemConfig.patch.empty()) return;
     
-    const std::string player_name = player_names[player-players];
+    const std::string player_name = filterPlayerName(player);
 
     // Push to the feed
     hudfeed.push(std::make_unique<GlobalFeedUpdate>(player_name, itemConfig));
@@ -804,7 +811,7 @@ void RR_PushGlobalGradeEventToFeed(player_t* player, gp_rank_e rank, boolean per
         .rainbow = (showSRanks)
     };
         
-    const std::string player_name = player_names[player-players];
+    const std::string player_name = filterPlayerName(player);
 
     // Push to the feed
     hudfeed.push(std::make_unique<GlobalPlayerFeedUpdate>(
@@ -837,7 +844,7 @@ void RR_PushGlobalFaultEventToFeed(player_t* player) {
 
     // Push to the feed
     hudfeed.push(std::make_unique<GlobalPlayerFeedUpdate>(
-        player_names[player-players], 
+        filterPlayerName(player),
         faultConfig,
         stplyr == player
     ));
