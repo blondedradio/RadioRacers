@@ -1235,7 +1235,11 @@ static void Got_NameAndColor(const UINT8 **cp, INT32 playernum)
 
 					if (players[i].spectator)
 					{
-						HU_AddChatText(va("\x82*%s became a spectator.", player_names[playernum]), false);
+						const char* player_name = player_names[playernum];
+						if (IsPlayerMuted(playernum))
+							player_name = "???";
+						
+						HU_AddChatText(va("\x82*%s became a spectator.", player_name), false);
 
 						FinalisePlaystateChange(playernum);
 					}
@@ -3837,8 +3841,10 @@ static void Got_Teamchange(const UINT8 **cp, INT32 playernum)
 	{
 		CONS_Printf(M_GetText("%s switched to the %c%s%c.\n"), player_names[playernum], '\x84', M_GetText("Blue Team"), '\x80');
 	}
-	else if (NetPacket.packet.newteam == 0 && !wasspectator)
-		HU_AddChatText(va("\x82*%s became a spectator.", player_names[playernum]), false); // "entered the game" text was moved to P_SpectatorJoinGame
+	else if (NetPacket.packet.newteam == 0 && !wasspectator) {
+		const char* player_name = IsPlayerMuted(playernum) ? "???" : player_names[playernum];
+		HU_AddChatText(va("\x82*%s became a spectator.", player_name), false); // "entered the game" text was moved to P_SpectatorJoinGame
+	}
 
 	if (gamestate != GS_LEVEL || wasspectator == true)
 		return;

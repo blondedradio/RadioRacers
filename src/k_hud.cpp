@@ -2797,10 +2797,16 @@ void PositionFacesInfo::draw_1p()
 			else
 				colormap = R_GetTranslationColormap(workingskin, static_cast<skincolornum_t>(players[rankplayer[i]].mo->color), GTC_CACHE);
 
+
+			patch_t * muted_facerank = static_cast<patch_t*>(W_CachePatchName("MISSING", GTC_CACHE));
+			const boolean is_muted = IsPlayerMuted(&players[rankplayer[i]] - players);
+
 			if (cv_hud_usehighresportraits.value) {
-				V_DrawSmallMappedPatch(FACE_X + xoff, Y + yoff, V_HUDTRANS|V_SLIDEIN|V_SNAPTOLEFT|flipflag, faceprefix[workingskin][FACE_WANTED], colormap);
+				patch_t *highresfacerank = (is_muted) ? muted_facerank : faceprefix[workingskin][FACE_WANTED];
+				V_DrawSmallMappedPatch(FACE_X + xoff, Y + yoff, V_HUDTRANS|V_SLIDEIN|V_SNAPTOLEFT|flipflag, highresfacerank, colormap);
 			} else {
-				V_DrawMappedPatch(FACE_X + xoff, Y + yoff, V_HUDTRANS|V_SLIDEIN|V_SNAPTOLEFT|flipflag, faceprefix[workingskin][FACE_RANK], colormap);
+				patch_t *facerank = (is_muted) ? muted_facerank : faceprefix[workingskin][FACE_RANK];
+				V_DrawMappedPatch(FACE_X + xoff, Y + yoff, V_HUDTRANS|V_SLIDEIN|V_SNAPTOLEFT|flipflag, facerank, colormap);
 			}
 			
 			if (LUA_HudEnabled(hud_battlebumpers))
@@ -4466,7 +4472,12 @@ static void K_DrawNameTagSphereMeter(INT32 x, INT32 y, INT32 width, INT32 sphere
 static void K_DrawNameTagForPlayer(fixed_t x, fixed_t y, player_t *p, INT32 flags)
 {
 	const INT32 clr = skincolors[p->skincolor].chatcolor;
-	const INT32 namelen = V_ThinStringWidth(player_names[p - players], 0);
+	const char* player_name = player_names[p - players];
+
+	if (IsPlayerMuted(p - players))
+		player_name = "???";
+	
+	const INT32 namelen = V_ThinStringWidth(player_name, 0);
 
 	UINT8 *colormap = V_GetStringColormap(clr);
 	INT32 barx = 0, bary = 0, barw = 0;
@@ -4525,7 +4536,7 @@ static void K_DrawNameTagForPlayer(fixed_t x, fixed_t y, player_t *p, INT32 flag
 	V_DrawFixedPatch(x, y, FRACUNIT, flags, kp_nametagstem, colormap);
 
 	// Draw the name itself
-	V_DrawThinStringAtFixed(x + (5*FRACUNIT), y - (26*FRACUNIT), clr|flags, player_names[p - players]);
+	V_DrawThinStringAtFixed(x + (5*FRACUNIT), y - (26*FRACUNIT), clr|flags, player_name);
 }
 
 playertagtype_t K_WhichPlayerTag(player_t *p)
@@ -5176,7 +5187,7 @@ static void K_drawKartMinimap(void)
 			{
 				skin = ((skin_t*)mobj->skin)-skins;
 
-				workingPic = R_CanShowSkinInDemo(skin) ? faceprefix[skin][FACE_MINIMAP] : kp_unknownminimap;
+				workingPic = R_CanShowSkinInDemo(skin) && !RR_IsPlayerMutedForRndr(mobj) ? faceprefix[skin][FACE_MINIMAP] : kp_unknownminimap;
 
 				if (mobj->color)
 				{
@@ -5388,7 +5399,7 @@ static void K_drawKartMinimap(void)
 		{
 			skin = ((skin_t*)mobj->skin)-skins;
 
-			workingPic = R_CanShowSkinInDemo(skin) ? faceprefix[skin][FACE_MINIMAP] : kp_unknownminimap;
+			workingPic = R_CanShowSkinInDemo(skin) && !RR_IsPlayerMutedForRndr(mobj) ? faceprefix[skin][FACE_MINIMAP] : kp_unknownminimap;
 
 			if (mobj->color)
 			{
