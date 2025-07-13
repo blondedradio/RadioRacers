@@ -261,14 +261,14 @@ static menuitem_t OPTIONS_RadioRacersAccessibility[] =
 	{IT_STRING | IT_CVAR, "Observation Haki", "Apply a grayscale filter to the level, keeping important elements in colour.",
 		NULL, {.cvar = &cv_applyhaki}, 0, 0},
 
+	{IT_STRING | IT_CVAR, "Obvious Voltage", "Re-colour your voltage aura depending on your driftcharge.",
+		NULL, {.cvar = &cv_obvious_voltage}, 0, 0},
+
 	{IT_STRING | IT_CVAR, "Precise Countdown", "Show a more precise countdown, accompanied with a little bar.",
 		NULL, {.cvar = &cv_precise_countdown}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Ghost Rings", "Ghost rings and ringboxes when you're unable to collect any rings.",
 		NULL, {.cvar = &cv_accessibility_rings_hide}, 0, 0},
-
-	{IT_STRING | IT_CVAR, "Item Timers", "Show item timers in the middle-bottom of your HUD.",
-		NULL, {.cvar = &cv_gingeritemtimers}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Dangerous Player Checks", "Draw warning symbols to the side of the HUD for any incoming danger.",
 		NULL, {.cvar = &cv_show_dangerous_player_check}, 0, 0},
@@ -276,11 +276,20 @@ static menuitem_t OPTIONS_RadioRacersAccessibility[] =
 	{IT_STRING | IT_CVAR, "Obvious Tripwires", "Draw color-coded tripwires to indicate whether you can pass through or not.",
 		NULL, {.cvar = &cv_obvious_tripwire}, 0, 0},
 
-	{IT_STRING | IT_CVAR, "Obvious Voltage", "Re-colour your voltage aura depending on your driftcharge.",
-		NULL, {.cvar = &cv_obvious_voltage}, 0, 0},
-
 	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
+
+	{IT_HEADER, "Item Timers", NULL,
+		NULL, {NULL}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Enabled?", "Show item timers in the middle-bottom of your HUD.",
+		NULL, {.cvar = &cv_gingeritemtimers}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Font Size", "Switch the font size for the timer text.",
+		NULL, {.cvar = &cv_gingeritemtimersbiggertext}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Vertical Offset", "Vertically offset the timers from their default position.",
+		NULL, {.cvar = &cv_gingeritemtimersoffset}, 0, 0},
 	
 	{IT_HEADER, "Powerups", NULL,
 		NULL, {NULL}, 0, 0},
@@ -295,14 +304,14 @@ static menuitem_t OPTIONS_RadioRacersAccessibility[] =
 void RadioAccessibilityMenu_Init(void)
 {
 	if (!found_radioracers || radio_last_powerup_jingle_sound == sfx_None) {
-		OPTIONS_RadioRacersAccessibility[10].status = IT_GRAYEDOUT;	
+		OPTIONS_RadioRacersAccessibility[13].status = IT_GRAYEDOUT;	
 	}
 
 	// Can't use these options, they rely on custom graphics
 	// Haki mode and voltage
 	if (!found_radioracers) {
 		OPTIONS_RadioRacersAccessibility[0].status = IT_GRAYEDOUT;
-		OPTIONS_RadioRacersAccessibility[5].status = IT_GRAYEDOUT;
+		OPTIONS_RadioRacersAccessibility[1].status = IT_GRAYEDOUT;
 	}
 }
 
