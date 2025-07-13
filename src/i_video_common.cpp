@@ -52,6 +52,7 @@
 #include "radioracers/rr_video.h"
 
 boolean isPingDrawn = false;
+boolean isDrawingInput = false;
 
 extern "C" consvar_t cv_scr_scale, cv_scr_x, cv_scr_y;
 
