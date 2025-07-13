@@ -534,7 +534,7 @@ void SCR_DisplayTicRate(void)
 	UINT32 cap = R_GetFramerateCap();
 	UINT32 benchmark = (cap == 0) ? I_GetRefreshRate() : cap;
 	INT32 x = 317;
-	const boolean isDrawingInput = gamestate == GS_LEVEL && cv_drawinput.value && cv_inputdisplaytogglesize.value;
+	const boolean isActuallyDrawingInput = isDrawingInput && cv_inputdisplaytogglesize.value;
 	const boolean isDrawingPing = isPingDrawn && r_splitscreen == 0;
 
 	if (isDrawingPing)
@@ -544,7 +544,7 @@ void SCR_DisplayTicRate(void)
 		// 	x -= 10;
 	}
 	
-	if (isDrawingInput)
+	if (isActuallyDrawingInput)
 	{
 		x -= (isDrawingPing) ? 28 : 27;
 	}
@@ -604,7 +604,7 @@ void SCR_DisplayLocalPing(void)
 	INT32 dispy = 189;
 	INT32 dispx = 298;
 
-	if (gamestate == GS_LEVEL && cv_drawinput.value && cv_inputdisplaytogglesize.value)
+	if (isDrawingInput && cv_inputdisplaytogglesize.value)
 		dispx = 270;
 
 	HU_drawPing(dispx * FRACUNIT, dispy * FRACUNIT, ping, mindelay, pl, V_SNAPTORIGHT | V_SNAPTOBOTTOM, 1);

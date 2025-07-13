@@ -105,7 +105,9 @@ extern "C" {
 #define V_DrawThinTimerString( x,y,option,string ) \
 	V__DrawDupxString (x,y,FRACUNIT,option,NULL,TINYTIMER_FONT,string)
 
+    // Input display
 extern boolean isPingDrawn;
+extern boolean isDrawingInput;
 
 #ifdef __cplusplus
 } // extern "C"
