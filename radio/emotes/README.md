@@ -1,11 +1,31 @@
 # Emotes
 
+![](./longtime.gif)
+
+A fully realized take on my old [SRB2Kart](https://mb.srb2.org/addons/emotes-kl_emotes-v2-2-pk3.2363/) mod.
+
 ## Controls
+
+### Menu
 Press the `END` key on your keyboard (or `Ctrl`+`E`) to bring up the menu on the right-side of the chatbox.
 
-Navigate the menu with the Arrow keys, pressing the `Enter` key to paste an emote into your chat input window. You can also search for emotes.
+Navigate the menu with the Arrow keys, pressing the `Tab` key to paste an emote into your chat input window. 
 
 ![](./menu_navigate.gif)
+
+### Sorting
+
+You can also search for emotes and sort the results alphabetically, by most used or by favourites.<br/>
+With the menu open, press `Ctrl`+`=` to cycle through all the sorting options.
+
+### Favourites
+
+Navigate to your most liked emotes and press `Ctrl` + `F` to favourite them.<br/>
+They will be marked with a small blue asterisk.
+
+![](./favourite.gif)
+
+### Previews
 
 Moreover, a preview of emotes will appear below your chat input window when typing an emote.  
 
