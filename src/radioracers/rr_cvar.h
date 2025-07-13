@@ -35,6 +35,8 @@ extern consvar_t cv_accessibility_rings_hide;       // Ghost rings and ringboxes
 extern consvar_t cv_powersound;                     // Straight from HOSTMOD, thanks Tyron
 extern consvar_t cv_powersoundjoke;
 extern consvar_t cv_gingeritemtimers;               // Show certain item timers, old debugging tool from 2020
+extern consvar_t cv_gingeritemtimersoffset;         // Let the user define a vertical offset for the timers Y-position
+extern consvar_t cv_gingeritemtimersbiggertext;      // Draw the timer text in a bigger size
 extern consvar_t cv_obvious_tripwire;               // Replace default tripwire texture with more obvious graphics
 extern consvar_t cv_obvious_voltage;                // Re-colour voltage VFX with same colour as drift spark
 extern consvar_t cv_precise_countdown;              // Show a little bar below starting countdown to better time your approach

@@ -553,6 +553,13 @@ consvar_t cv_show_dangerous_player_check = Player("showdangerplayercheck", "Off"
 
 // Item timers (not all)
 consvar_t cv_gingeritemtimers = Player("huditemtimers", "On").on_off();
+consvar_t cv_gingeritemtimersbiggertext = Player("huditemtimerssize", "Default").values({
+	{0, "Default"},
+	{1, "Big"}
+});
+consvar_t cv_gingeritemtimersoffset = Player("huditemtimersoffset", "0").floating_point()
+	.min_max(-180*FRACUNIT, 200*FRACUNIT) // At most 200 (bottom of the screen)
+	.step_amount(FRACUNIT);
 
 // Powerup jingle - straight from HOSTMOD, thanks Tyron.
 consvar_t cv_powersound = Player("powersoundhc", "Off").on_off();

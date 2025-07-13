@@ -60,6 +60,7 @@
 #include "radioracers/rr_cvar.h"
 #include "radioracers/rr_hud.h"
 #include "radioracers/rr_util.h"
+#include "radioracers/rr_video.h"
 
 //{ 	Patch Definitions
 static patch_t *kp_nodraw;
@@ -7804,12 +7805,19 @@ static void K_drawInput(void)
 {
 	UINT8 viewnum = R_GetViewNumber();
 	boolean freecam = camera[viewnum].freecam;	//disable some hud elements w/ freecam
+	
+	// Radio
+	isDrawingInput = false;
 
 	if (!cv_drawinput.value && !modeattacking && gametype != GT_TUTORIAL)
 		return;
 
 	if (stplyr->spectator || freecam || demo.attract)
 		return;
+
+
+	// Radio
+	isDrawingInput = true;
 
 	INT32 def[4][3] = {
 		{247, 156, V_SNAPTOBOTTOM | V_SNAPTORIGHT}, // 1p
@@ -9170,6 +9178,9 @@ void K_drawKartHUD(void)
 	if (modeattacking || freecam) // everything after here is MP and debug only
 	{
 		K_drawInput();
+		// Radio
+		if (modeattacking && cv_gingeritemtimers.value)
+			RR_DrawItemTimers();
 		goto debug;
 	}
 

@@ -17,9 +17,11 @@
 #include <fmt/format.h>
 
 #include "../rr_hud.h"
+#include "../rr_cvar.h"
 #include "../../doomstat.h"
 #include "../../p_local.h"
 #include "../../g_game.h"
+#include "../../d_netcmd.h"
 #include "../../k_color.h"
 #include "../../k_powerup.h"
 #include "../../v_draw.hpp"
@@ -28,6 +30,7 @@
 using srb2::Draw;
 
 constexpr const int HARD_Y = 180;
+constexpr const int HARD_HIGHER_Y = 160; // For SPB Attacks/Sealed Stars
 constexpr const int HARD_X = 160;
 constexpr const int SHIFT_X = 17; // To the left, to the left
 
@@ -195,11 +198,17 @@ void RR_DrawItemTimers(void)
     start_x -= (x_offset / 2);
 
     const INT32 draw_flags = V_SNAPTOBOTTOM;
-
-    Draw timer_row = Draw(start_x, HARD_Y)
+    const boolean usingProgressionBar = (gametype == GT_SPECIAL || (modeattacking & ATTACKING_SPB));
+    INT32 start_y = ((HARD_Y * FRACUNIT) + (cv_gingeritemtimersoffset.value)) >> FRACBITS;
+    
+    // Enforcing a higher position for the timers during attacking modes
+    // So players don't have to keep hotswapping their timer positions between modes
+    if (usingProgressionBar)
+        start_y = HARD_HIGHER_Y;
+    
+    Draw timer_row = Draw(start_x, start_y)
         .font(Draw::Font::kThin)
-        .align(Draw::Align::kCenter)
-        .flags(draw_flags);
+        .align(Draw::Align::kCenter).flags(draw_flags);
     
     for (const ItemTimer& t : timers) {
         if (t.time <= 0) continue;
@@ -229,9 +238,11 @@ void RR_DrawItemTimers(void)
             .patch(t.patch);
 
         // Then the time
+        const INT32 timer_text_y = (cv_gingeritemtimersbiggertext.value) ? 5 : 10;
+        const float timer_text_scale = (cv_gingeritemtimersbiggertext.value) ? 0.9 : 0.7;
         timer_row
-            .y(10)
-            .scale(0.7)
+            .y(timer_text_y)
+            .scale(timer_text_scale)
             .flags(extra_flags)
             .text("{}.{}", seconds, centiseconds);
 
