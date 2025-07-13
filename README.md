@@ -4,52 +4,28 @@
 
 <p></p>
 
-A [Ring Racers](https://www.kartkrew.org/) fork.
+A [Dr. Robotnik's Ring Racers](https://www.kartkrew.org/) fork.
 
-This build &ndash; like _all_ software &ndash; is always a work in progress.
-> [!NOTE]
-> Compatible with vanilla Ring Racers; all changes made so far are client-side.
+This build &ndash; like _all_ software &ndash; is always a work in progress.</br>
+Compatible with vanilla Ring Racers; all changes made so far are client-side.
 
-## Building
+> Many thanks to [GenericHeroGuy](https://github.com/GenericHeroGuy) for his work on [`pk3make.py`](https://github.com/GenericHeroGuy/ringracers-scripts), which is used to automate the building process for the assets.
 
-Follow the [instructions](#building-from-source) in the original README to compile the build.  
+## Getting Started
+1. Get the [**latest copy**](https://www.kartkrew.org/) of Dr. Robontik's Ring Racers installed on your system.
+2. Download the latest assets (`radioracers_assets.zip`) for this build [here](https://github.com/blondedradio/RadioRacers/releases/latest-radio-assets/).
+3. Extract the `radioracers_assets.zip` into the <span style="font-size: 1.4rem">***same directory***</span> where you installed Ring Racers.
+     - If you've installed Ring Racers in `C:\Games\Ring Racers`, then **that's** the folder you want to extract the zip file in.
+4. [Compile](#compiling) the build (`ringracers_radioracers.exe`) and copy it into the <span style="font-size: 1.6rem">***same directory***</span> where you installed Ring Racers.
+5. Run `ringracers_radioracers.exe`.
 
+### Compiling
+If you don't know how to compile, either attempt it yourself (good practice) or ask someone you trust to do it for you.
+
+If you want to try it yourself, follow the [instructions](#building-from-source) in the original README to compile the build.<br/>
 If you're on Windows 10 (or above), try following [this](https://blondedradio.github.io/rr-compile-windows-guide/) guide.
 
-### Assets
-Check the [latest release](https://github.com/blondedradio/RadioRacers/releases/latest-radio-assets/) for the `radioracers_assets.zip` file, or get it directly [here](https://github.com/blondedradio/RadioRacers/releases/download/latest-radio-assets/radioracers_assets.zip).  
-Extract the assets into the **_same folder_** where you have installed Ring Racers (where the executable is).
-
-### Building assets
-<details>
-  <summary> If you want to try it yourself.</summary>
-
-  <p></p>
-
-  > [!IMPORTANT]  
-  >  You **will** need [Python](https://www.python.org/) in order to do this systematically.
-  
-
-1. When configuring with CMake, append `-BUILD_RADIO_ASSETS=ON`, like so:
-    ```
-    cmake --preset ninja-x86_mingw_static_vcpkg-release -DBUILD_RADIO_ASSETS=ON 
-    ```
-    This will execute a post-build batch file, that will run `pk3make.py` (by [GenericHeroGuy](https://github.com/GenericHeroGuy)), which generates the PK3 files.*
-
-2. Compile the game as usual.  
-If successful, `radioracers.pk3` and `radioracers_plus.pk3` should be in the same folder as the compiled executable:
-
-    ![alt text](radio/pk3_assets.png)
-
-<sup>*For the moment, this step only applies to Windows users since there isn't a shellscript ***yet***.</sup>
-
-Otherwise, you can always build the assets yourself by running `pk3make.py` in `./radio/pk3`:
-
-```bash
-python ./pk3make.py ./build/radioracers.txt
-python ./pk3make.py ./build/radioracers_plus.txt
-```
-</details>
+However, if you grab a build from — say — a random Discord channel, *please* encourage whoever shared it to include [MD5 hashes](https://linuxsecurity.com/features/what-are-checksums-why-should-you-be-using-them) with the executable. It's spooky out here.
 
 ## Features
 
@@ -58,10 +34,6 @@ Take a gander at the [pull requests](https://github.com/blondedradio/RadioRacers
 ## "How do I get emotes working?????? :middle_finger::angry::anger:"
 
 Give [this](/radio/emotes/README.md) a read.
-
-## "Where's the executable??? :angry::anger:"
-
-Either compile it yourself (good practice) or have someone you trust do it for you.  
 
 ---
 
