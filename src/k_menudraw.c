@@ -2340,6 +2340,56 @@ static void M_DrawCharSelectCursor(UINT8 num)
 
 	if (p->mdepth < CSSTEP_READY)
 		V_DrawMappedPatch(x, y, 0, W_CachePatchName(va("CSELH%c", letter), PU_CACHE), colormap);
+
+	// Radio 
+	if (p->showextra == false)
+	{
+		INT32 randomskin = 0; 
+
+		// Lifted straight from M_DrawCharSelectPreview
+		if (p->clonenum < setup_chargrid[p->gridx][p->gridy].numskins
+			&& setup_chargrid[p->gridx][p->gridy].skinlist[p->clonenum] < numskins)
+		{
+			randomskin = (skins[setup_chargrid[p->gridx][p->gridy].skinlist[p->clonenum]].flags & SF_IRONMAN);
+		}
+		const char current_class = ('A' + R_GetEngineClass(p->gridx+1, p->gridy+1, randomskin));
+
+		const char* grid_speed = Z_StrDup(va("%d", p->gridx + 1));
+		const char* grid_weight = Z_StrDup(va("%d", p->gridy + 1));
+
+		if (randomskin & SF_IRONMAN) {
+			grid_speed = "?";
+			grid_weight = "?";
+		}
+
+		// (speed, weight)
+		V_DrawStringScaled(
+			(x + 13) << FRACBITS,
+			(y) << FRACBITS,
+			((4*FRACUNIT)/5), // 80% scale
+			FRACUNIT,
+			FRACUNIT,
+			V_20TRANS|V_YELLOWMAP,
+			NULL,
+			TINY_FONT,
+			va("(%s, %s)", grid_speed, grid_weight)
+		);
+
+		// (Class A)
+		V_DrawStringScaled(
+			(x + 11) << FRACBITS,
+			(y + 30) << FRACBITS,
+			((4*FRACUNIT)/5), // 80% scale
+			FRACUNIT,
+			FRACUNIT,
+			V_20TRANS|V_YELLOWMAP,
+			NULL,
+			TINY_FONT,
+			va("Class %c", current_class)
+		);
+	}
+	
+	
 }
 
 #undef IDLE
