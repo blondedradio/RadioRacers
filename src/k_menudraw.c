@@ -1955,6 +1955,13 @@ static void M_DrawCharSelectSprite(UINT8 num, INT16 x, INT16 y, boolean charflip
 		p->mdepth == CSSTEP_ASKCHANGES ? V_TRANSLUCENT : 0, colormap);
 }
 
+// Radio
+static boolean M_IsSkinValid(setup_player_t *p)
+{
+	return (p->clonenum < setup_chargrid[p->gridx][p->gridy].numskins
+		&& setup_chargrid[p->gridx][p->gridy].skinlist[p->clonenum] < numskins);
+}
+
 static void M_DrawCharSelectPreview(UINT8 num)
 {
 	INT16 x = 11, y = 5;
@@ -1973,6 +1980,11 @@ static void M_DrawCharSelectPreview(UINT8 num)
 	if (p->mdepth >= CSSTEP_CHARS || p->mdepth == CSSTEP_ASKCHANGES)
 	{
 		M_DrawCharSelectSprite(num, x+32, y+75, charflip);
+
+		// Radio
+		if (M_IsSkinValid(p))
+			V_DrawCenteredThinString(x+32, y+85, 0, skins[setup_chargrid[p->gridx][p->gridy].skinlist[p->clonenum]].realname);
+
 		M_DrawCharSelectCircle(p, x+32, y+64);
 	}
 
