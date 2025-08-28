@@ -2561,6 +2561,13 @@ void M_DrawCharacterSelect(void)
 		if (!optionsmenu.profile) // Does nothing on this screen
 		{
 			K_DrawGameControl(BASEVIDWIDTH/2, kTop, pid, "<r_animated> Info   <c_animated> Default", 1, TINY_FONT, 0);
+			
+			// Radio
+			const INT32 pageButtonX = (BASEVIDWIDTH/2) + 16;
+			const INT32 pageNumberY = kTop + 175;
+			K_drawButton((pageButtonX) * FRACUNIT, (pageNumberY) * FRACUNIT, 0, kp_button_l, M_MenuButtonPressed(pid, MBT_L));
+
+			K_DrawGameControl(pageButtonX, kTop, pid, va("<l_animated> Page %d of %d", setup_page + 1, setup_maxpage + 1), 1, TINY_FONT, 0);
 		}
 		else
 		{
