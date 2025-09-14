@@ -600,12 +600,18 @@ void P_StartPositionMusic(boolean exact)
 			: (leveltime  < introtime))
 			return;
 
+		// Radio
+		const char* original_position_music = "postn";
+		if (found_radioracers && radio_mapmusrng != 0) {
+				original_position_music = va("postn%d", radio_mapmusrng+1);
+		}
+
 		Music_Remap("position",
 			(mapheaderinfo[gamemap-1]->positionmus[0]
-				? mapheaderinfo[gamemap-1]->positionmus
-				: "postn"
+					? mapheaderinfo[gamemap-1]->positionmus
+					: original_position_music
 			));
-	}
+        }
 
 	Music_Play("position");
 	Music_DelayEnd("position", (starttime + (TICRATE/2)) - leveltime);
