@@ -103,10 +103,10 @@ struct level_tally_t
 
 	// Radio hook
 	boolean perfectRace;
-	boolean perfectLapBonus;
+	boolean perfectExpBonus;
 	boolean perfectRingBonus;
 	boolean perfectPrisonBonus;
-	boolean lapBonusEvaluated;
+	boolean expBonusEvaulated;
 	boolean prisonBonusEvaluated;
 	boolean ringBonusEvaluated;
 
