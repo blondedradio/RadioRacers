@@ -23,18 +23,12 @@ static menuitem_t OPTIONS_RadioRacersHudRace[] =
 {
 	{IT_HEADER, "Toggle HUD Elements", NULL,
 		NULL, {NULL}, 0, 0},
-
-	{IT_STRING | IT_CVAR, "Timer", "Toggle the display style for the Timer.",
-		NULL, {.cvar = &cv_toggle_timestamp_race}, 0, 0},   
 		
 	{IT_STRING | IT_CVAR, "Nametags", "Toggle in-game nametags.",
 		NULL, {.cvar = &cv_toggle_nametags}, 0, 0},   
 		
 	{IT_STRING | IT_CVAR, "Position Number", "Toggle position number on the bottom-right.",
 		NULL, {.cvar = &cv_toggle_position_number}, 0, 0},   
-
-	{IT_STRING | IT_CVAR, "Laps", "Toggle the display style for the Laps.",
-		NULL, {.cvar = &cv_toggle_laps_race}, 0, 0}, 
 
 	{IT_STRING | IT_CVAR, "Minimap", "Hide the minimap.",
 		NULL, {.cvar = &cv_toggle_race_minimap}, 0, 0},   
@@ -199,6 +193,9 @@ menuitem_t OPTIONS_RadioRacersHud[] =
 
 	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle the RING COUNTER's HUD position.",
 		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "EXP Display Position", "Toggle the EXP HUD position.",
+		NULL, {.cvar = &cv_exponplayer}, 0, 0},
 
 	{IT_HEADER, "General Options", NULL,
 		NULL, {NULL}, 0, 0},
@@ -495,7 +492,7 @@ void Roulette_OnChange(void)
 
 	UINT16 newstatus = (cv_rouletteonplayer.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
 
-	for (int i = 14; i < 18; i++) {
+	for (int i = 15; i < 19; i++) {
 		OPTIONS_RadioRacersHud[i].status = newstatus;
 	}
 
