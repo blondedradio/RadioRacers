@@ -189,16 +189,16 @@ void level_tally_t::DetermineStatistics(void)
 }
 
 // RADIO
-static inline fixed_t CalculateLapBonus(UINT16 laps, UINT16 totalLaps) {
-	return (laps * FRACUNIT) / std::max(1, static_cast<int>(totalLaps));
+static inline fixed_t CalculateExpBonus(UINT16 exp, UINT16 totalExp) {
+	return (exp * FRACUNIT) / std::max(1, static_cast<int>(totalExp));
 }
 
 static inline boolean IsPerfectRace(fixed_t percent) {
 	return percent == FRACUNIT;
 }
 
-static inline boolean IsPerfectLapBonus(UINT16 laps, UINT16 totalLaps) {
-	return CalculateLapBonus(laps, totalLaps) == FRACUNIT;
+static inline boolean IsPerfectExpBonus(UINT16 exp, UINT16 totalExp) {
+	return CalculateExpBonus(exp, totalExp) == FRACUNIT;
 }
 
 INT32 level_tally_t::CalculateGrade(void)
@@ -321,7 +321,7 @@ INT32 level_tally_t::CalculateGrade(void)
 	if (UseBonuses() == true) {
 
 		// Races
-		if (totalLaps > 0) {
+		// if (totalLaps > 0) {
 			/**
 			 * Ring bonuses take *more* precedence since they 
 			 * are an incentive for the player to acquire more lives in Grand Prix.
@@ -329,18 +329,18 @@ INT32 level_tally_t::CalculateGrade(void)
 			 * If the player achieves an actually perfect race (perfect ring bonus + perfect lap bonus), check for that first.
 			 * Then check for the lap bonus.
 			 */
-			perfectLapBonus = IsPerfectLapBonus(laps, totalLaps);
-			boolean perfectRaceBonuses = perfectLapBonus;
+			perfectExpBonus = IsPerfectExpBonus(exp, totalExp);
+			boolean perfectRaceBonuses = perfectExpBonus;
 	
 			// If it's a grand prix, check if the ring bonus is perfect too. 
 			// That's more of an incentive in single-player (e.g. lives)
 			// And no one's getting perfect ring bonuses in multiplayer...
 			if (grandprixinfo.gp == true) {
-				perfectRaceBonuses = (perfectLapBonus && perfectRingBonus);
+				perfectRaceBonuses = (perfectExpBonus && perfectRingBonus);
 			}
 
 			perfectRace = IsPerfectRace(percent) || perfectRaceBonuses;
-		}
+		// }
 
 		// Prisons
 		if (totalPrisons > 0) {
@@ -384,10 +384,10 @@ void level_tally_t::Init(player_t *player)
 
 	// Radio hook
 	perfectRace = false;
-	perfectLapBonus = false;
+	perfectExpBonus = false;
 	perfectRingBonus = false;
 	perfectPrisonBonus = false;
-	lapBonusEvaluated = false;
+	expBonusEvaulated = false;
 	ringBonusEvaluated = false;
 	prisonBonusEvaluated = false;
 
@@ -720,7 +720,7 @@ boolean level_tally_t::IncrementLine(void)
 	// Radio hook
 	// Prevent confusion with the total ring bonus from the stats
 	boolean isRingTallyBonus = false;
-	boolean isLapTallyBonus = false;
+	boolean isExpTallyBonus = false;
 	boolean isPrisonBonus = false;
 
 	for (int i = 0; i < TALLY_WINDOW_SIZE; i++)
@@ -750,7 +750,7 @@ boolean level_tally_t::IncrementLine(void)
 				dest = exp;
 				amount = 20;
 				freq = 1;
-				isLapTallyBonus = true;
+				isExpTallyBonus = true;
 				break;
 			case TALLY_BONUS_PRISON:
 				dest = prisons;
@@ -792,8 +792,8 @@ boolean level_tally_t::IncrementLine(void)
 
 		// Radio hook
 		// Show the "PERFECT" text (if need be) after the laps have been evaluated
-		if (isLapTallyBonus && !lapBonusEvaluated) {
-			lapBonusEvaluated = true;
+		if (isExpTallyBonus && !expBonusEvaulated) {
+			expBonusEvaulated = true;
 		} else if (isRingTallyBonus && !ringBonusEvaluated) {
 			// or after the ring bonus has been evaluated
 			ringBonusEvaluated = true;
@@ -1477,7 +1477,7 @@ void level_tally_t::Draw(void)
 								.text(va("%d / %d", displayBonus[i], totalExp));
 
 							// Radio hook
-							if (showPerfectBonuses && (lapBonusEvaluated || state == TALLY_ST_DONE) && perfectLapBonus) {
+							if (showPerfectBonuses && (expBonusEvaulated || state == TALLY_ST_DONE) && perfectExpBonus) {
 								drawer_text
 									.x(197.0 * frac)
 									.y(3.0 * frac)

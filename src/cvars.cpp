@@ -683,7 +683,6 @@ consvar_t cv_toggle_position_number = Player("positionnumbertoggle", "On").on_of
 consvar_t cv_toggle_race_minimap = Player("raceminimaptoggle", "On").on_off();
 consvar_t cv_toggle_trick_cool = Player("tricktexttoggle", "On").on_off();
 consvar_t cv_toggle_race_standings = Player("racestandingstoggle", "On").on_off();
-consvar_t cv_toggle_rings_excess = Player("showringsoverflow", "On").on_off();
 
 // Chat emotes
 consvar_t cv_chat_emotes = Player("chat_emotes", "On").on_off().onchange(RR_ChatEmotes_OnChange);

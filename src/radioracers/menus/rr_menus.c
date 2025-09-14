@@ -200,9 +200,6 @@ menuitem_t OPTIONS_RadioRacersHud[] =
 	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle the RING COUNTER's HUD position.",
 		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
 
-	{IT_STRING | IT_CVAR, "Ring Counter Overflow", "Show/hide overflow text on RING COUNTER.",
-		NULL, {.cvar = &cv_toggle_rings_excess}, 0, 0},
-
 	{IT_HEADER, "General Options", NULL,
 		NULL, {NULL}, 0, 0},
 
@@ -498,7 +495,7 @@ void Roulette_OnChange(void)
 
 	UINT16 newstatus = (cv_rouletteonplayer.value) ? IT_STRING | IT_CVAR : IT_GRAYEDOUT;
 
-	for (int i = 15; i < 19; i++) {
+	for (int i = 14; i < 18; i++) {
 		OPTIONS_RadioRacersHud[i].status = newstatus;
 	}
 

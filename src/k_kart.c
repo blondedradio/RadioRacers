@@ -127,10 +127,6 @@ void K_PopBubbleShield(player_t *player)
 	player->bubbledrag = false;
 }
 
-// RadioRacers: Hacky ways of checking for events the exact FRAME that they happen
-boolean localPlayerJustBootyBounced = false; 	// The second you start a fastfall bounce
-boolean localPlayerJustWavedashed = false;		// The few seconds or so your wavedash starts
-
 boolean K_ThunderDome(void)
 {
 	if (K_CanChangeRules(true))

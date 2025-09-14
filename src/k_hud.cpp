@@ -62,6 +62,11 @@
 #include "radioracers/rr_util.h"
 #include "radioracers/rr_video.h"
 
+// Radio - static variables for drawing the backup items when being tracked on the player
+static INT32 itemRouletteX;
+static INT32 itemRouletteY;
+static INT32 itemRouletteFlags;
+
 //{ 	Patch Definitions
 static patch_t *kp_nodraw;
 
@@ -1916,6 +1921,12 @@ static void K_drawKartItem(void)
 
 				if (isHudTranslucencyAlreadyLow || stplyr->exiting)
 					baseVideoFlags = V_HUDTRANS;
+
+				// For drawing the backup item
+				itemRouletteX = fx;
+				itemRouletteY = fy;
+				itemRouletteFlags = baseVideoFlags;
+
 			}
 		} else {	
 			fflags = V_SNAPTOTOP|V_SNAPTOLEFT|V_SPLITSCREEN;
@@ -2349,124 +2360,17 @@ static void K_drawBackupItem(void)
 
 	boolean transflag = V_HUDTRANS;
 
-	// I feel like the cardinal sin of all evolving HUDcode is, like, assuming the old offsets do something that makes sense.
-
-	if (stplyr->backupitemamount >= numberdisplaymin && stplyr->itemRoulette.active == false)
-	{
-		/*
-		// Then, the numbers:
-		V_DrawScaledPatch(
-			fx + (flipamount ? 48 : 0), fy,
-			V_HUDTRANS|V_SLIDEIN|fflags|(flipamount ? V_FLIP : 0),
-			kp_itemmulsticker[offset]
-		); // flip this graphic for p2 and p4 in split and shift it.
-		*/
-
-		V_DrawFixedPatch(
-			fx<<FRACBITS, (fy<<FRACBITS),
-			FRACUNIT, transflag|V_SLIDEIN|fflags,
-			localpatch[1], (localcolor[1] ? R_GetTranslationColormap(colormode[1], localcolor[1], GTC_CACHE) : NULL)
-		);
-
-		V_DrawString(fx+tx, fy+ty, V_HUDTRANS|V_SLIDEIN|fflags, va("x%d", stplyr->backupitemamount));
+	// Radio
+	boolean drawingOnPlayer = (cv_rouletteonplayer.value == 1 && r_splitscreen == 0);
+	const fixed_t baseHudScaleFixed = (drawingOnPlayer) ? RR_getItemBoxHudScale() : FRACUNIT;
+	const float_t baseHudScaleFloat = RR_getItemBoxHudScaleFloat();
+	if (drawingOnPlayer) {
+		transflag = V_20TRANS;
+		fx = itemRouletteX + ((int)(30 * baseHudScaleFloat));
+		fy = itemRouletteY - ((int)(10 * baseHudScaleFloat));
+		tx = (int)(25 * baseHudScaleFloat);
+		ty = (int)(30 * baseHudScaleFloat);
 	}
-	else
-	{
-		V_DrawFixedPatch(
-			fx<<FRACBITS, (fy<<FRACBITS),
-			FRACUNIT, transflag|V_SLIDEIN|fflags,
-			localpatch[1], (localcolor[1] ? R_GetTranslationColormap(colormode[1], localcolor[1], GTC_CACHE) : NULL)
-		);
-	}
-}
-
-// So, like, we've already established that HUD code is unsavable, right?
-// == SHITGARBAGE UNLIMITED 3: HACKS GONE WILD ==
-static void K_drawBackupItem(void)
-{
-	bool tiny = r_splitscreen > 1;
-	patch_t *localpatch[3] = { kp_nodraw, kp_nodraw, kp_nodraw };
-	patch_t *localbg = (kp_itembg[2]);
-	patch_t *localinv = kp_invincibility[((leveltime % (6*3)) / 3) + 7 + tiny];
-	INT32 fx = 0, fy = 0, fflags = 0, tx = 0, ty = 0;	// final coords for hud and flags...
-	const INT32 numberdisplaymin = 2;
-	skincolornum_t localcolor[3] = { static_cast<skincolornum_t>(stplyr->skincolor) };
-	SINT8 colormode[3] = { TC_RAINBOW };
-	boolean flipamount = false;	// Used for 3P/4P splitscreen to flip item amount stuff
-
-	if (stplyr->backupitemamount <= 0)
-		return;
-
-	switch (stplyr->backupitemtype)
-	{
-		case KITEM_INVINCIBILITY:
-			localpatch[1] = localinv;
-			localbg = kp_itembg[2];
-			break;
-
-		case KITEM_ORBINAUT:
-			localpatch[1] = kp_orbinaut[tiny+4];
-			break;
-
-		case KITEM_SPB:
-		case KITEM_LIGHTNINGSHIELD:
-		case KITEM_BUBBLESHIELD:
-		case KITEM_FLAMESHIELD:
-			localbg = kp_itembg[2];
-			/*FALLTHRU*/
-
-		default:
-			localpatch[1] = K_GetCachedItemPatch(stplyr->backupitemtype, 1 + tiny);
-
-			if (localpatch[1] == NULL)
-				localpatch[1] = kp_nodraw; // diagnose underflows
-			break;
-	}
-
-	// pain and suffering defined below
-	if (!(R_GetViewNumber() & 1) || (!tiny)) // If we are P1 or P3...
-	{
-		fx = ITEM_X;
-		fy = ITEM_Y;
-		fflags = V_SNAPTOLEFT|V_SNAPTOTOP|V_SPLITSCREEN;
-	}
-	else // else, that means we're P2 or P4.
-	{
-		fx = ITEM2_X;
-		fy = ITEM2_Y;
-		fflags = V_SNAPTORIGHT|V_SNAPTOTOP|V_SPLITSCREEN;
-		flipamount = true;
-	}
-
-	if (r_splitscreen == 1)
-	{
-		fy -= 5;
-	}
-
-	// final fudge - vegeta 2025
-	if (tiny && !(R_GetViewNumber() & 1)) // P1/P3 4P
-	{
-		fx += 26;
-		fy += 5;
-		tx += 10;
-		ty += 18;
-	}
-	else if (tiny && (R_GetViewNumber() & 1)) // P2/P4 4P
-	{
-		fx += -4;
-		fy += 5;
-		tx += 1;
-		ty += 18;
-	}
-	else // 1P/2P
-	{
-		fx += 30;
-		fy += -10;
-		tx += 25;
-		ty += 30;
-	}
-
-	boolean transflag = V_HUDTRANS;
 
 	// I feel like the cardinal sin of all evolving HUDcode is, like, assuming the old offsets do something that makes sense.
 
@@ -2483,17 +2387,25 @@ static void K_drawBackupItem(void)
 
 		V_DrawFixedPatch(
 			fx<<FRACBITS, (fy<<FRACBITS),
-			FRACUNIT, transflag|V_SLIDEIN|fflags,
+			baseHudScaleFixed, transflag|V_SLIDEIN|fflags,
 			localpatch[1], (localcolor[1] ? R_GetTranslationColormap(colormode[1], localcolor[1], GTC_CACHE) : NULL)
 		);
 
-		V_DrawString(fx+tx, fy+ty, V_HUDTRANS|V_SLIDEIN|fflags, va("x%d", stplyr->backupitemamount));
+		if (drawingOnPlayer) {
+			V_DrawStringScaled(
+				(fx+tx)<<FRACBITS, (fy+ty)<<FRACBITS,
+				baseHudScaleFixed, baseHudScaleFixed, baseHudScaleFixed,
+				transflag|V_SLIDEIN|fflags, NULL, TINY_FONT, va("x%d", stplyr->backupitemamount)
+			);
+		} else {
+			V_DrawString(fx+tx, fy+ty, V_HUDTRANS|V_SLIDEIN|fflags, va("x%d", stplyr->backupitemamount));
+		}
 	}
 	else
 	{
 		V_DrawFixedPatch(
 			fx<<FRACBITS, (fy<<FRACBITS),
-			FRACUNIT, transflag|V_SLIDEIN|fflags,
+			baseHudScaleFixed, transflag|V_SLIDEIN|fflags,
 			localpatch[1], (localcolor[1] ? R_GetTranslationColormap(colormode[1], localcolor[1], GTC_CACHE) : NULL)
 		);
 	}
@@ -5166,7 +5078,7 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 		if (stplyr->superringdisplay && !(stplyr->superringalert % 2))
 		{
 			using srb2::Draw;
-			Draw row = Draw(LAPS_X+23+3+15, fy-4).flags(V_HUDTRANS|V_SLIDEIN|splitflags).font(Draw::Font::kThinTimer).colorize(superringcolor);
+			Draw row = Draw(RINGC_X+23+3+15, fy-4).flags(V_HUDTRANS|V_SLIDEIN|splitflags).font(Draw::Font::kThinTimer).colorize(superringcolor);
 			row.text("+{:01}", abs(stplyr->superringdisplay));
 		}
 	}
@@ -6819,16 +6731,6 @@ static void K_drawKartMinimap(void)
 		workingPic = kp_wouldyoustillcatchmeifiwereaworm;
 	}
 
-	// RadioRacers: By default, the minimap would only use st_translucency if splitscreen was on.
-	// see: dofade
-
-	minimaptrans = FixedMul(minimaptrans, (st_translucency * FRACUNIT) / 10);
-
-	if (!minimaptrans)
-		return;
-
-	minimaptrans = ((10-minimaptrans)<<V_ALPHASHIFT);
-
 	// Really looking forward to never writing this loop again
 	UINT8 bestplayer = MAXPLAYERS;
 	for (i = 0; i < MAXPLAYERS; i++)
@@ -6991,7 +6893,7 @@ static void K_drawKartMinimap(void)
 			{
 				skin = ((skin_t*)mobj->skin)->skinnum;
 
-				workingPic = R_CanShowSkinInDemo(skin) && !RR_IsPlayerMutedForRndr(mobj) ? faceprefix[skin][FACE_MINIMAP] : kp_unknownminimap;
+				workingPic = R_CanShowSkinInDemo(skin) ? faceprefix[skin][FACE_MINIMAP] : kp_unknownminimap;
 
 				if (mobj->color)
 				{
@@ -8849,21 +8751,22 @@ void K_drawKartHUD(void)
 				row.colormap(textcolor).colorize(textcolor).x(15).text(text);
 			}
 
-			if (modeattacking || (gametyperules & GTR_TIMELIMIT) || cv_drawtimer.value) {
-				K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
-			} else {
-				switch(cv_toggle_timestamp_race.value)
-				{
-					case 0:
-						K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
-						break;
-					case 1:
-						RR_DrawKartMiniTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
-						break;
-					case 2:
-						break;
-				}
-			}
+			// RADIO - 2.4 removed timestamps
+			// if (modeattacking || (gametyperules & GTR_TIMELIMIT) || cv_drawtimer.value) {
+			// 	K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+			// } else {
+			// 	switch(cv_toggle_timestamp_race.value)
+			// 	{
+			// 		case 0:
+			// 			K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+			// 			break;
+			// 		case 1:
+			// 			RR_DrawKartMiniTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+			// 			break;
+			// 		case 2:
+			// 			break;
+			// 	}
+			// }
 
 			if (modeattacking)
 			{

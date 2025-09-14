@@ -1485,20 +1485,12 @@ static void IdentifyVersion(void)
 #undef MUSICTEST
 
 	// RadioRacers
-	if (FIL_ReadFileOK(va(pandf,srb2waddir,"radioracers.pk3"))) {
-		D_AddFile(startupiwads, va(pandf,srb2waddir,"radioracers.pk3"));
-		found_radioracers = true;
-	}
 	if (FIL_ReadFileOK(va(pandf,srb2path,"radioracers.pk3"))) {
-		D_AddFile(startupiwads, va(pandf,srb2path,"radioracers.pk3"));
+		D_AddFile(startupiwads, num_startupiwads++, va(pandf,srb2path,"radioracers.pk3"), NULL);
 		found_radioracers = true;
-	}
-	if (FIL_ReadFileOK(va(pandf,srb2waddir,"radioracers_plus.pk3"))) {
-		D_AddFile(startupiwads, va(pandf,srb2waddir,"radioracers_plus.pk3"));
-		found_radioracers_plus = true;
 	}
 	if (FIL_ReadFileOK(va(pandf,srb2path,"radioracers_plus.pk3"))) {
-		D_AddFile(startupiwads, va(pandf,srb2path,"radioracers_plus.pk3"));
+		D_AddFile(startupiwads, num_startupiwads++, va(pandf,srb2path,"radioracers_plus.pk3"), NULL);
 		found_radioracers_plus = true;
 	}
 }
