@@ -5,6 +5,7 @@
 <p></p>
 
 A [Dr. Robotnik's Ring Racers](https://www.kartkrew.org/) fork.
+<br><small>Last updated for **v2.4 RC1**.</small>
 
 This build &ndash; like _all_ software &ndash; is always a work in progress.</br>
 Compatible with vanilla Ring Racers; all changes made so far are client-side.
