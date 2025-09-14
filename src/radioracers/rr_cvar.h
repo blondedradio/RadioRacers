@@ -25,6 +25,7 @@ extern "C" {
 extern consvar_t cv_votesnitch;         // Vote Snitch
 extern consvar_t cv_ringsonplayer;      // Rings drawn on player
 extern consvar_t cv_speedometeronplayer;      // Speedometer drawn on player
+extern consvar_t cv_exponplayer;      // EXP drawn on player
 extern consvar_t cv_rouletteonplayer;   // Item/Ring Roulette drawn on player
 extern consvar_t cv_applylocalencore;    // Clientside encore palettes
 extern consvar_t cv_show_s_ranks;       // Show 'S' ranks during tally
@@ -98,8 +99,6 @@ extern consvar_t cv_chat_emotes_sort;               // Toggle sorting function i
 extern consvar_t cv_driftsparkrate_size; // Toggle spark rate pulse size when drifting (Thank you Callmore xxxxx)
 extern consvar_t cv_toggle_nametags; // Toggle nametags
 extern consvar_t cv_toggle_position_number; // Toggle position number
-extern consvar_t cv_toggle_timestamp_race; // Toggle the timestamp in the top right
-extern consvar_t cv_toggle_laps_race;       // Toggle the display style for the laps in the bottom left
 extern consvar_t cv_toggle_race_minimap;    // Toggle the minimap
 extern consvar_t cv_toggle_race_standings;    // Toggle the player standings
 extern consvar_t cv_toggle_trick_cool;    // Toggle the "COOL!" graphic when you do a successful trick
