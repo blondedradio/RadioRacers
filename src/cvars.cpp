@@ -590,6 +590,12 @@ consvar_t cv_speedometeronplayer = Player("speedometeronplayer", "Vanilla").valu
 	{1, "Custom"}
 });
 
+// EXP draw on player (akin to driftguage)
+consvar_t cv_exponplayer = Player("exponplayer", "Vanilla").values({
+	{0, "Vanilla"}, 
+	{1, "Custom"}
+});
+
 // -- Battle
 
 // Blue Sphere meter drawn on player
@@ -666,17 +672,6 @@ consvar_t cv_inputdisplaytoggle = Player("inputdisplaytoggle", "Digital").values
 consvar_t cv_inputdisplaytogglesize = Player("inputdisplaytogglesize", "Mini").values({
 	{0, "Normal"}, 
 	{1, "Mini"}
-});
-
-consvar_t cv_toggle_timestamp_race = Player("racetimestamptoggle", "Default").values({
-	{0, "Default"}, 
-	{1, "Minimal"},
-	{2, "Off"}
-});
-
-consvar_t cv_toggle_laps_race = Player("racelapstoggle", "Default").values({
-	{0, "Default"}, 
-	{1, "Minimal"}
 });
 
 consvar_t cv_toggle_position_number = Player("positionnumbertoggle", "On").on_off();

@@ -4419,12 +4419,28 @@ static boolean K_DrawingLaps()
 	return (numlaps != 1 && !K_InRaceDuel() && (UINT16)stplyr->exp != UINT16_MAX);
 }
 
+static UINT16 K_GetDisplayEXP()
+{
+	UINT16 displayEXP = stplyr->karthud[khud_exp];
+
+	// Odds debugger
+	if (cv_vorpal.value)
+	{
+		displayEXP = 100 * K_EffectiveGradingFactor(stplyr) / FRACUNIT;
+	}
+
+	return displayEXP;
+}
+
 static boolean K_drawKartLaps(void)
 {
 	INT32 splitflags = V_SNAPTOBOTTOM|V_SNAPTOLEFT|V_SPLITSCREEN;
 	INT32 bump = 0;
 	INT32 basebump = 0;
 	boolean drewsticker = false;
+
+	const boolean DRAW_EXP_ON_PLAYER = cv_exponplayer.value == 1;
+	const boolean DRAW_RINGS_ON_PLAYER = cv_ringsonplayer.value == 1;
 
 	UINT16 displayEXP = stplyr->karthud[khud_exp];
 
@@ -4511,7 +4527,12 @@ static boolean K_drawKartLaps(void)
 		}
 		else
 		{
-			K_DrawSticker(LAPS_X+13, LAPS_Y+5, 25+bump, V_HUDTRANS|V_SLIDEIN|splitflags, false);
+			int lapstickerwidth = 25 + bump;
+			if (DRAW_EXP_ON_PLAYER) {
+				lapstickerwidth = 25;
+			}
+
+			K_DrawSticker(LAPS_X+13, LAPS_Y+5, lapstickerwidth, V_HUDTRANS|V_SLIDEIN|splitflags, false);
 			drewsticker = true;
 
 			// Laps
@@ -4532,6 +4553,9 @@ static boolean K_drawKartLaps(void)
 	boolean dance = (stplyr->exp > (UINT32)stplyr->karthud[khud_exp]);
 	INT32 danceflag = dance ? V_STRINGDANCE : 0;
 	UINT16 dancecolor = dance ? SKINCOLOR_AQUAMARINE : 0;
+	INT32 expFlags = V_HUDTRANS|V_SLIDEIN|splitflags;
+	INT32 EXP_X = LAPS_X;
+	INT32 EXP_Y = LAPS_Y;
 
 	// EXP
 	if (displayEXP == UINT16_MAX)
@@ -4603,25 +4627,47 @@ static boolean K_drawKartLaps(void)
 	}
 	else
 	{
+		if (DRAW_EXP_ON_PLAYER) {
+			if (!DRAW_RINGS_ON_PLAYER) {
+				trackingResult_t result;
+
+				expFlags &= ~V_SLIDEIN;
+				expFlags &= ~splitflags;
+
+				const boolean doesPlayerHaveMo = !((stplyr->mo == NULL || P_MobjWasRemoved(stplyr->mo)));
+				if (doesPlayerHaveMo)
+				{
+					// Get X,Y coordinates for player relative to the HUD
+					RR_GetTrackingCoordinatesForPlayer(&result, doesPlayerHaveMo);
+
+					// Add some offset so it's directly below the player (in Software)
+					EXP_X = (result.x / FRACUNIT) - 25; 
+					EXP_Y = (result.y / FRACUNIT);
+				} 
+			} else {
+				return drewsticker;
+			}
+		}
+
 		if (!drewsticker)
-			K_DrawSticker(LAPS_X+13, LAPS_Y+5, 25+bump, V_HUDTRANS|V_SLIDEIN|splitflags, false);
+			K_DrawSticker(EXP_X+13, EXP_Y+5, 25+bump, expFlags, false);
 
 
 		if (franticitems)
 		{
-			V_DrawMappedPatch(LAPS_X+bump, LAPS_Y, V_HUDTRANS|V_SLIDEIN|splitflags, kp_exp[0], R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_PURPLE, GTC_CACHE));
+			V_DrawMappedPatch(EXP_X+bump, EXP_Y, expFlags, kp_exp[0], R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_PURPLE, GTC_CACHE));
 		}
 		else
 		{
-			V_DrawMappedPatch(LAPS_X+bump, LAPS_Y, V_HUDTRANS|V_SLIDEIN|splitflags, kp_exp[0], R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MUSTARD, GTC_CACHE));
+			V_DrawMappedPatch(EXP_X+bump, EXP_Y, V_HUDTRANS|V_SLIDEIN|splitflags, kp_exp[0], R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MUSTARD, GTC_CACHE));
 			auto transflag = K_GetTransFlagFromFixed(K_EffectiveGradingFactor(stplyr), true);
 			skincolornum_t overlaycolor = K_EffectiveGradingFactor(stplyr) < FRACUNIT ? SKINCOLOR_RUBY : SKINCOLOR_ULTRAMARINE ;
 			auto colormap = R_GetTranslationColormap(TC_RAINBOW, overlaycolor, GTC_CACHE);
-			V_DrawMappedPatch(LAPS_X+bump, LAPS_Y, transflag|V_SLIDEIN|splitflags, kp_exp[0], colormap);
+			V_DrawMappedPatch(EXP_X+bump, EXP_Y, transflag|V_SLIDEIN|splitflags, kp_exp[0], colormap);
 		}
 
 		using srb2::Draw;
-		Draw row = Draw(LAPS_X+23+bump, LAPS_Y+3).flags(V_HUDTRANS|V_SLIDEIN|splitflags|danceflag).font(Draw::Font::kThinTimer).colorize(dancecolor);
+		Draw row = Draw(EXP_X+23+bump, EXP_Y+3).flags(expFlags|danceflag).font(Draw::Font::kThinTimer).colorize(dancecolor);
 		row.text("{:03}", displayEXP);
 	}
 
@@ -4890,6 +4936,7 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 	{
 		const boolean DRAW_RINGS_ON_PLAYER = cv_ringsonplayer.value == 1;
 		const boolean DRAW_SPEEDO_ON_PLAYER = (cv_kartspeedometer.value && cv_speedometeronplayer.value);
+		const boolean DRAW_EXP_ON_PLAYER = cv_exponplayer.value == 1;;
 		INT32 ringcounterflags = V_HUDTRANS|V_SLIDEIN|splitflags;
 		INT32 RINGC_X = LAPS_X;
 
@@ -4938,17 +4985,26 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 		// If the cvar isn't active AND we're using lives..
 		INT32 ringstickerwidth = (uselives && !DRAW_RINGS_ON_PLAYER) ? (stplyr->lives >= 10 ? 70 : 64) : 33;
 
-		if (DRAW_RINGS_ON_PLAYER && DRAW_SPEEDO_ON_PLAYER) 
+		if (DRAW_RINGS_ON_PLAYER && DRAW_SPEEDO_ON_PLAYER && !DRAW_EXP_ON_PLAYER) 
 		{
 			// Speedometer has a width of 42, add some extra pixels for padding
 			ringstickerwidth += 42;
 			RINGC_X += 24;
 		}
 
+		if (DRAW_RINGS_ON_PLAYER && DRAW_EXP_ON_PLAYER && !DRAW_SPEEDO_ON_PLAYER)
+		{
+			// Exp has a width of 24~
+			ringstickerwidth += 35;
+			RINGC_X += 20;
+		}
+
 		// Rings
 		int RINGC_STICKER_X = RINGC_X + 7;
-		if (DRAW_RINGS_ON_PLAYER && DRAW_SPEEDO_ON_PLAYER)
+		if (DRAW_RINGS_ON_PLAYER && (DRAW_SPEEDO_ON_PLAYER && !DRAW_EXP_ON_PLAYER))
 			RINGC_STICKER_X = (RINGC_X - 42) +7;
+		if (DRAW_RINGS_ON_PLAYER && (DRAW_EXP_ON_PLAYER && !DRAW_SPEEDO_ON_PLAYER))
+			RINGC_STICKER_X = (RINGC_X - 37) +8;
 		using srb2::Draw;
 		Draw(RINGC_STICKER_X, fy+1)
 			.flags(ringcounterflags)
@@ -5029,7 +5085,7 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 		}
 
 		// Speedometer
-		if (DRAW_SPEEDO_ON_PLAYER && DRAW_RINGS_ON_PLAYER)
+		if (DRAW_SPEEDO_ON_PLAYER && !DRAW_EXP_ON_PLAYER && DRAW_RINGS_ON_PLAYER)
 		{
 			uint8_t speedometer_numbers[3];
 			K_GetKartSpeedometerNumbers(speedometer_numbers);
@@ -5041,6 +5097,29 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 			V_DrawScaledPatch(ringtext_x+13, fy, ringcounterflags, kp_facenum[speedometer_numbers[1]]);
 			V_DrawScaledPatch(ringtext_x+19, fy, ringcounterflags, kp_facenum[speedometer_numbers[2]]);
 			V_DrawScaledPatch(ringtext_x+29, fy, ringcounterflags, kp_speedometerlabel[K_GetKartSpeedometerLabel()]);
+		}
+
+		// Exp
+		if (DRAW_EXP_ON_PLAYER && !DRAW_SPEEDO_ON_PLAYER && DRAW_RINGS_ON_PLAYER)
+		{
+			const int exp_x = RINGC_X - 36;
+			const INT32 exp_y = fy - 7;
+
+			V_DrawMappedPatch(exp_x, exp_y, V_HUDTRANS|V_SLIDEIN|splitflags, kp_exp[0], R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MUSTARD, GTC_CACHE));
+	
+			auto transflag = K_GetTransFlagFromFixed(K_EffectiveGradingFactor(stplyr), true);
+			skincolornum_t overlaycolor = K_EffectiveGradingFactor(stplyr) < FRACUNIT ? SKINCOLOR_RUBY : SKINCOLOR_ULTRAMARINE ;
+			auto colormap = R_GetTranslationColormap(TC_RAINBOW, overlaycolor, GTC_CACHE);
+
+			V_DrawMappedPatch(exp_x, exp_y, transflag|V_SLIDEIN|splitflags, kp_exp[0], colormap);
+	
+			boolean dance = (stplyr->exp > (UINT32)stplyr->karthud[khud_exp]);
+			INT32 danceflag = dance ? V_STRINGDANCE : 0;
+			UINT16 dancecolor = dance ? SKINCOLOR_AQUAMARINE : 0;
+
+			using srb2::Draw;
+			Draw row = Draw(exp_x+23, exp_y+3).flags(V_HUDTRANS|V_SLIDEIN|splitflags|danceflag).font(Draw::Font::kThinTimer).colorize(dancecolor);
+			row.text("{:03}", K_GetDisplayEXP());
 		}
 
 		// Lives
