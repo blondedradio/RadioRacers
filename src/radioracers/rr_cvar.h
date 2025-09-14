@@ -98,7 +98,6 @@ extern consvar_t cv_chat_emotes_sort;               // Toggle sorting function i
 extern consvar_t cv_driftsparkrate_size; // Toggle spark rate pulse size when drifting (Thank you Callmore xxxxx)
 extern consvar_t cv_toggle_nametags; // Toggle nametags
 extern consvar_t cv_toggle_position_number; // Toggle position number
-extern consvar_t cv_toggle_rings_excess; // Toggle the green text showing ring count overflow
 extern consvar_t cv_toggle_timestamp_race; // Toggle the timestamp in the top right
 extern consvar_t cv_toggle_laps_race;       // Toggle the display style for the laps in the bottom left
 extern consvar_t cv_toggle_race_minimap;    // Toggle the minimap
