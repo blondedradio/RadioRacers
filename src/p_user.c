@@ -609,7 +609,7 @@ void P_StartPositionMusic(boolean exact)
 		Music_Remap("position",
 			(mapheaderinfo[gamemap-1]->positionmus[0]
 					? mapheaderinfo[gamemap-1]->positionmus
-					: original_position_music
+					: "postn"
 			));
         }
 
