@@ -5105,20 +5105,20 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 			const int exp_x = RINGC_X - 36;
 			const INT32 exp_y = fy - 7;
 
-			V_DrawMappedPatch(exp_x, exp_y, V_HUDTRANS|V_SLIDEIN|splitflags, kp_exp[0], R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MUSTARD, GTC_CACHE));
+			V_DrawMappedPatch(exp_x, exp_y, V_HUDTRANS|splitflags, kp_exp[0], R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MUSTARD, GTC_CACHE));
 	
 			auto transflag = K_GetTransFlagFromFixed(K_EffectiveGradingFactor(stplyr), true);
 			skincolornum_t overlaycolor = K_EffectiveGradingFactor(stplyr) < FRACUNIT ? SKINCOLOR_RUBY : SKINCOLOR_ULTRAMARINE ;
 			auto colormap = R_GetTranslationColormap(TC_RAINBOW, overlaycolor, GTC_CACHE);
 
-			V_DrawMappedPatch(exp_x, exp_y, transflag|V_SLIDEIN|splitflags, kp_exp[0], colormap);
+			V_DrawMappedPatch(exp_x, exp_y, V_HUDTRANS|transflag|splitflags, kp_exp[0], colormap);
 	
 			boolean dance = (stplyr->exp > (UINT32)stplyr->karthud[khud_exp]);
 			INT32 danceflag = dance ? V_STRINGDANCE : 0;
 			UINT16 dancecolor = dance ? SKINCOLOR_AQUAMARINE : 0;
 
 			using srb2::Draw;
-			Draw row = Draw(exp_x+23, exp_y+3).flags(V_HUDTRANS|V_SLIDEIN|splitflags|danceflag).font(Draw::Font::kThinTimer).colorize(dancecolor);
+			Draw row = Draw(exp_x+23, exp_y+3).flags(V_HUDTRANS|splitflags|danceflag).font(Draw::Font::kThinTimer).colorize(dancecolor);
 			row.text("{:03}", K_GetDisplayEXP());
 		}
 
@@ -8831,21 +8831,9 @@ void K_drawKartHUD(void)
 			}
 
 			// RADIO - 2.4 removed timestamps
-			// if (modeattacking || (gametyperules & GTR_TIMELIMIT) || cv_drawtimer.value) {
-			// 	K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
-			// } else {
-			// 	switch(cv_toggle_timestamp_race.value)
-			// 	{
-			// 		case 0:
-			// 			K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
-			// 			break;
-			// 		case 1:
-			// 			RR_DrawKartMiniTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
-			// 			break;
-			// 		case 2:
-			// 			break;
-			// 	}
-			// }
+			if (modeattacking || (gametyperules & GTR_TIMELIMIT) || cv_drawtimer.value)
+				K_drawKartTimestamp(realtime, TIME_X, TIME_Y + (ta ? 2 : 0), flags, 0);
+
 
 			if (modeattacking)
 			{
