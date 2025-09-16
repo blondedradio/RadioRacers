@@ -5014,7 +5014,7 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 
 		if (stplyr->overdrive)
 		{
-			V_DrawMappedPatch(RINGC_X+7-8, fy-5-8, V_HUDTRANS|V_SLIDEIN|splitflags, kp_overdrive[0][leveltime%32], R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(stplyr->skincolor), GTC_CACHE));
+			V_DrawMappedPatch(RINGC_X+7-8, fy-5-8, ringcounterflags, kp_overdrive[0][leveltime%32], R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(stplyr->skincolor), GTC_CACHE));
 		}
 		else
 		{
@@ -5024,10 +5024,10 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 			{
 				UINT8 amplevel = std::min(stplyr->amps / AMPLEVEL, 6);
 
-				V_DrawMappedPatch(RINGC_X+7-7, fy-5-8, V_HUDTRANS|V_SLIDEIN|splitflags, kp_amps[amplevel][leveltime%12], R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(stplyr->skincolor), GTC_CACHE));
+				V_DrawMappedPatch(RINGC_X+7-7, fy-5-8, ringcounterflags, kp_amps[amplevel][leveltime%12], R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(stplyr->skincolor), GTC_CACHE));
 				if (amplevel == 6)
 				{
-					V_DrawMappedPatch(RINGC_X+7-7, fy-5-8, V_ADD|V_HUDTRANS|V_SLIDEIN|splitflags, kp_amps_underlay[leveltime%12], R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(stplyr->skincolor), GTC_CACHE));
+					V_DrawMappedPatch(RINGC_X+7-7, fy-5-8, V_ADD|ringcounterflags, kp_amps_underlay[leveltime%12], R_GetTranslationColormap(TC_RAINBOW, static_cast<skincolornum_t>(stplyr->skincolor), GTC_CACHE));
 				}
 			}
 		}
@@ -5105,20 +5105,20 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 			const int exp_x = RINGC_X - 36;
 			const INT32 exp_y = fy - 7;
 
-			V_DrawMappedPatch(exp_x, exp_y, V_HUDTRANS|splitflags, kp_exp[0], R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MUSTARD, GTC_CACHE));
+			V_DrawMappedPatch(exp_x, exp_y, V_HUDTRANS, kp_exp[0], R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MUSTARD, GTC_CACHE));
 	
 			auto transflag = K_GetTransFlagFromFixed(K_EffectiveGradingFactor(stplyr), true);
 			skincolornum_t overlaycolor = K_EffectiveGradingFactor(stplyr) < FRACUNIT ? SKINCOLOR_RUBY : SKINCOLOR_ULTRAMARINE ;
 			auto colormap = R_GetTranslationColormap(TC_RAINBOW, overlaycolor, GTC_CACHE);
 
-			V_DrawMappedPatch(exp_x, exp_y, V_HUDTRANS|transflag|splitflags, kp_exp[0], colormap);
+			V_DrawMappedPatch(exp_x, exp_y, V_HUDTRANS|transflag, kp_exp[0], colormap);
 	
 			boolean dance = (stplyr->exp > (UINT32)stplyr->karthud[khud_exp]);
 			INT32 danceflag = dance ? V_STRINGDANCE : 0;
 			UINT16 dancecolor = dance ? SKINCOLOR_AQUAMARINE : 0;
 
 			using srb2::Draw;
-			Draw row = Draw(exp_x+23, exp_y+3).flags(V_HUDTRANS|splitflags|danceflag).font(Draw::Font::kThinTimer).colorize(dancecolor);
+			Draw row = Draw(exp_x+23, exp_y+3).flags(V_HUDTRANS|danceflag).font(Draw::Font::kThinTimer).colorize(dancecolor);
 			row.text("{:03}", K_GetDisplayEXP());
 		}
 
@@ -5157,7 +5157,7 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 		if (stplyr->superringdisplay && !(stplyr->superringalert % 2))
 		{
 			using srb2::Draw;
-			Draw row = Draw(RINGC_X+23+3+15, fy-4).flags(V_HUDTRANS|V_SLIDEIN|splitflags).font(Draw::Font::kThinTimer).colorize(superringcolor);
+			Draw row = Draw(RINGC_X+23+3+15, fy-4).flags(ringcounterflags).font(Draw::Font::kThinTimer).colorize(superringcolor);
 			row.text("+{:01}", abs(stplyr->superringdisplay));
 		}
 	}
