@@ -3761,6 +3761,15 @@ void V_Recalc(void)
 	vid.fdupx = FixedDiv(vid.width*FRACUNIT, BASEVIDWIDTH*FRACUNIT);
 	vid.fdupy = FixedDiv(vid.height*FRACUNIT, BASEVIDHEIGHT*FRACUNIT);
 
+	// Credit to Alufolie for this (from Indev450/SRB2Kart-Saturn)
+	if ((vid.width > 720) && (vid.height > 1280)) // ehhhh well this thing has so many issues, so ill lock it to higher resolutions instead
+	{
+		vid.dupx = FixedDiv(vid.dupx, 6*FRACUNIT/5);
+		vid.dupy = FixedDiv(vid.dupy, 6*FRACUNIT/5);
+		vid.fdupx = FixedDiv(vid.fdupx, 6*FRACUNIT/5);
+		vid.fdupy = FixedDiv(vid.fdupy, 6*FRACUNIT/5);
+	}
+
 #ifdef HWRENDER
 	//if (rendermode != render_opengl && rendermode != render_none) // This was just placing it incorrectly at non aspect correct resolutions in opengl
 	// 13/11/18:
@@ -3859,4 +3868,49 @@ char *V_ParseText(const char *rawText)
 	using srb2::Draw;
 
 	return Z_StrDup(srb2::Draw::TextElement().parse(rawText).string().c_str());
+}
+
+// Credit to Alufolie for this function (from Indev450/SRB2Kart-Saturn), tweaked slightly for RingRacers purposes
+// Draws a patch and tries to always fill the screen with the patch
+void V_DrawAdaptiveScaledFullScreenPatch(patch_t *patch, uint8_t* c, INT32 flags)
+{
+	fixed_t x = 0, y = 0;
+	fixed_t scale = ((vid.width * FRACUNIT) / patch->width); // fit the screen horizontally
+	fixed_t scaled_height = FixedMul(patch->height << FRACBITS, scale);
+
+	// however, if this means the patch doesent fill out the screen vertically then
+	if (scaled_height < (vid.height << FRACBITS))
+	{
+		scale = ((vid.height * FRACUNIT) / patch->height); // scale it to fit the screen vertically
+		x = ((vid.width << FRACBITS) - FixedMul(patch->width << FRACBITS, scale)) / 2;
+	}
+	else
+		y = (vid.height << FRACBITS) - scaled_height;
+
+	V_DrawFixedPatch(x, y, scale, V_NOSCALEPATCH|flags, patch, c);
+}
+
+// Credit to Alufolie for this function (from Indev450/SRB2Kart-Saturn), tweaked slightly for RingRacers purposes
+// Draws a patch and scales it to fill out the screen horizontally
+// centers the patch when its too small to fit the screen vertically
+void V_DrawHorizontallyScaledFullScreenPatch(patch_t *patch)
+{
+	fixed_t scale = ((vid.width * FRACUNIT) / patch->width);
+	fixed_t scaled_height = FixedMul(patch->height << FRACBITS, scale);
+	fixed_t y = (vid.height << FRACBITS) - scaled_height;
+
+	V_DrawFixedPatch(0, 0, scale, V_NOSCALEPATCH, patch, NULL);
+}
+
+// Same as V_DrawAdaptiveScaledFullScreenPatch, but we only need the scale
+void V_DrawAdaptiveScaledPatchWithCoords(fixed_t x, fixed_t y, patch_t *patch, INT32 flags)
+{
+	fixed_t scale = ((vid.width * FRACUNIT) / patch->width); // fit the screen horizontally
+	fixed_t scaled_height = FixedMul(patch->height << FRACBITS, scale);
+
+	// however, if this means the patch doesent fill out the screen vertically then
+	if (scaled_height < (vid.height << FRACBITS))
+		scale = ((vid.height * FRACUNIT) / patch->height); // scale it to fit the screen vertically
+	
+	V_DrawFixedPatch(x, y, scale, flags, patch, NULL);
 }

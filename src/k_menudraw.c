@@ -275,7 +275,9 @@ void M_UpdateMenuBGImage(boolean forceReset)
 
 	if (forceReset == false && strcmp(bgImageName, oldName))
 	{
-		bgImageScroll = (3 * BASEVIDWIDTH) * (FRACUNIT / 4);
+		// Radio
+		const INT32 VID_WIDTH = IS_WEIRD_RES() ? vid.width : BASEVIDWIDTH;
+		bgImageScroll = (3 * VID_WIDTH) * (FRACUNIT / 4);
 	}
 
 	if (forceReset == true)
@@ -303,14 +305,26 @@ void M_DrawMenuBackground(void)
 		bgMapImage = W_CachePatchName("MENUBG4", PU_CACHE);
 	}
 
-	V_DrawFixedPatch(0, 0, FRACUNIT, 0, bgMapImage, R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_SLATE, GTC_MENUCACHE));
-	V_DrawFixedPatch(0, 0, FRACUNIT, V_ADD, W_CachePatchName("MENUCUTD", PU_CACHE), NULL);
-	V_DrawFixedPatch(0, 0, FRACUNIT, 0, W_CachePatchName("MENUCUT", PU_CACHE), NULL);
+	if (IS_WEIRD_RES()) {
+		V_DrawAdaptiveScaledFullScreenPatch(bgMapImage, R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_SLATE, GTC_MENUCACHE), 0);
+		V_DrawAdaptiveScaledFullScreenPatch(W_CachePatchName("MENUCUTD", PU_CACHE), NULL, V_ADD);
+		V_DrawAdaptiveScaledFullScreenPatch(W_CachePatchName("MENUCUT", PU_CACHE), NULL, 0);
 
-	V_DrawFixedPatch(-bgImageScroll, 0, FRACUNIT, 0, W_CachePatchName("MENUBG1", PU_CACHE), NULL);
-	V_DrawFixedPatch(-bgImageScroll, 0, FRACUNIT, 0, W_CachePatchName(bgImageName, PU_CACHE), NULL);
+		V_DrawAdaptiveScaledPatchWithCoords(-bgImageScroll, 0, W_CachePatchName("MENUBG1", PU_CACHE), V_NOSCALEPATCH);
+		V_DrawAdaptiveScaledPatchWithCoords(-bgImageScroll, 0, W_CachePatchName(bgImageName, PU_CACHE), V_NOSCALEPATCH);
 
-	V_DrawFixedPatch(0, (BASEVIDHEIGHT + 16) * FRACUNIT, FRACUNIT, V_SUBTRACT, W_CachePatchName("MENUBG2", PU_CACHE), NULL);
+		V_DrawFixedPatch(0, (BASEVIDHEIGHT + 16) * FRACUNIT, FRACUNIT, V_SUBTRACT|V_NOSCALEPATCH, W_CachePatchName("MENUBG2", PU_CACHE), NULL);
+	} else {
+		V_DrawFixedPatch(0, 0, FRACUNIT, 0, bgMapImage, R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_SLATE, GTC_MENUCACHE));
+		V_DrawFixedPatch(0, 0, FRACUNIT, V_ADD, W_CachePatchName("MENUCUTD", PU_CACHE), NULL);
+		V_DrawFixedPatch(0, 0, FRACUNIT, 0, W_CachePatchName("MENUCUT", PU_CACHE), NULL);
+	
+		V_DrawFixedPatch(-bgImageScroll, 0, FRACUNIT, 0, W_CachePatchName("MENUBG1", PU_CACHE), NULL);
+		V_DrawFixedPatch(-bgImageScroll, 0, FRACUNIT, 0, W_CachePatchName("MENUBG1", PU_CACHE), NULL);
+		V_DrawFixedPatch(-bgImageScroll, 0, FRACUNIT, 0, W_CachePatchName(bgImageName, PU_CACHE), NULL);
+
+		V_DrawFixedPatch(0, (BASEVIDHEIGHT + 16) * FRACUNIT, FRACUNIT, V_SUBTRACT, W_CachePatchName("MENUBG2", PU_CACHE), NULL);
+	}
 
 	V_DrawFixedPatch(8 * FRACUNIT, -bgText1Scroll,
 		FRACUNIT, V_SUBTRACT, text1, NULL);
@@ -335,7 +349,11 @@ void M_DrawMenuBackground(void)
 
 	if (bgImageScroll > 0)
 	{
-		bgImageScroll -= (MENUBG_IMAGESCROLL*renderdeltatics);
+		INT32 bgImageScrollAmount = MENUBG_IMAGESCROLL;
+		if (IS_WEIRD_RES())
+			bgImageScrollAmount = (MENUBG_IMAGESCROLL * (int)(vid.width/BASEVIDWIDTH));
+		
+		bgImageScroll -= (bgImageScrollAmount*renderdeltatics);
 		if (bgImageScroll < 0)
 		{
 			bgImageScroll = 0;
@@ -490,7 +508,8 @@ void M_DrawMenuForeground(void)
 	if ((!menuactive || currentMenu != &PAUSE_PlaybackMenuDef) && // this obscures replay menu and I want to put in minimal effort to fix that
 		((vid.width % BASEVIDWIDTH != 0) || (vid.height % BASEVIDHEIGHT != 0)))
 	{
-		V_DrawFixedPatch(0, 0, FRACUNIT, 0, W_CachePatchName("WEIRDRES", PU_CACHE), NULL);
+		// Radio: What if...
+		// V_DrawFixedPatch(0, 0, FRACUNIT, 0, W_CachePatchName("WEIRDRES", PU_CACHE), NULL);
 	}
 }
 
@@ -503,8 +522,16 @@ static void M_DrawMenuTooltips(void)
 {
 	if (currentMenu->menuitems[itemOn].tooltip != NULL)
 	{
-		V_DrawFixedPatch(0, 0, FRACUNIT, 0, W_CachePatchName("MENUHINT", PU_CACHE), NULL);
-		V_DrawCenteredThinString(BASEVIDWIDTH/2, 12, 0, currentMenu->menuitems[itemOn].tooltip);
+		if (IS_WEIRD_RES()) {
+			// V_DrawHorizontallyScaledFullScreenPatch(W_CachePatchName("MENUHINT", PU_CACHE));
+			V_DrawFixedPatch(0, 0, FRACUNIT, V_SNAPTOTOP, W_CachePatchName("MENUHINT", PU_CACHE), NULL);
+			V_DrawCenteredThinString(BASEVIDWIDTH/2, 12, V_SNAPTOTOP, currentMenu->menuitems[itemOn].tooltip);
+
+		} else {
+			V_DrawFixedPatch(0, 0, FRACUNIT, 0, W_CachePatchName("MENUHINT", PU_CACHE), NULL);
+			V_DrawCenteredThinString(BASEVIDWIDTH/2, 12, 0, currentMenu->menuitems[itemOn].tooltip);
+
+		}
 	}
 }
 
@@ -4851,14 +4878,22 @@ void M_DrawOptionsCogs(void)
 		if (optionsmenu.fade)
 		{
 			c2 = R_GetTranslationColormap(TC_DEFAULT, optionsmenu.lastcolour, GTC_CACHE);
-			V_DrawFixedPatch(0, 0, FRACUNIT, 0, back, c2);
+			if (IS_WEIRD_RES()) {
+				V_DrawAdaptiveScaledFullScreenPatch(back, c2, V_NOSCALEPATCH);
+			} else {
+				V_DrawFixedPatch(0, 0, FRACUNIT, 0, back, c2);
+			}
 
 			// prepare fade flag:
 			tflag = min(V_90TRANS, (optionsmenu.fade)<<V_ALPHASHIFT);
 
 		}
 		c = R_GetTranslationColormap(TC_DEFAULT, optionsmenu.currcolour, GTC_CACHE);
-		V_DrawFixedPatch(0, 0, FRACUNIT, tflag, back, c);
+		if (IS_WEIRD_RES()) {
+			V_DrawAdaptiveScaledFullScreenPatch(back, c, V_NOSCALEPATCH|tflag);
+		} else {
+			V_DrawFixedPatch(0, 0, FRACUNIT, tflag, back, c);
+		}
 	}
 	else
 	{
