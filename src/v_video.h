@@ -438,6 +438,13 @@ void V_DrawPatchFill(patch_t *pat);
 void VID_BlitLinearScreen(const UINT8 *srcptr, UINT8 *destptr, INT32 width, INT32 height, size_t srcrowbytes,
 	size_t destrowbytes);
 
+// Credit to Alufolie for these functions (from Indev450/SRB2Kart-Saturn), tweaked slightly for RingRacers purposes
+void V_DrawAdaptiveScaledFullScreenPatch(patch_t *patch, uint8_t* c, INT32 flags);
+void V_DrawHorizontallyScaledFullScreenPatch(patch_t *patch);
+
+// For widescreen
+#define IS_WEIRD_RES() ((vid.width % BASEVIDWIDTH != 0) || (vid.height % BASEVIDHEIGHT != 0))
+void V_DrawAdaptiveScaledPatchWithCoords(fixed_t x, fixed_t y, patch_t *patch, INT32 flags);
 /**
  * Display the software framebuffer to the screen. Added in RHI conversion; software is not implicitly displayed by the
  * system.
