@@ -4,7 +4,7 @@
 
 <p></p>
 
-<p align="right">RadioRacers <span style="font-size: 0.8rem">(this is for SEO)</span></p>
+<p align="right">RadioRacers <span style="font-size: 0.8rem !important">(this is for SEO)</span></p>
 
 A [Dr. Robotnik's Ring Racers](https://www.kartkrew.org/) fork.
 <br><small>Last updated for **v2.4 RC2**.</small>
