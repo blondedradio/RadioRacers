@@ -103,6 +103,7 @@ extern consvar_t cv_toggle_race_minimap;    // Toggle the minimap
 extern consvar_t cv_toggle_race_standings;    // Toggle the player standings
 extern consvar_t cv_toggle_trick_cool;    // Toggle the "COOL!" graphic when you do a successful trick
 extern consvar_t cv_show_dangerous_player_check; // Draw arrows on the side of the HUD showing any incoming danger
+extern consvar_t cv_highreshudscale; // Force a higher scaling for the HUD to be drawn at
 
 // HUD -- Hudfeed
 extern consvar_t cv_hudfeed_enabled; // Self-explanatory
