@@ -1560,6 +1560,26 @@ void K_DrawMapThumbnail2(fixed_t x, fixed_t y, fixed_t width, UINT32 flags, UINT
 	K_DrawLikeMapThumbnail(x, y, width, flags, PictureOfLevel, colormap, accordion);
 }
 
+void K_DrawMapThumbnail2Widescreen(fixed_t x, fixed_t y, fixed_t width, UINT32 flags, UINT16 map, const UINT8 *colormap, fixed_t accordion)
+{
+	patch_t *PictureOfLevel = NULL;
+
+	if (map >= nummapheaders || !mapheaderinfo[map])
+	{
+		PictureOfLevel = nolvl;
+	}
+	else if (!mapheaderinfo[map]->thumbnailPic)
+	{
+		PictureOfLevel = blanklvl;
+	}
+	else
+	{
+		PictureOfLevel = static_cast<patch_t*>(mapheaderinfo[map]->thumbnailPic);
+	}
+
+	K_DrawLikeMapThumbnailWidescreen(x, y, width, flags, PictureOfLevel, colormap, accordion);
+}
+
 void K_DrawLikeMapThumbnail(fixed_t x, fixed_t y, fixed_t width, UINT32 flags, patch_t *patch, const UINT8 *colormap, fixed_t accordion)
 {
 	fixed_t scale = FixedDiv(width, (320 << FRACBITS));
@@ -1575,6 +1595,14 @@ void K_DrawLikeMapThumbnail(fixed_t x, fixed_t y, fixed_t width, UINT32 flags, p
 		patch,
 		colormap
 	);
+}
+
+void K_DrawLikeMapThumbnailWidescreen(fixed_t x, fixed_t y, fixed_t width, UINT32 flags, patch_t *patch, const UINT8 *colormap, fixed_t accordion)
+{
+	if (flags & V_FLIP)
+		x += FixedMul(width, accordion);
+
+	V_DrawAdaptiveScaledFullScreenPatch(patch, const_cast<uint8_t*>(colormap), flags|V_NOSCALEPATCH);
 }
 
 void K_DrawMapAsFace(INT32 x, INT32 y, UINT32 flags, UINT16 map, const UINT8 *colormap, fixed_t accordion, INT32 scalefactor)
@@ -5031,14 +5059,6 @@ static void K_drawRingCounter(boolean gametypeinfoshown)
 				}
 			}
 		}
-
-		INT32 hr = stplyr->hudrings;
-
-		if (stplyr->baildrop)
-			hr += -1 * (stplyr->baildrop / BAIL_DROPFREQUENCY);
-
-		if (hr < -999)
-			hr = -999;
 
 		INT32 hr = stplyr->hudrings;
 

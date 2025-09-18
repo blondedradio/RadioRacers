@@ -833,21 +833,35 @@ static void Y_DrawVoteBackground(void)
 
 	const UINT8 planetFrame = (bgTimer / FRACUNIT) % PLANET_FRAMES;
 
-	V_DrawFixedPatch(
-		0, 0,
-		FRACUNIT, 0,
-		vote_draw.bg_planet[planetFrame], NULL
-	);
-	V_DrawFixedPatch(
-		(BASEVIDWIDTH - vote_draw.bg_checker->width) * FRACUNIT, 0,
-		FRACUNIT, V_ADD|V_TRANSLUCENT,
-		vote_draw.bg_checker, NULL
-	);
-	V_DrawFixedPatch(
-		(BASEVIDWIDTH - vote_draw.bg_checker->width) * FRACUNIT, 0,
-		FRACUNIT, V_ADD|V_TRANSLUCENT,
-		vote_draw.bg_checker, NULL
-	);
+	if (IS_WEIRD_RES()) {
+		V_DrawAdaptiveScaledFullScreenPatch(vote_draw.bg_planet[planetFrame], NULL, V_NOSCALEPATCH);
+		V_DrawFixedPatch(
+			(BASEVIDWIDTH - vote_draw.bg_checker->width) * FRACUNIT, 0,
+			FRACUNIT, V_ADD|V_TRANSLUCENT|V_SNAPTOTOP|V_SNAPTORIGHT,
+			vote_draw.bg_checker, NULL
+		);
+		V_DrawFixedPatch(
+			(BASEVIDWIDTH - vote_draw.bg_checker->width) * FRACUNIT, 0,
+			FRACUNIT, V_ADD|V_TRANSLUCENT|V_SNAPTOTOP|V_SNAPTORIGHT,
+			vote_draw.bg_checker, NULL
+		);
+	} else {
+		V_DrawFixedPatch(
+			0, 0,
+			FRACUNIT, 0,
+			vote_draw.bg_planet[planetFrame], NULL
+		);
+		V_DrawFixedPatch(
+			(BASEVIDWIDTH - vote_draw.bg_checker->width) * FRACUNIT, 0,
+			FRACUNIT, V_ADD|V_TRANSLUCENT,
+			vote_draw.bg_checker, NULL
+		);
+		V_DrawFixedPatch(
+			(BASEVIDWIDTH - vote_draw.bg_checker->width) * FRACUNIT, 0,
+			FRACUNIT, V_ADD|V_TRANSLUCENT,
+			vote_draw.bg_checker, NULL
+		);
+	}
 
 	levelPos += FixedMul(TEXT_DERR_SCROLL, renderdeltatics);
 	while (levelPos > levelLoop)
@@ -874,16 +888,20 @@ static void Y_DrawVoteBackground(void)
 		derrPos -= derrLoop;
 	}
 
+	INT32 derrtextflags = 0;
+	if (IS_WEIRD_RES())
+		derrtextflags = V_SNAPTOBOTTOM;
+
 	V_DrawFixedPatch(
 		-derrPos,
 		(BASEVIDHEIGHT - vote_draw.bg_derrText->height) * FRACUNIT,
-		FRACUNIT, V_SUBTRACT,
+		FRACUNIT, V_SUBTRACT|derrtextflags,
 		vote_draw.bg_derrText, NULL
 	);
 	V_DrawFixedPatch(
 		-derrPos + derrLoop,
 		(BASEVIDHEIGHT - vote_draw.bg_derrText->height) * FRACUNIT,
-		FRACUNIT, V_SUBTRACT,
+		FRACUNIT, V_SUBTRACT|derrtextflags,
 		vote_draw.bg_derrText, NULL
 	);
 

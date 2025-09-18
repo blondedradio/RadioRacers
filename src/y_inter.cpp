@@ -1951,13 +1951,17 @@ void Y_DrawIntermissionHeader(fixed_t x, fixed_t y, boolean gotthrough, const ch
 
 static void Y_DrawMapTitleString(fixed_t x, const char *name)
 {
+	INT32 extraflags = 0;
+	if (IS_WEIRD_RES())
+		extraflags = V_SNAPTOBOTTOM;
+
 	V_DrawStringScaled(
 		x - ttlscroll,
 		(BASEVIDHEIGHT - 73) * FRACUNIT,
 		FRACUNIT,
 		FRACUNIT,
 		FRACUNIT,
-		V_SUBTRACT | V_60TRANS,
+		V_SUBTRACT | V_60TRANS | extraflags,
 		NULL,
 		LSHI_FONT,
 		name
@@ -2028,17 +2032,25 @@ void Y_IntermissionDrawer(void)
 	fixed_t chkloop = SHORT(rbgchk->width)*FRACUNIT;
 
 	UINT8 *bgcolor = R_GetTranslationColormap(TC_INTERMISSION, static_cast<skincolornum_t>(0), GTC_CACHE);
+	INT32 intermissiontextflags = V_SUBTRACT;
+	INT32 intermissioncheckflags = V_SUBTRACT;
 
 	// Draw the background
-	K_DrawMapThumbnail(0, 0, BASEVIDWIDTH<<FRACBITS, (data.encore ? V_FLIP : 0), prevmap, bgcolor);
+	if (IS_WEIRD_RES()) {
+		intermissiontextflags |= V_SNAPTOBOTTOM;
+		intermissioncheckflags |= V_SNAPTOTOP;
+		K_DrawMapThumbnailWidescreen(0, 0, BASEVIDWIDTH<<FRACBITS, (data.encore ? V_FLIP : 0), prevmap, bgcolor);
+	} else {
+		K_DrawMapThumbnail(0, 0, BASEVIDWIDTH<<FRACBITS, (data.encore ? V_FLIP : 0), prevmap, bgcolor);
+	}
 
 	for (x = -mqscroll; x < (BASEVIDWIDTH * FRACUNIT); x += mqloop)
 	{
-		V_DrawFixedPatch(x, 154<<FRACBITS, FRACUNIT, V_SUBTRACT, rrmq, NULL);
+		V_DrawFixedPatch(x, 154<<FRACBITS, FRACUNIT, intermissiontextflags, rrmq, NULL);
 	}
 
-	V_DrawFixedPatch(chkscroll, 0, FRACUNIT, V_SUBTRACT, rbgchk, NULL);
-	V_DrawFixedPatch(chkscroll - chkloop, 0, FRACUNIT, V_SUBTRACT, rbgchk, NULL);
+	V_DrawFixedPatch(chkscroll, 0, FRACUNIT, intermissioncheckflags, rbgchk, NULL);
+	V_DrawFixedPatch(chkscroll - chkloop, 0, FRACUNIT, intermissioncheckflags, rbgchk, NULL);
 
 	fixed_t ttlloop = Y_DrawMapTitle();
 
@@ -2096,7 +2108,7 @@ skiptallydrawer:
 		goto finalcounter;
 
 	// Returns early if there's no roundqueue entries to draw
-	Y_RoundQueueDrawer(&data, 0, true, false, false);
+	Y_RoundQueueDrawer(&data, 0, true, IS_WEIRD_RES(), false);
 
 	if (netgame)
 	{
