@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 // Music
-#define MAXRANDOMSTARTMUS 5
+extern UINT8 radio_maxrandompositionmus;
 extern UINT8 radio_mapmusrng;
 
 extern boolean found_radioracers;
