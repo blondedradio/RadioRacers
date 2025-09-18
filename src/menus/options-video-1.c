@@ -14,12 +14,18 @@
 #include "../r_fps.h" // fps cvars
 #include "../r_main.h"
 
+// Radio
+#include "../radioracers/rr_cvar.h"
+
 // options menu
 menuitem_t OPTIONS_Video[] =
 {
 
 	{IT_STRING | IT_SUBMENU, "Resolution...", "Change the aspect ratio and image quality.",
 		NULL, {.submenu = &OPTIONS_VideoModesDef}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Resolution Scale", "Change the scale that the HUD is drawn at. Targeted for higher resolutions.",
+		NULL, {.cvar = &cv_highreshudscale}, 0, 0},
 
 	{IT_NOTHING|IT_SPACE, NULL, NULL,
 		NULL, {NULL}, 0, 0},

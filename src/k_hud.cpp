@@ -2392,8 +2392,10 @@ static void K_drawBackupItem(void)
 	boolean drawingOnPlayer = (cv_rouletteonplayer.value == 1 && r_splitscreen == 0);
 	const fixed_t baseHudScaleFixed = (drawingOnPlayer) ? RR_getItemBoxHudScale() : FRACUNIT;
 	const float_t baseHudScaleFloat = RR_getItemBoxHudScaleFloat();
+	INT32 backupitemflags = transflag|V_SLIDEIN;
+	
 	if (drawingOnPlayer) {
-		transflag = V_20TRANS;
+		backupitemflags = V_20TRANS;
 		fx = itemRouletteX + ((int)(30 * baseHudScaleFloat));
 		fy = itemRouletteY - ((int)(10 * baseHudScaleFloat));
 		tx = (int)(25 * baseHudScaleFloat);
@@ -2415,7 +2417,7 @@ static void K_drawBackupItem(void)
 
 		V_DrawFixedPatch(
 			fx<<FRACBITS, (fy<<FRACBITS),
-			baseHudScaleFixed, transflag|V_SLIDEIN|fflags,
+			baseHudScaleFixed, backupitemflags,
 			localpatch[1], (localcolor[1] ? R_GetTranslationColormap(colormode[1], localcolor[1], GTC_CACHE) : NULL)
 		);
 
@@ -2423,17 +2425,17 @@ static void K_drawBackupItem(void)
 			V_DrawStringScaled(
 				(fx+tx)<<FRACBITS, (fy+ty)<<FRACBITS,
 				baseHudScaleFixed, baseHudScaleFixed, baseHudScaleFixed,
-				transflag|V_SLIDEIN|fflags, NULL, TINY_FONT, va("x%d", stplyr->backupitemamount)
+				backupitemflags, NULL, TINY_FONT, va("x%d", stplyr->backupitemamount)
 			);
 		} else {
-			V_DrawString(fx+tx, fy+ty, V_HUDTRANS|V_SLIDEIN|fflags, va("x%d", stplyr->backupitemamount));
+			V_DrawString(fx+tx, fy+ty, backupitemflags, va("x%d", stplyr->backupitemamount));
 		}
 	}
 	else
 	{
 		V_DrawFixedPatch(
 			fx<<FRACBITS, (fy<<FRACBITS),
-			baseHudScaleFixed, transflag|V_SLIDEIN|fflags,
+			baseHudScaleFixed, backupitemflags,
 			localpatch[1], (localcolor[1] ? R_GetTranslationColormap(colormode[1], localcolor[1], GTC_CACHE) : NULL)
 		);
 	}

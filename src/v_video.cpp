@@ -3766,10 +3766,10 @@ void V_Recalc(void)
 	// Credit to Alufolie for this (from Indev450/SRB2Kart-Saturn)
 	if ((vid.width > 720) && (vid.height > 1280)) // ehhhh well this thing has so many issues, so ill lock it to higher resolutions instead
 	{
-		vid.dupx = FixedDiv(vid.dupx, 6*FRACUNIT/5);
-		vid.dupy = FixedDiv(vid.dupy, 6*FRACUNIT/5);
-		vid.fdupx = FixedDiv(vid.fdupx, 6*FRACUNIT/5);
-		vid.fdupy = FixedDiv(vid.fdupy, 6*FRACUNIT/5);
+		vid.dupx = FixedDiv(vid.dupx, cv_highreshudscale.value);
+		vid.dupy = FixedDiv(vid.dupy, cv_highreshudscale.value);
+		vid.fdupx = FixedDiv(vid.fdupx, cv_highreshudscale.value);
+		vid.fdupy = FixedDiv(vid.fdupy, cv_highreshudscale.value);
 	}
 
 #ifdef HWRENDER
