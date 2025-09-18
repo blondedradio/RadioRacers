@@ -31,6 +31,7 @@ static const char* EMOTE_ATLAS_FRAME_NAME = "EMOATLAS";
 
 // Music randomizing
 UINT8 radio_mapmusrng;
+UINT8 radio_maxrandompositionmus = 0;
 
 
 std::vector<std::string> OLD_RING_STATES = {
@@ -967,6 +968,19 @@ void RR_Init(void) {
     // RR_FeedCom();
     
     if (found_radioracers) {
+        // Custom position music
+        for (int i = 2; i <= 9; i++) {
+            if (W_LumpExists(va("O_POSTN%d", i))) {
+                CONS_Printf("Found %s\n", va("O_POSTN%d", i));
+                radio_maxrandompositionmus++;
+            } else {
+                // Lumps need to be in sequential order
+                // O_POSTN2, O_POSTN3, etc
+                break;
+            }
+        }
+        CONS_Printf("%d random position music lumps\n", radio_maxrandompositionmus);
+
         // Yeah
         radio_ding_sound = S_AddSoundFx("emenup", false, 0, false);
 

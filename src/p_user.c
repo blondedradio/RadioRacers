@@ -602,14 +602,14 @@ void P_StartPositionMusic(boolean exact)
 
 		// Radio
 		const char* original_position_music = "postn";
-		if (found_radioracers && radio_mapmusrng != 0) {
-				original_position_music = va("postn%d", radio_mapmusrng+1);
+		if (found_radioracers && radio_mapmusrng != 0 && radio_maxrandompositionmus > 0) {
+			original_position_music = va("postn%d", radio_mapmusrng+1);
 		}
 
 		Music_Remap("position",
 			(mapheaderinfo[gamemap-1]->positionmus[0]
 					? mapheaderinfo[gamemap-1]->positionmus
-					: "postn"
+					: original_position_music
 			));
         }
 
