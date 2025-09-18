@@ -201,6 +201,10 @@ static inline boolean IsPerfectExpBonus(UINT16 exp, UINT16 totalExp) {
 	return CalculateExpBonus(exp, totalExp) == FRACUNIT;
 }
 
+static inline boolean IsNearlyPerfectExpBonus(UINT16 exp, UINT16 totalExp) {
+	return CalculateExpBonus(exp, totalExp) >= FloatToFixed(90.0f);
+}
+
 INT32 level_tally_t::CalculateGrade(void)
 {
 	static const fixed_t gradePercents[GRADE_A] = {
@@ -329,14 +333,15 @@ INT32 level_tally_t::CalculateGrade(void)
 			 * If the player achieves an actually perfect race (perfect ring bonus + perfect lap bonus), check for that first.
 			 * Then check for the lap bonus.
 			 */
+			nearlyPerfectExpBonus = IsNearlyPerfectExpBonus(exp, totalExp);
 			perfectExpBonus = IsPerfectExpBonus(exp, totalExp);
-			boolean perfectRaceBonuses = perfectExpBonus;
+			boolean perfectRaceBonuses = nearlyPerfectExpBonus;
 	
 			// If it's a grand prix, check if the ring bonus is perfect too. 
 			// That's more of an incentive in single-player (e.g. lives)
 			// And no one's getting perfect ring bonuses in multiplayer...
 			if (grandprixinfo.gp == true) {
-				perfectRaceBonuses = (perfectExpBonus && perfectRingBonus);
+				perfectRaceBonuses = (nearlyPerfectExpBonus && perfectRingBonus);
 			}
 
 			perfectRace = IsPerfectRace(percent) || perfectRaceBonuses;
@@ -385,6 +390,7 @@ void level_tally_t::Init(player_t *player)
 	// Radio hook
 	perfectRace = false;
 	perfectExpBonus = false;
+	nearlyPerfectExpBonus = false;
 	perfectRingBonus = false;
 	perfectPrisonBonus = false;
 	expBonusEvaulated = false;
