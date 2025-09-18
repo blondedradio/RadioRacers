@@ -61,7 +61,13 @@ void K_drawKart2PTimestamp(void);
 void K_drawKart4PTimestamp(void);
 void K_drawEmeraldWin(boolean overlay);
 void K_DrawMapThumbnail2(fixed_t x, fixed_t y, fixed_t width, UINT32 flags, UINT16 map, const UINT8 *colormap, fixed_t accordion);
+
+// For widescreen
+void K_DrawMapThumbnail2Widescreen(fixed_t x, fixed_t y, fixed_t width, UINT32 flags, UINT16 map, const UINT8 *colormap, fixed_t accordion);
+void K_DrawLikeMapThumbnailWidescreen(fixed_t x, fixed_t y, fixed_t width, UINT32 flags, patch_t *patch, const UINT8 *colormap, fixed_t accordion);
+
 #define K_DrawMapThumbnail(x, y, w, f, m, c) K_DrawMapThumbnail2(x, y, w, f, m, c, FRACUNIT)
+#define K_DrawMapThumbnailWidescreen(x, y, w, f, m, c) K_DrawMapThumbnail2Widescreen(x, y, w, f, m, c, FRACUNIT)
 void K_DrawLikeMapThumbnail(fixed_t x, fixed_t y, fixed_t width, UINT32 flags, patch_t *patch, const UINT8 *colormap, fixed_t accordion);
 void K_DrawMapAsFace(INT32 x, INT32 y, UINT32 flags, UINT16 map, const UINT8 *colormap, fixed_t accordion, INT32 unit);
 void K_drawTargetHUD(const vector3_t *origin, player_t *player);
