@@ -18,6 +18,9 @@
 #include "../discord.h"
 #endif
 
+// Radio
+#include "../radioracers/rr_cvar.h"
+
 using namespace srb2::menus::egg_tv;
 
 namespace
@@ -33,6 +36,11 @@ void M_DrawEggTV()
 boolean M_QuitEggTV()
 {
 	g_egg_tv = {};
+
+	// Radio
+	// And restore the old highreshudscale value
+	CV_SetValue(&cv_highreshudscale, cv_highreshudscale_temp.value);
+	CV_StealthSet(&cv_highreshudscale_temp, "");
 
 	return true;
 }
@@ -136,6 +144,14 @@ void M_EggTV(INT32 choice)
 	g_egg_tv = std::make_unique<EggTV>();
 
 	M_SetupNextMenu(&EXTRAS_EggTVDef, false);
+
+	// Radio
+	// Can't dynamically re-scale the background elements, they're all nested with the main background
+	// So, temporarily reset the highreshudscale cvar
+	if (cv_highreshudscale.value > 1) {
+		CV_StealthSetValue(&cv_highreshudscale_temp, cv_highreshudscale.value);
+		CV_SetValue(&cv_highreshudscale, FRACUNIT);
+	}
 
 #ifdef HAVE_DISCORDRPC
 	DRPC_UpdatePresence();
