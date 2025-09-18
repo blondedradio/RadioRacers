@@ -1331,23 +1331,25 @@ void V_DrawFadeFill(INT32 x, INT32 y, INT32 w, INT32 h, INT32 c, UINT16 color, U
 		V_AdjustXYWithSnap(&x, &y, c, dupx, dupy);
 	}
 
-	if (x >= vid.width || y >= vid.height)
-		return; // off the screen
-	if (x < 0) {
-		w += x;
-		x = 0;
+	if (!IS_WEIRD_RES()) {
+		if (x >= vid.width || y >= vid.height)
+			return; // off the screen
+		if (x < 0) {
+			w += x;
+			x = 0;
+		}
+		if (y < 0) {
+			h += y;
+			y = 0;
+		}
+	
+		if (w <= 0 || h <= 0)
+			return; // zero width/height wouldn't draw anything
+		if (x + w > vid.width)
+			w = vid.width-x;
+		if (y + h > vid.height)
+			h = vid.height-y;
 	}
-	if (y < 0) {
-		h += y;
-		y = 0;
-	}
-
-	if (w <= 0 || h <= 0)
-		return; // zero width/height wouldn't draw anything
-	if (x + w > vid.width)
-		w = vid.width-x;
-	if (y + h > vid.height)
-		h = vid.height-y;
 
 	float r;
 	float g;
