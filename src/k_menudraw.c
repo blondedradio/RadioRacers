@@ -94,6 +94,7 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 
 // Radio
 #include "d_clisrv.h"
+#include "radioracers/rr_cvar.h"
 
 fixed_t M_TimeFrac(tic_t tics, tic_t duration)
 {
@@ -516,7 +517,9 @@ void M_DrawMenuForeground(void)
 		((vid.width % BASEVIDWIDTH != 0) || (vid.height % BASEVIDHEIGHT != 0)))
 	{
 		// Radio: What if...
-		// V_DrawFixedPatch(0, 0, FRACUNIT, 0, W_CachePatchName("WEIRDRES", PU_CACHE), NULL);
+		// Egg TV workaround
+		if (cv_highreshudscale_temp.value != 0)
+			V_DrawFixedPatch(0, 0, FRACUNIT, 0, W_CachePatchName("WEIRDRES", PU_CACHE), NULL);
 	}
 }
 

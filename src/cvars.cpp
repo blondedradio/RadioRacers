@@ -552,11 +552,14 @@ consvar_t cv_obvious_voltage = Player("obviousvoltage", "On").on_off();
 consvar_t cv_show_dangerous_player_check = Player("showdangerplayercheck", "Off").on_off();
 
 // HUD Scaling
-consvar_t cv_highreshudscale = Player("highreshudscale", "1")
-	.floating_point()
-	.min_max(4*FRACUNIT/5, (6*FRACUNIT/5))
-	.step_amount(FRACUNIT)
+consvar_t cv_highreshudscale = Player("highreshudscale", "Default")
+	.values({
+		{FRACUNIT, "Default"}, 
+		{6*FRACUNIT/5, "120%"}, 
+		{0, NULL}
+	})
 	.onchange_noinit(SCR_Recalc);
+consvar_t cv_highreshudscale_temp = MenuDummy("highreshudscale_temp", "");
 
 // Item timers (not all)
 consvar_t cv_gingeritemtimers = Player("huditemtimers", "On").on_off();
