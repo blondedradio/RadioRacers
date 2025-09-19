@@ -185,14 +185,14 @@ menuitem_t OPTIONS_RadioRacersHud[] =
 	{IT_SPACE | IT_NOTHING, NULL,  NULL,
 		NULL, {NULL}, 0, 0},
 
-	{IT_HEADER, "Sppedometer/Ring Options", NULL,
+	{IT_HEADER, "Ring Counter Options", NULL,
 		NULL, {NULL}, 0, 0},
-
-	{IT_STRING | IT_CVAR, "Speedometer Position", "Toggle the SPEEDOMETER's HUD position.",
-		NULL, {.cvar = &cv_speedometeronplayer}, 0, 0},
-
+		
 	{IT_STRING | IT_CVAR, "Ring Counter Position", "Toggle the RING COUNTER's HUD position.",
 		NULL, {.cvar = &cv_ringsonplayer}, 0, 0},
+			
+	{IT_STRING | IT_CVAR, "Speedometer Position", "Toggle the SPEEDOMETER's HUD position.",
+		NULL, {.cvar = &cv_speedometeronplayer}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "EXP Display Position", "Toggle the EXP HUD position.",
 		NULL, {.cvar = &cv_exponplayer}, 0, 0},
