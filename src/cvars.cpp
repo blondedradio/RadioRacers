@@ -595,16 +595,24 @@ consvar_t cv_ringsonplayer = Player("ringsonplayer", "Custom").values({
 });
 
 // Speedometer draw on player (akin to driftguage)
+static void SpeedometerOnPlayer_OnChange(void) {
+	if (cv_speedometeronplayer.value == 1)
+		CV_StealthSetValue(&cv_exponplayer, 0);
+}
 consvar_t cv_speedometeronplayer = Player("speedometeronplayer", "Vanilla").values({
 	{0, "Vanilla"}, 
 	{1, "Custom"}
-});
+}).onchange_noinit(SpeedometerOnPlayer_OnChange);
 
 // EXP draw on player (akin to driftguage)
+static void ExpOnPlayer_OnChange(void) {
+	if(cv_exponplayer.value == 1)
+		CV_StealthSetValue(&cv_speedometeronplayer, 0);
+}
 consvar_t cv_exponplayer = Player("exponplayer", "Vanilla").values({
 	{0, "Vanilla"}, 
 	{1, "Custom"}
-});
+}).onchange_noinit(ExpOnPlayer_OnChange);
 
 // -- Battle
 
