@@ -4665,6 +4665,8 @@ static boolean K_drawKartLaps(void)
 					EXP_X = (result.x / FRACUNIT) - 25; 
 					EXP_Y = (result.y / FRACUNIT);
 				} 
+				drewsticker = false;
+				bump = 0;
 			} else {
 				return drewsticker;
 			}
@@ -4678,7 +4680,7 @@ static boolean K_drawKartLaps(void)
 		auto transflag = K_GetTransFlagFromFixed(K_EffectiveGradingFactor(stplyr), true);
 		skincolornum_t overlaycolor = K_EffectiveGradingFactor(stplyr) < FRACUNIT ? SKINCOLOR_RUBY : SKINCOLOR_ULTRAMARINE ;
 		auto colormap = R_GetTranslationColormap(TC_RAINBOW, overlaycolor, GTC_CACHE);
-		V_DrawMappedPatch(EXP_X+bump, EXP_Y, transflag|V_SLIDEIN|splitflags, kp_exp[0], colormap);
+		V_DrawMappedPatch(EXP_X+bump, EXP_Y, transflag|expFlags, kp_exp[0], colormap);
 
 		using srb2::Draw;
 		Draw row = Draw(EXP_X+23+bump, EXP_Y+3).flags(expFlags|danceflag).font(Draw::Font::kThinTimer).colorize(dancecolor);
