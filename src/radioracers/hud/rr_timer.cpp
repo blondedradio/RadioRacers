@@ -203,3 +203,20 @@ void RR_DrawKartMiniTimestamp(tic_t drawtime, INT32 TX, INT32 TY, INT32 splitfla
     // SPB Attack
     DrawSPBAttack_Bar();
 }
+
+void RR_DrawMiniTimestamp(tic_t time, INT32 x, INT32 y, INT32 flags, float sc)
+{
+    srb2::Draw mini_timer = srb2::Draw(x, y).flags(flags).font(srb2::Draw::Font::kZVote).scale(sc);
+    
+    mini_timer.patch("K_STTIMS");
+    mini_timer
+        .xy(6, 1)
+        .align(srb2::Draw::Align::kLeft)
+        .text(time == UINT32_MAX ?
+        "--'--\"--" : va(
+        "%i'%02i\"%02i",
+        G_TicsToMinutes(time, true),
+        G_TicsToSeconds(time),
+        G_TicsToCentiseconds(time)
+    ));
+}

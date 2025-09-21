@@ -89,6 +89,13 @@ void M_MPRoomSelectInit(INT32 choice)
 	mpmenu.scrolln = 0;
 	mpmenu.slide = 0;
 
+	mpmenu.serverpreview = false;
+	mpmenu.serverslide_tic = 0;
+	mpmenu.serverslide_y = 0;
+	mpmenu.serverpreview_map = 0;
+	mpmenu.serverpreview_mapchecked = false;
+	mpmenu.serverpreview_done = false;
+
 #ifndef TESTERS
 	if ((modifiedgame == true) || (M_SecretUnlocked(SECRET_ADDONS, true) == false))
 	{
