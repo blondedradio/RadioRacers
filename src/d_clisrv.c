@@ -1599,6 +1599,7 @@ static boolean resendserverlistnode[MAXNETNODES];
 // Radio
 static char serverlisttempnodes[MAXNETNODES][16];
 serverextrainfo_t serverextrainfo[MAXNETNODES];
+serverextrainfo_t serverextrainfoqueue[MAXNETNODES];
 
 static tic_t serverlistepoch;
 
@@ -1617,6 +1618,7 @@ static void SL_ClearServerList(INT32 connectedserver)
 	memset(resendserverlistnode, 0, sizeof resendserverlistnode);
 	memset(serverlisttempnodes, 0, sizeof serverlisttempnodes);
 	memset(serverextrainfo, 0, sizeof serverextrainfo);
+	memset(serverextrainfoqueue, 0, sizeof serverextrainfoqueue);
 }
 
 static UINT32 SL_SearchServer(INT32 node)
@@ -1706,8 +1708,14 @@ static boolean SL_InsertServer(serverinfo_pak* info, SINT8 node)
 		else
 			extrainfo.downloadsize = Z_StrDup(va("%u KB",totalfilesize>>10));
 	}
-	serverextrainfo[node] = extrainfo;
+	serverextrainfo[node].downloadsize = extrainfo.downloadsize;
 
+	// Player info was captured before server was added to server list
+	if (serverextrainfo[node].premature == true) {
+		memcpy(serverextrainfo[node].playerinfo, serverextrainfoqueue[node].playerinfo, sizeof(serverextrainfo[node].playerinfo));
+		serverextrainfo[node].premature = false;
+	}
+	
 	// resort server list
 	M_SortServerList();
 
@@ -6347,7 +6355,16 @@ static void GetPackets(void)
 		}
 
 		if (netbuffer->packettype == PT_PLAYERINFO) {
-			memcpy(serverextrainfo[node].playerinfo, netbuffer->u.playerinfo, sizeof(serverextrainfo[node].playerinfo));
+			const UINT32 serv = SL_SearchServer(node);
+			if (serv == UINT32_MAX) {
+				// Server hasn't been added to the list yet, so store it in a array temporarily until it IS
+				memcpy(serverextrainfoqueue[node].playerinfo, netbuffer->u.playerinfo, sizeof(serverextrainfoqueue[node].playerinfo));
+				serverextrainfo[node].premature = true;
+			} else {
+				serverextrainfo[node].premature = false;
+				memcpy(serverextrainfo[node].playerinfo, netbuffer->u.playerinfo, sizeof(serverextrainfo[node].playerinfo));	
+			}
+
 			continue; // We do nothing with PLAYERINFO, that's for the MS browser.
 		}
 

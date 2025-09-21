@@ -986,7 +986,7 @@ void M_DifficultySelectInputs(INT32 choice);
 // Radio
 #define SERVERSPERPAGE 2
 #define SERVERSPACE 23
-#define SERVERPREVIEWHEIGHT 55
+#define SERVERPREVIEWHEIGHT 75
 // #define SERVERSPERPAGE 8
 // #define SERVERSPACE 18
 

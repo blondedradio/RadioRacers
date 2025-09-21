@@ -4771,6 +4771,7 @@ static void drawServerPeek(INT32 basex, INT32 basey, INT32 transflag) {
 		int validplayerscount = 0;
 	
 		// Valid
+		const UINT8 actualplayers = serverlist[mpmenu.servernum].info.numberofplayer;
 		const boolean isdedicated = serverlist[mpmenu.servernum].info.kartvars & SV_DEDICATED;
 
 		for (int v = 0; v <= servermaxplayers; v++) {
@@ -4799,6 +4800,8 @@ static void drawServerPeek(INT32 basex, INT32 basey, INT32 transflag) {
 			}
 
 			if(validplayers[i] != 255) {			
+				// Assume it's a bot
+				boolean isBot = (actualplayers == 0) || (i > actualplayers);
 				const char* name = si.playerinfo[validplayers[i]].name;
 
 				fixed_t playernamew = V_StringScaledWidth(
@@ -4807,15 +4810,27 @@ static void drawServerPeek(INT32 basex, INT32 basey, INT32 transflag) {
 				if (playernamew > longestname)
 					longestname = playernamew;
 			
+					
 				const INT16 spectating = si.playerinfo[validplayers[i]].team == 255 ? V_GRAYMAP : 0;
 
-				V_DrawMappedPatch(
-					plrinfo_x, 
-					plrinfo_y + 2, 
-					baseflags, 
-					W_CachePatchName("MMAPDOT", PU_CACHE),
-					R_GetTranslationColormap(TC_RAINBOW, spectating ? SKINCOLOR_GREY : SKINCOLOR_MINT, GTC_CACHE)
-				);
+				if (isBot) {
+					V_DrawFixedPatch(
+						(plrinfo_x-1) << FRACBITS,
+						(plrinfo_y + 2) << FRACBITS,
+						FloatToFixed(0.4f),
+						baseflags,
+						faceprefix[R_SkinAvailable("eggrobo")][FACE_MINIMAP],
+						R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_RED, GTC_CACHE)
+					);
+				} else {
+					V_DrawMappedPatch(
+						plrinfo_x, 
+						plrinfo_y + 2, 
+						baseflags, 
+						W_CachePatchName("MMAPDOT", PU_CACHE),
+						R_GetTranslationColormap(TC_RAINBOW, spectating ? SKINCOLOR_GREY : SKINCOLOR_MINT, GTC_CACHE)
+					);
+				}
 
 				V_DrawStringScaled(
 					(plrinfo_x + 5)<<FRACBITS, plrinfo_y<<FRACBITS, playernamesc,
@@ -4846,9 +4861,12 @@ static void drawServerPeek(INT32 basex, INT32 basey, INT32 transflag) {
 		}
 	}
 
+	// Horizontal line
+	V_DrawFill(peekx + 2, leveltime_y + 9, 273, 1, 21|baseflags);
+
 	// Connect prompt
 	K_DrawGameControl(
-		295, basey + (SERVERPREVIEWHEIGHT - 13),
+		290, basey + (SERVERPREVIEWHEIGHT - 15),
 		2, "<a> Connect",
 		2, TINY_FONT, baseflags
 	);
