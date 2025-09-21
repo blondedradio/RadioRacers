@@ -6346,8 +6346,10 @@ static void GetPackets(void)
 			continue;
 		}
 
-		if (netbuffer->packettype == PT_PLAYERINFO)
+		if (netbuffer->packettype == PT_PLAYERINFO) {
+			memcpy(serverextrainfo[node].playerinfo, netbuffer->u.playerinfo, sizeof(serverextrainfo[node].playerinfo));
 			continue; // We do nothing with PLAYERINFO, that's for the MS browser.
+		}
 
 		// Packet received from someone already playing
 		if (nodeingame[node])

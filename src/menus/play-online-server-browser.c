@@ -15,6 +15,10 @@
 #include "../v_video.h"
 #include "../s_sound.h"
 
+// Radio
+#include "../m_easing.h"
+#include "../i_time.h"
+#include "../z_zone.h"
 //#define SERVERLISTDEBUG
 
 #ifdef SERVERLISTDEBUG
@@ -249,6 +253,12 @@ void M_ServersMenu(INT32 choice)
 	mpmenu.servernum = 0;
 	mpmenu.scrolln = 0;
 	mpmenu.slide = 0;
+	mpmenu.serverpreview = false;
+	mpmenu.serverslide_tic = 0;
+	mpmenu.serverslide_y = 0;
+	mpmenu.serverpreview_map = 0;
+	mpmenu.serverpreview_mapchecked = false;
+	mpmenu.serverpreview_done = false;
 
 	PLAY_MP_ServerBrowserDef.prevMenu = currentMenu;
 	M_SetupNextMenu(&PLAY_MP_ServerBrowserDef, false);
@@ -461,6 +471,26 @@ void M_MPServerBrowserTick(void)
 	mpmenu.ticker++;
 	mpmenu.slide /= 2;
 
+	if (mpmenu.serverpreview) {
+		if (mpmenu.serverslide_y < SERVERPREVIEWHEIGHT) {
+			tic_t dur = M_DueFrac(mpmenu.serverslide_tic, TICRATE*7);
+			fixed_t new_y = Easing_OutExpo(dur, mpmenu.serverslide_y << FRACBITS, SERVERPREVIEWHEIGHT*FRACUNIT);
+			mpmenu.serverslide_y += (new_y >> FRACBITS);
+		} else {
+			// Sliding is done, now fetch the map thumbnail
+			if (!mpmenu.serverpreview_mapchecked) {
+				char* realmapname = NULL;
+				mpmenu.serverpreview_map = G_FindMapByNameOrCode(
+					serverlist[mpmenu.servernum].info.maptitle, &realmapname
+				);
+				Z_Free(realmapname);
+
+				mpmenu.serverpreview_mapchecked = true;
+				mpmenu.serverslide_y = SERVERPREVIEWHEIGHT;
+			}
+		}
+	}
+	
 #if defined (MASTERSERVER) && defined (HAVE_THREADS)
 	I_lock_mutex(&ms_ServerList_mutex);
 	{
@@ -477,6 +507,14 @@ void M_MPServerBrowserTick(void)
 	CL_TimeoutServerList();
 }
 
+// Radio
+static void resetServerPreviewVars(void) {
+	mpmenu.serverpreview = false;
+	mpmenu.serverslide_y = 0;
+	mpmenu.serverpreview_map = 0;
+	mpmenu.serverpreview_mapchecked = false;
+	mpmenu.serverpreview_done = false;
+}
 // Input handler for server browser.
 boolean M_ServerBrowserInputs(INT32 ch)
 {
@@ -491,6 +529,9 @@ boolean M_ServerBrowserInputs(INT32 ch)
 
 	if (!itemOn && menucmd[pid].dpad_ud < 0)
 	{
+		if (mpmenu.serverpreview) {
+			resetServerPreviewVars();
+		}
 		if (serverlistcount)
 		{
 			// Return the MS listing to the bottom.
@@ -522,10 +563,28 @@ boolean M_ServerBrowserInputs(INT32 ch)
 
 			return true;
 		}
+
+		if (M_MenuButtonPressed(pid, MBT_L)) {
+			M_SetMenuDelay(pid);
+
+			if (mpmenu.serverpreview) {
+				resetServerPreviewVars();
+			} else {
+				mpmenu.serverpreview = true;
+				mpmenu.serverslide_y = 0;
+				mpmenu.serverslide_tic = I_GetTime();
+			}
+
+			S_StartSound(NULL, sfx_s3k5b);
+			return true;
+		}
 #endif
 
 		if (menucmd[pid].dpad_ud > 0)	// down
 		{
+			if (mpmenu.serverpreview) {
+				resetServerPreviewVars();
+			}
 			if ((UINT32)(mpmenu.servernum+1) < serverlistcount)
 			{
 				// Listing scroll down
@@ -551,6 +610,9 @@ boolean M_ServerBrowserInputs(INT32 ch)
 		}
 		else if (menucmd[pid].dpad_ud < 0)
 		{
+			if (mpmenu.serverpreview) {
+				resetServerPreviewVars();
+			}
 			if (mpmenu.servernum)
 			{
 				// Listing scroll up

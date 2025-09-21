@@ -95,6 +95,7 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 // Radio
 #include "d_clisrv.h"
 #include "radioracers/rr_cvar.h"
+#include "radioracers/rr_hud.h"
 
 fixed_t M_TimeFrac(tic_t tics, tic_t duration)
 {
@@ -4651,6 +4652,213 @@ static inline void drawAsterisk(INT32 x, INT32 y, INT32 transflag) {
 	);
 }
 
+static void drawServerPeek(INT32 basex, INT32 basey, INT32 transflag) {
+	const INT32 baseflags = transflag|V_SNAPTOTOP;
+	const INT32 peekx = basex + 9;
+	const INT32 peeky = basey + 5;
+
+	// Background
+	V_DrawFill(
+		basex + 7,
+		basey,
+		275,
+		mpmenu.serverslide_y,
+		31 | baseflags
+	);
+
+	// Clipping
+	V_SetClipRect(
+		(basex) << FRACBITS, 
+		(basey) << FRACBITS,
+		275<<FRACBITS,
+		(mpmenu.serverslide_y)<<FRACBITS, V_SNAPTOTOP
+	);
+
+	// --- EVERYTHING IN BETWEEN
+
+	// Map
+	patch_t *thumbnail = unvisitedlvl[mpmenu.ticker % 4];
+
+	if (mpmenu.serverpreview_mapchecked) {
+		K_DrawMapThumbnail(
+			(peekx) << FRACBITS, 
+			(peeky) << FRACBITS,
+			48<<FRACBITS,
+			baseflags,
+			mpmenu.serverpreview_map-1, // One-off system???
+			NULL
+		);
+	} else {
+		V_DrawFixedPatch(
+			(peekx) << FRACBITS, (peeky) << FRACBITS,
+			FloatToFixed(0.6f), baseflags, thumbnail, NULL
+		);
+	}
+
+	// Power Type
+	char powertypepatchname[8];
+	UINT16 powertypecm = SKINCOLOR_NONE;
+	if (serverlist[mpmenu.servernum].info.avgpwrlv == -1) {
+		// EXP
+		sprintf(powertypepatchname, "K_STEXP");
+		powertypecm = SKINCOLOR_MUSTARD;
+	} else {
+		// Mobiums
+		sprintf(powertypepatchname, "K_STMOB");
+	}
+	patch_t *powertype = W_CachePatchName(powertypepatchname, PU_CACHE);
+
+	V_DrawFixedPatch(
+		(peekx+35) << FRACBITS, (peeky + 21) << FRACBITS,
+		FloatToFixed(0.56f), 
+		baseflags, 
+		powertype, 
+		R_GetTranslationColormap(TC_RAINBOW, powertypecm, GTC_CACHE)
+	);
+
+	// Map Titty
+	const INT16 maptitle_y = (peeky) + 33;
+	const char* maptitle = serverlist[mpmenu.servernum].info.maptitle;
+	
+	char maptitlebuffer[40]; 
+	if (mpmenu.serverpreview_mapchecked) {
+		// 33 (d_clisrv.h) + " Zone" + "\0"
+		char* actualmaptitle = G_BuildMapTitle(mpmenu.serverpreview_map);
+		if (actualmaptitle == NULL) {
+			snprintf(maptitlebuffer, sizeof(maptitlebuffer), "%s", maptitle);
+		} else {
+			snprintf(maptitlebuffer, sizeof(maptitlebuffer), "%s", actualmaptitle);
+		}
+		V_DrawStringScaled(
+			peekx<<FRACBITS, maptitle_y<<FRACBITS, FloatToFixed(0.6f),
+			FRACUNIT, FRACUNIT, baseflags, NULL, TINY_FONT, maptitlebuffer
+		);
+		Z_Free(actualmaptitle);
+	} else {
+		V_DrawStringScaled(
+			peekx<<FRACBITS, maptitle_y<<FRACBITS, FloatToFixed(0.6f),
+			FRACUNIT, FRACUNIT, baseflags, NULL, TINY_FONT, "???"
+		);
+	}
+
+	// Level time
+	const INT16 leveltime_y = maptitle_y + 6;
+	RR_DrawMiniTimestamp(
+		serverlist[mpmenu.servernum].info.leveltime,
+		peekx,
+		leveltime_y,
+		baseflags,
+		0.5f
+	);
+
+	// Players
+	const INT16 plr_placeholder_w = 30;
+	const UINT8 servermaxplayers = serverlist[mpmenu.servernum].info.maxplayer;
+	const fixed_t longestname_default = (plr_placeholder_w + 5)*FRACUNIT;
+	fixed_t longestname = longestname_default;
+	const fixed_t playernamesc = FloatToFixed(0.8f);
+	
+	serverextrainfo_t si = serverextrainfo[serverlist[mpmenu.servernum].node];
+	const INT16 plrinfo_y_default = (basey + 3);
+	INT16 plrinfo_y = plrinfo_y_default;
+	INT16 plrinfo_x = (peekx + 54);
+	
+	INT16 playercount = 0;
+	if (mpmenu.serverpreview_mapchecked) {
+		// Invalid players can be out of order (player 1 can be valid, player 2 can be invalid, etc)
+		// So place "valid" players into a different array
+		int validplayers[MAXPLAYERS];
+		int validplayerscount = 0;
+	
+		// Valid
+		const boolean isdedicated = serverlist[mpmenu.servernum].info.kartvars & SV_DEDICATED;
+
+		for (int v = 0; v <= servermaxplayers; v++) {
+			if(
+				(!isdedicated && si.playerinfo[v].num != 255) || 
+				(isdedicated && (si.playerinfo[v].num != 255 && si.playerinfo[v].num != 0))) {
+				validplayers[validplayerscount++] = v;
+			}
+		}
+	
+		// Invalid
+		if (validplayerscount != servermaxplayers) {
+			for(int k = validplayerscount; k <= servermaxplayers; k++) {
+				validplayers[k] = 255;
+			}
+		}
+
+		// And draw
+		for (UINT8 i = 0; i < servermaxplayers; i++) {
+			// New list every 5 players
+			if (playercount > 0 && playercount % 5 == 0) {
+				plrinfo_y = plrinfo_y_default;
+				plrinfo_x += (longestname>>FRACBITS) + 10;
+				longestname = longestname_default;
+				playercount = 0;
+			}
+
+			if(validplayers[i] != 255) {			
+				const char* name = si.playerinfo[validplayers[i]].name;
+
+				fixed_t playernamew = V_StringScaledWidth(
+					playernamesc, FRACUNIT, FRACUNIT, baseflags, TINY_FONT, name
+				);
+				if (playernamew > longestname)
+					longestname = playernamew;
+			
+				const INT16 spectating = si.playerinfo[validplayers[i]].team == 255 ? V_GRAYMAP : 0;
+
+				V_DrawMappedPatch(
+					plrinfo_x, 
+					plrinfo_y + 2, 
+					baseflags, 
+					W_CachePatchName("MMAPDOT", PU_CACHE),
+					R_GetTranslationColormap(TC_RAINBOW, spectating ? SKINCOLOR_GREY : SKINCOLOR_MINT, GTC_CACHE)
+				);
+
+				V_DrawStringScaled(
+					(plrinfo_x + 5)<<FRACBITS, plrinfo_y<<FRACBITS, playernamesc,
+					FRACUNIT, FRACUNIT, baseflags|spectating, NULL, TINY_FONT, name
+				);
+
+				plrinfo_y += 10;
+			} else {
+				V_DrawFill(plrinfo_x, plrinfo_y, plr_placeholder_w, 8, 25|baseflags);
+				plrinfo_y += 10;
+			}
+			playercount++;
+		}
+	} else {
+		// Draw placeholders
+		for (UINT8 i = 0; i < servermaxplayers; i++) {
+			// New list every 5 players
+			if (playercount > 0 && playercount % 5 == 0) {
+				plrinfo_y = plrinfo_y_default;
+				plrinfo_x += (longestname_default>>FRACBITS) + 10;
+				longestname = longestname_default;
+				playercount = 0;
+			}
+
+			V_DrawFill(plrinfo_x, plrinfo_y, plr_placeholder_w, 8, 25|baseflags);
+			plrinfo_y += 10;
+			playercount++;
+		}
+	}
+
+	// Connect prompt
+	K_DrawGameControl(
+		295, basey + (SERVERPREVIEWHEIGHT - 13),
+		2, "<a> Connect",
+		2, TINY_FONT, baseflags
+	);
+
+	// --- EVERYTHING IN BETWEEN
+
+	// End Clipping
+	V_ClearClipRect();
+}
+
 void M_DrawMPServerBrowser(void)
 {
 	const char *header[3][2] = {
@@ -4777,6 +4985,15 @@ void M_DrawMPServerBrowser(void)
 			// Background
 			INT32 extrainfo_y = starty + ypos + 16;
 			INT32 extrainfo_x = startx + 10;
+			
+			// test
+			if (mpmenu.servernum == i && mpmenu.serverpreview) {
+
+				drawServerPeek(startx, extrainfo_y, transflag);
+
+				extrainfo_y += mpmenu.serverslide_y;
+			}			
+
 			V_DrawFill(
 				startx + 7,
 				extrainfo_y,
@@ -4811,7 +5028,7 @@ void M_DrawMPServerBrowser(void)
 				HU_FONT,
 				dedicatedstr
 			);
-			
+
 			// Modded server
 			if (modded) {
 				// *
@@ -4887,7 +5104,7 @@ void M_DrawMPServerBrowser(void)
 				V_DrawFixedPatch((startx - 3) * FRACUNIT, (starty + ypos + 2) * FRACUNIT, FRACUNIT, IS_WEIRD_RES() ? V_SNAPTOTOP : 0, voicepat, NULL);
 			}
 		}
-		ypos += SERVERSPACE;
+		ypos += (SERVERSPACE + ((mpmenu.servernum == i && mpmenu.serverpreview) ? mpmenu.serverslide_y : 0));
 	}
 
 	// Draw genericmenu ontop!
@@ -4900,6 +5117,14 @@ void M_DrawMPServerBrowser(void)
 	V_DrawFill(0, 55, 320, 1, 31|gamemodeflags);
 
 	V_DrawCenteredGamemodeString(160, 2, gamemodeflags, 0, header[mode][0]);
+
+	// Radio
+	const INT16 gamemode_w = V_GamemodeStringWidth(header[mode][0], gamemodeflags)/2;
+	K_DrawGameControl(
+		(160 + gamemode_w + 4), 20,
+		0, "<l_animated> Peek",
+		0, TINY_FONT, gamemodeflags
+	);
 
 	// normal menu options
 	M_DrawGenericMenu();

@@ -986,6 +986,7 @@ void M_DifficultySelectInputs(INT32 choice);
 // Radio
 #define SERVERSPERPAGE 2
 #define SERVERSPACE 23
+#define SERVERPREVIEWHEIGHT 55
 // #define SERVERSPERPAGE 8
 // #define SERVERSPACE 18
 
@@ -1003,6 +1004,14 @@ extern struct mpmenu_s {
 	// max scrolln is always going to be serverlistcount-4 as we can display 8 servers at any time and we start scrolling at half.
 
 	INT16 slide;
+
+	// Radio - Server peeking
+	tic_t serverslide_tic;
+	INT16 serverslide_y;
+	INT32 serverpreview_map;
+	boolean serverpreview_mapchecked;
+	boolean serverpreview_done;
+	boolean serverpreview;
 
 } mpmenu;
 

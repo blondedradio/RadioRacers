@@ -734,6 +734,7 @@ void SendServerNotice(SINT8 target, char *message);
 //
 typedef struct {
 	char *downloadsize;
+ 	plrinfo playerinfo[MSCOMPAT_MAXPLAYERS];
 } serverextrainfo_t;
 extern serverextrainfo_t serverextrainfo[MAXNETNODES];
 
