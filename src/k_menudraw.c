@@ -4695,25 +4695,92 @@ static void drawServerPeek(INT32 basex, INT32 basey, INT32 transflag) {
 		);
 	}
 
-	// Power Type
+	// Power Type/Rank
+
+	INT32 powertype_x = (peekx+48);
+	INT32 powertype_y = (peeky+22);
+	const float powertype_sc = 0.56f;
+	
 	char powertypepatchname[8];
+	char powertypestr[8];
 	UINT16 powertypecm = SKINCOLOR_NONE;
+	UINT16 powertype_sticker_cm = SKINCOLOR_NONE;
 	if (serverlist[mpmenu.servernum].info.avgpwrlv == -1) {
 		// EXP
 		sprintf(powertypepatchname, "K_STEXP");
+		sprintf(powertypestr, "EXP");
 		powertypecm = SKINCOLOR_MUSTARD;
+		powertype_sticker_cm = SKINCOLOR_MUSTARD;
 	} else {
 		// Mobiums
+		powertype_sticker_cm = SKINCOLOR_TEA;
+		sprintf(powertypestr, "MOBIUMS");
 		sprintf(powertypepatchname, "K_STMOB");
 	}
-	patch_t *powertype = W_CachePatchName(powertypepatchname, PU_CACHE);
 
+	const UINT8* powertype_sticker_gfx_cm = R_GetTranslationColormap(TC_RAINBOW, powertype_sticker_cm, GTC_CACHE);
+	patch_t *powertype = W_CachePatchName(powertypepatchname, PU_CACHE);
+	const INT32	powertype_str_w = V_StringScaledWidth(
+		FloatToFixed(powertype_sc), FRACUNIT, FRACUNIT, baseflags,
+		TINY_FONT, powertypestr
+	) >> FRACBITS;
+
+	// Sticker
+	patch_t	*stickerTail = 		W_CachePatchName("INT_STK1", PU_CACHE);
+	patch_t	*stickerMiddle = 	W_CachePatchName("INT_STK2", PU_CACHE);
+	patch_t	*stickerHead = 		W_CachePatchName("INT_STK3", PU_CACHE);
+
+	const INT32 powertype_w = (int)(powertype->width * powertype_sc);
+	const INT32 sticker_middle_r = powertype_x - (int)(stickerHead->width * powertype_sc);
+	const INT32 sticker_middle_l = powertype_x - powertype_w - powertype_str_w - 6;
+
+	// Sticker Head
 	V_DrawFixedPatch(
-		(peekx+35) << FRACBITS, (peeky + 21) << FRACBITS,
-		FloatToFixed(0.56f), 
+		(sticker_middle_r) << FRACBITS, (powertype_y) << FRACBITS,
+		FloatToFixed(powertype_sc), 
+		baseflags, 
+		stickerHead, 
+		powertype_sticker_gfx_cm
+	);
+
+	// Sticker Middle
+	V_DrawStretchyFixedPatch(
+		sticker_middle_l << FRACBITS,
+		(powertype_y) << FRACBITS,
+		((sticker_middle_r - sticker_middle_l) << FRACBITS) / stickerMiddle->width + 1,
+		FloatToFixed(powertype_sc),
+		baseflags, stickerMiddle, powertype_sticker_gfx_cm
+	);
+
+	// Sticker Tail
+	const INT32 sticker_tail_w = (int)(stickerTail->width * powertype_sc);
+	const INT32 sticker_tail_x = sticker_middle_l - sticker_tail_w;
+	V_DrawFixedPatch(
+		(sticker_tail_x) << FRACBITS, (powertype_y) << FRACBITS,
+		FloatToFixed(powertype_sc), 
+		baseflags, 
+		stickerTail, 
+		powertype_sticker_gfx_cm
+	);
+
+	// Power Type
+	// - Icon
+	const INT32 powertype_h = (int)(powertype->height * powertype_sc);
+	const INT32 powertype_p_x = (powertype_x - powertype_w - 5);
+	V_DrawFixedPatch(
+		(powertype_p_x) << FRACBITS, ((powertype_y + 1) - (powertype_h/2)) << FRACBITS,
+		FloatToFixed(powertype_sc), 
 		baseflags, 
 		powertype, 
 		R_GetTranslationColormap(TC_RAINBOW, powertypecm, GTC_CACHE)
+	);
+
+	// - Name
+	V_DrawStringScaled(
+		(powertype_p_x - powertype_str_w - 1)<<FRACBITS, 
+		(powertype_y + 1)<<FRACBITS, 
+		FloatToFixed(powertype_sc),
+		FRACUNIT, FRACUNIT, baseflags, NULL, TINY_FONT, powertypestr
 	);
 
 	// Map Titty
