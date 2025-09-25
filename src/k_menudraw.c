@@ -4890,12 +4890,13 @@ static void drawServerPeek(INT32 basex, INT32 basey, INT32 transflag) {
 						R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_RED, GTC_CACHE)
 					);
 				} else {
-					V_DrawMappedPatch(
-						plrinfo_x, 
-						plrinfo_y + 2, 
-						baseflags, 
-						W_CachePatchName("MMAPDOT", PU_CACHE),
-						R_GetTranslationColormap(TC_RAINBOW, spectating ? SKINCOLOR_GREY : SKINCOLOR_MINT, GTC_CACHE)
+					V_DrawFixedPatch(
+						(plrinfo_x) << FRACBITS,
+						(plrinfo_y + 1) << FRACBITS,
+						FloatToFixed(0.6f),
+						baseflags,
+						W_CachePatchName("K_BLNA", PU_CACHE),
+						R_GetTranslationColormap(TC_RAINBOW, spectating ? SKINCOLOR_GREY : SKINCOLOR_NONE, GTC_CACHE)
 					);
 				}
 
