@@ -5184,7 +5184,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	}
 
 	// Hide not-yet-unlocked characters in replays from other people
-	if (skinnum >= 0 && (!R_CanShowSkinInDemo(skinnum) || RR_IsPlayerMutedForRndr(vis->mobj)))
+	if (skinnum >= 0 && !R_CanShowSkinInDemo(skinnum))
 	{
 		vis->colormap = R_GetTranslationColormap(TC_BLINK, thing->color, GTC_CACHE);
 	}

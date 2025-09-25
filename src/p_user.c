@@ -77,8 +77,6 @@
 
 #include "radioracers/rr_hud.h"
 #include "radioracers/rr_util.h"
-#include "radioracers/rr_setup.h"
-#include "d_netcmd.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_light.h"
@@ -3870,7 +3868,7 @@ boolean P_SpectatorJoinGame(player_t *player)
 	}
 
 	// a surprise tool that will help us later...
-	text = va("\x82*%s entered the game.", IsPlayerMuted(player-players) ? "???" : player_names[player-players]);
+	text = va("\x82*%s entered the game.", player_names[player-players]);
 
 	if (P_IsMachineLocalPlayer(player) && player->spectatewait > TICRATE)
 		S_StartSound(NULL, sfx_s3ka9);

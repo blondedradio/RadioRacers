@@ -3260,16 +3260,10 @@ void PositionFacesInfo::draw_1p()
 			else
 				colormap = R_GetTranslationColormap(workingskin, static_cast<skincolornum_t>(players[rankplayer[i]].mo->color), GTC_CACHE);
 
-
-			patch_t * muted_facerank = static_cast<patch_t*>(W_CachePatchName("MISSING", GTC_CACHE));
-			const boolean is_muted = IsPlayerMuted(&players[rankplayer[i]] - players);
-
 			if (cv_hud_usehighresportraits.value) {
-				patch_t *highresfacerank = (is_muted) ? muted_facerank : faceprefix[workingskin][FACE_WANTED];
-				V_DrawSmallMappedPatch(FACE_X + xoff, Y + yoff, V_HUDTRANS|V_SLIDEIN|V_SNAPTOLEFT|flipflag, highresfacerank, colormap);
+				V_DrawSmallMappedPatch(FACE_X + xoff, Y + yoff, V_HUDTRANS|V_SLIDEIN|V_SNAPTOLEFT|flipflag, faceprefix[workingskin][FACE_WANTED], colormap);
 			} else {
-				patch_t *facerank = (is_muted) ? muted_facerank : faceprefix[workingskin][FACE_RANK];
-				V_DrawMappedPatch(FACE_X + xoff, Y + yoff, V_HUDTRANS|V_SLIDEIN|V_SNAPTOLEFT|flipflag, facerank, colormap);
+				V_DrawMappedPatch(FACE_X + xoff, Y + yoff, V_HUDTRANS|V_SLIDEIN|V_SNAPTOLEFT|flipflag, faceprefix[workingskin][FACE_RANK], colormap);
 			}
 			
 			if (LUA_HudEnabled(hud_battlebumpers))
@@ -6196,12 +6190,7 @@ static void K_DrawCPUTagForPlayer(fixed_t x, fixed_t y, player_t *p, UINT32 flag
 static void K_DrawNameTagForPlayer(fixed_t x, fixed_t y, player_t *p, UINT32 flags)
 {
 	const INT32 clr = skincolors[p->skincolor].chatcolor;
-	const char* player_name = player_names[p - players];
-
-	if (IsPlayerMuted(p - players))
-		player_name = "???";
-	
-	const INT32 namelen = V_ThinStringWidth(player_name, 0);
+	const INT32 namelen = V_ThinStringWidth(player_names[p - players], 0);
 
 	UINT8 *colormap = V_GetStringColormap(clr);
 	INT32 barx = 0, bary = 0, barw = 0;
@@ -7214,7 +7203,7 @@ static void K_drawKartMinimap(void)
 		{
 			skin = ((skin_t*)mobj->skin)->skinnum;
 
-			workingPic = R_CanShowSkinInDemo(skin) && !RR_IsPlayerMutedForRndr(mobj) ? faceprefix[skin][FACE_MINIMAP] : kp_unknownminimap;
+			workingPic = R_CanShowSkinInDemo(skin) ? faceprefix[skin][FACE_MINIMAP] : kp_unknownminimap;
 
 			if (mobj->color)
 			{

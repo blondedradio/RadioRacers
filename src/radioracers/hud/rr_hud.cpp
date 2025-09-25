@@ -28,7 +28,6 @@
 #include "../../k_color.h" // K_RainbowColor
 #include "../../z_zone.h" // Z_Realloc
 #include "../../i_time.h"
-#include "../../d_netcmd.h"
 
 #include "../../v_draw.hpp" // srb2:Draw
 
@@ -367,10 +366,6 @@ void RR_addPlayerToFinshTicker(player_t *player)
         return std::to_string(position) + "th";
     };
 
-    const char* player_name = player_names[player-players];
-    if (IsPlayerMuted(player-players))
-        player_name = "???";
-    
     /**
      * TODO: 
      *  * Handle player ties
@@ -378,7 +373,7 @@ void RR_addPlayerToFinshTicker(player_t *player)
      */
     playerFinishTickerQueue.push_back(
         {
-            M_GetText(va("%s \x86%s", position_string(player->position).c_str(), player_name)),
+            M_GetText(va("%s \x86%s", position_string(player->position).c_str(), player_names[player-players])),
             P_IsMachineLocalPlayer(player),
             offscreen_right_offset() // Start just off-screen to the right
         }
