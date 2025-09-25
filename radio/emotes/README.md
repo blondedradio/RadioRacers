@@ -2,8 +2,6 @@
 
 ![](./longtime.gif)
 
-A fully realized take on my old [SRB2Kart](https://mb.srb2.org/addons/emotes-kl_emotes-v2-2-pk3.2363/) mod.
-
 ## Controls
 
 ### Menu
