@@ -76,6 +76,7 @@
 #include "byteptr.h"
 
 #include "radioracers/rr_hud.h"
+#include "radioracers/rr_setup.h"
 #include "radioracers/rr_util.h"
 
 #ifdef HWRENDER
