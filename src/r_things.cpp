@@ -862,7 +862,7 @@ UINT8 *R_GetSpriteTranslation(vissprite_t *vis)
 		skinnum = ((skin_t*)vis->mobj->skin)->skinnum;
 
 		// Hide not-yet-unlocked characters in replays from other people
-		if (!R_CanShowSkinInDemo(skinnum) || RR_IsPlayerMutedForRndr(vis->mobj))
+		if (!R_CanShowSkinInDemo(skinnum))
 		{
 			skinnum = TC_BLINK;
 		}

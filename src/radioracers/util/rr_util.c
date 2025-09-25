@@ -22,7 +22,6 @@
 #include "../../k_hud.h"
 #include "../../r_textures.h"
 #include "../../r_fps.h"
-#include "../../d_netcmd.h"
 
 boolean shouldApplyEncore(void)
 {
@@ -162,13 +161,6 @@ boolean RR_ShouldRecolorVoltage(mobj_t *mo)
 				&& mo->target->player == stplyr;
 
     return cv_obvious_voltage.value && r_splitscreen == 0 && isVoltage && hasValidTarget;
-}
-
-boolean RR_IsPlayerMutedForRndr(mobj_t* mo)
-{
-    if (mo->player == NULL)
-        return false;
-    return IsPlayerMuted((mo->player - players));
 }
 
 INT32 RR_FetchAlternateTripwire(INT32 original_textnum)
