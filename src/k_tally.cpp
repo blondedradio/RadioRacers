@@ -202,7 +202,7 @@ static inline boolean IsPerfectExpBonus(UINT16 exp, UINT16 totalExp) {
 }
 
 static inline boolean IsNearlyPerfectExpBonus(UINT16 exp, UINT16 totalExp) {
-	return CalculateExpBonus(exp, totalExp) >= FloatToFixed(0.9f);
+	return CalculateExpBonus(exp, totalExp) >= FloatToFixed(0.98f); //118
 }
 
 INT32 level_tally_t::CalculateGrade(void)
