@@ -343,6 +343,18 @@ player_t *Obj_StoneShoeOwnerPlayer(mobj_t *shoe)
 	return static_cast<Shoe*>(shoe)->ownerPlayer();
 }
 
+// Radio
+player_t* Obj_StoneShoeChainShoeFollowPlayer(mobj_t *chain)
+{
+	return static_cast<Chain*>(chain)->shoe()->follow()->player;
+}
+
+player_t *Obj_StoneShoeFollowPlayer(mobj_t *shoe)
+{
+	return static_cast<Shoe*>(shoe)->follow()->player;
+}
+
+
 void Obj_CollideStoneShoe(mobj_t *mover, mobj_t *mobj)
 {
 	switch (mobj->type)

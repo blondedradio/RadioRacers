@@ -35,6 +35,7 @@
 #include "../../v_video.h"
 #include "../../command.h"
 #include "../../m_random.h"
+#include "../../k_objects.h"
 #include "../../v_draw.hpp" // srb2:Draw
 
 using srb2::Draw;
@@ -474,6 +475,7 @@ static ItemConfigForFeedUpdate getItemConfigForFeedDamageUpdate(mobj_t *mo) {
         case MT_JAWZ:
             return {"RRISJAWZ", 30, 20};
         case MT_BANANA:
+        case MT_BANANA_SHIELD:
             return {"RRISBANA", 18, 19};
         case MT_SPBEXPLOSION: {
             ItemConfigForFeedUpdate spbConfig = {"RRISSPB", 21, 22, {false, true}, .y_offset = -2};
@@ -489,6 +491,7 @@ static ItemConfigForFeedUpdate getItemConfigForFeedDamageUpdate(mobj_t *mo) {
         case MT_LANDMINE:
             return {"RRISLNDM", 20, 20};
         case MT_BALLHOG:
+        case MT_BALLHOGBOOM:
             return {"RRISBHOG", 26, 19};
         case MT_SSMINE:
         case MT_SSMINE_SHIELD:
@@ -497,6 +500,9 @@ static ItemConfigForFeedUpdate getItemConfigForFeedDamageUpdate(mobj_t *mo) {
             return {"RRISGTOP", 30, 19};
         case MT_INSTAWHIP:
             return {"RRINSTW", 55, 57, {true, false, 6, 2}, .15f};
+        case MT_STONESHOE:
+        case MT_STONESHOE_CHAIN:
+            return {"RRISSHO", 23, 20};
         default:
             break;
     }
@@ -584,6 +590,10 @@ static ItemConfigForFeedUpdate getItemConfigForFeedAttackUpdate(playerattacks_t 
                     .flashing_colour = SKINCOLOR_BLUEBERRY
                 }
             };
+        case ATTACK_STONESHOE_TRAP:
+            return {.patch = "RRISSHTR", .width = 30, .height = 26, .patch_scale = .4f, .y_offset = -2};
+        case ATTACK_TOXOMISTER_CLOUD:
+            return {"RRISTOXO", 23, 22};
         default:
             break;
     }
@@ -621,7 +631,6 @@ static playerattacks_t getPlayerAttackType(mobj_t* mo) {
         return ATTACK_INVINCIBILITY;
     }
     if(p->growshrinktimer > 0) {
-        CONS_Printf("hello again\n");
         return ATTACK_GROW;
     }
 
@@ -686,6 +695,20 @@ void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor
 
     player_t* source_plyr = source->player;
     player_t* target_plyr = target->player;
+
+    // Amps are awarded to both the Stone Shoe owner AND the victim whenever someone gets damaged
+    if(inflictor->type == MT_STONESHOE_CHAIN || inflictor->type == MT_STONESHOE) {
+        player_t* stone_shoe_owner;
+        if (inflictor->type == MT_STONESHOE_CHAIN) {
+            stone_shoe_owner = Obj_StoneShoeChainShoeFollowPlayer(inflictor);
+        } else {
+            stone_shoe_owner = Obj_StoneShoeFollowPlayer(inflictor);
+        }
+        if (!stone_shoe_owner)
+            return;
+        
+        source_plyr = stone_shoe_owner;
+    }
 
     std::string attacker = player_names[source_plyr-players];
     std::string victim = player_names[target_plyr-players];
