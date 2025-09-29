@@ -26,6 +26,9 @@
 #include "../r_main.h"
 #include "../tables.h"
 
+// Radio
+#include "../radioracers/rr_hud.h"
+
 using namespace srb2::objects;
 
 namespace
@@ -383,6 +386,9 @@ struct Cloud : Mobj
 			}
 
 			P_SetTarget(&toucher->player->toxomisterCloud, this);
+
+			// Radio
+			RR_PushPlayerInteractionToFeed(target(), toucher, ATTACK_TOXOMISTER_CLOUD);
 		}
 
 		toucher->hitlag(8);

@@ -479,6 +479,9 @@ boolean Obj_TickStoneShoeChain(mobj_t *chain);
 player_t *Obj_StoneShoeOwnerPlayer(mobj_t *shoe);
 void Obj_CollideStoneShoe(mobj_t *mover, mobj_t *mobj);
 
+player_t *Obj_StoneShoeFollowPlayer(mobj_t *shoe);
+player_t *Obj_StoneShoeChainShoeFollowPlayer(mobj_t *chain);
+
 /* Toxomister */
 void Obj_InitToxomisterPole(mobj_t *pole);
 boolean Obj_TickToxomisterPole(mobj_t *pole);

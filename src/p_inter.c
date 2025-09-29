@@ -462,6 +462,9 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 					{
 						K_SpawnAmps(player, K_PvPAmpReward(20, owner, player), toucher);
 						K_SpawnAmps(owner, K_PvPAmpReward(20, owner, player), toucher);
+
+						// Radio
+						RR_PushPlayerInteractionToFeed(owner->mo, toucher, ATTACK_STONESHOE_TRAP);
 					}
 				}
 				else
@@ -3586,6 +3589,8 @@ static boolean P_DamageMobjCompat(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 			// RadioRacers: .. right around here
 			if (inflictor) {
 				RR_PushPlayerDamageToFeed(source, target, inflictor);
+			} else {
+				CONS_Printf("no inflictor?\n");
 			}
 		}
 	}
