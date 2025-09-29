@@ -50,9 +50,9 @@ In the Server Browser, you can "peek" into a server to view key details, such as
 ## Getting Started
 1. Get the [**latest copy**](https://www.kartkrew.org/) of Dr. Robontik's Ring Racers installed on your system.
 2. Download the latest assets (`radioracers_assets.zip`) for this build [here](https://github.com/blondedradio/RadioRacers/releases/latest-radio-assets/).
-3. Extract the `radioracers_assets.zip` into the <span style="font-size: 1.4rem">***same directory***</span> where you installed Ring Racers.
+3. Extract the `radioracers_assets.zip` into the ***same directory*** where you installed Ring Racers.
      - If you've installed Ring Racers in `C:\Games\Ring Racers`, then **that's** the folder you want to extract the zip file in.
-4. [Compile](#compiling) the build (`ringracers_radioracers.exe`) and copy it into the <span style="font-size: 2rem">***same directory***</span> where you installed Ring Racers.
+4. [Compile](#compiling) the build (`ringracers_radioracers.exe`) and copy it into the ***same directory*** where you installed Ring Racers.
 5. Run `ringracers_radioracers.exe`.
 
 ### Compiling
