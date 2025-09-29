@@ -14,12 +14,45 @@ Compatible with vanilla Ring Racers; all changes made so far are client-side.
 
 > Many thanks to [GenericHeroGuy](https://github.com/GenericHeroGuy) for his work on [`pk3make.py`](https://github.com/GenericHeroGuy/ringracers-scripts), which is used to automate the building process for the assets.
 
+## Features
+
+Including, but not limited to:
+
+<details>
+<summary>Hudfeed</summary>
+<img src="./radio/readme/hudfeed.gif">
+
+A live feed that displays in-game events, including player interactions and race statistics, such as grades. 
+
+Both its position within the HUD and content can be customized in the settings.
+</details>
+
+<details>
+<summary>Emotes</summary>
+
+<img src="./radio/readme/emotes.gif" width="500">
+
+Support for chat emotes, both animated and static. A set of default emotes is included.
+
+For details on customization, such as adding your own emotes and usability tips, check the [readme](./radio/emotes/README.md).
+</details>
+
+<details>
+<summary>Peek</summary>
+
+<img src="./radio/readme/peekaboo.gif" width="500">
+
+In the Server Browser, you can "peek" into a server to view key details, such as the current level and connected players.
+</details>
+
+...and [more](https://github.com/blondedradio/RadioRacers/pulls).
+
 ## Getting Started
 1. Get the [**latest copy**](https://www.kartkrew.org/) of Dr. Robontik's Ring Racers installed on your system.
 2. Download the latest assets (`radioracers_assets.zip`) for this build [here](https://github.com/blondedradio/RadioRacers/releases/latest-radio-assets/).
 3. Extract the `radioracers_assets.zip` into the <span style="font-size: 1.4rem">***same directory***</span> where you installed Ring Racers.
      - If you've installed Ring Racers in `C:\Games\Ring Racers`, then **that's** the folder you want to extract the zip file in.
-4. [Compile](#compiling) the build (`ringracers_radioracers.exe`) and copy it into the <span style="font-size: 1.6rem">***same directory***</span> where you installed Ring Racers.
+4. [Compile](#compiling) the build (`ringracers_radioracers.exe`) and copy it into the <span style="font-size: 2rem">***same directory***</span> where you installed Ring Racers.
 5. Run `ringracers_radioracers.exe`.
 
 ### Compiling
@@ -30,13 +63,6 @@ If you're on Windows 10 (or above), try following [this](https://blondedradio.gi
 
 However, if you grab a build from — say — a random Discord channel, *please* encourage whoever shared it to include [MD5 hashes](https://linuxsecurity.com/features/what-are-checksums-why-should-you-be-using-them) with the executable. It's spooky out here.
 
-## Features
-
-Take a gander at the [pull requests](https://github.com/blondedradio/RadioRacers/pulls).
-
-## "How do I get emotes working?????? :middle_finger::angry::anger:"
-
-Give [this](/radio/emotes/README.md) a read.
 
 ---
 

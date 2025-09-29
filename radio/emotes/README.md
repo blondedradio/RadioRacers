@@ -127,7 +127,6 @@ Altogether, here's how the final result should look inside the PK3:
 Let's say you'd want to add multiple static emotes at once, same width, same height:
 
 ![A row of multiple heart emojis](multiple_hearts.png)
-> Get it? Cos Earthbound invented hearts!
 
 Using your favourite image editor, you can compile the images into a single "atlas", like so:
 
@@ -190,9 +189,7 @@ Altogether, here's how the final result should look inside the PK3:
 ![alt text](animated_configured.png)
 </details>
 
-## "STFU!!11 How do I add my own? :middle_finger::rage::middle_finger:"
-
-> TL;DR Consider using [radiolib](https://github.com/blondedradio/radiolib).
+## How do I add my own?
 
 That's what `radioracers_plus.pk3` is for. By default, it's empty.  
 
@@ -207,6 +204,6 @@ So, all <span style="font-size: 2rem">you</span> have to do is:
 
 Manually, this can be _very_ time-consuming and is prone to human-error.  
 
-Therefore, I'd recommend using [radiolib](https://github.com/blondedradio/radiolib) to get the job done.
+If you're willing to install [Python 3](https://www.python.org/downloads/), I'd recommend using [radiolib](https://github.com/blondedradio/radiolib) to get the job done.
 
 
