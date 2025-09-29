@@ -36,6 +36,7 @@ constexpr const int SHIFT_X = 17; // To the left, to the left
 
 const std::vector start_boost_patches = {"DBOSA5", "DBOSB5", "DBOSC5"};
 const std::vector drift_patches = {"DRIFC3C7", "DRIFD3D7", "DRIFA3A7"};
+const std::vector stun_patches = {"STUNA3A7", "STUNB3B7", "STUNC3C7", "STUND3D7", "STUNE3E7"};
 const std::vector voltage_patches = {"TRC3B0", "TRC3C0", "TRC3D0", "TRC3E0", "TRC3F0"};
 
 // STRUCTS
@@ -94,6 +95,24 @@ std::vector<ItemTimer> getTimers(void) {
 
     // Hyuu
     timers.push_back({stplyr->hyudorotimer, "K_ISHYUD"});
+
+    // Stone Shoe
+    if(stplyr->stoneShoe && !P_MobjWasRemoved(stplyr->stoneShoe))
+        timers.push_back({stplyr->stoneShoe->fuse, "K_ISSTON"});
+
+    // Toxomister
+    if (stplyr->toxomisterCloud && !P_MobjWasRemoved(stplyr->toxomisterCloud))
+        timers.push_back({stplyr->toxomisterCloud->fuse, "K_ISTOX"});
+
+    // Stun
+    if (stplyr->stunned > 0 && !P_MobjWasRemoved(stplyr->flybot)) {
+        timers.push_back({
+            stplyr->stunned,
+            stun_patches[(leveltime % stun_patches.size())],
+            0.3,
+            {14, 12} 
+        });
+    }
 
     // Drift charge
     

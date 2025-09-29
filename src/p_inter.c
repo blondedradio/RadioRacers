@@ -3588,8 +3588,6 @@ static boolean P_DamageMobjCompat(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 			// RadioRacers: .. right around here
 			if (inflictor) {
 				RR_PushPlayerDamageToFeed(source, target, inflictor);
-			} else {
-				CONS_Printf("no inflictor?\n");
 			}
 		}
 	}
