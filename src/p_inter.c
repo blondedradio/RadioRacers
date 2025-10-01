@@ -3584,11 +3584,6 @@ static boolean P_DamageMobjCompat(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 			}
 
 			K_DefensiveOverdrive(target->player);
-
-			// RadioRacers: .. right around here
-			if (inflictor) {
-				RR_PushPlayerDamageToFeed(source, target, inflictor);
-			}
 		}
 	}
 	else
@@ -4436,6 +4431,11 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 da
 			}
 
 			K_DefensiveOverdrive(target->player);
+
+			// RadioRacers: .. right around here
+			if (inflictor) {
+				RR_PushPlayerDamageToFeed(source, target, inflictor);
+			}
 		}
 	}
 	else
