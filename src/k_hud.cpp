@@ -5909,40 +5909,46 @@ static void K_drawKartPlayerCheck(void)
 		// Otherwise, too far away
 		if (distance < maxdistance)
 		{
-			boolean is_charging = checkplayer->instaWhipCharge >= INSTAWHIP_CHARGETIME;
+			// boolean is_charging = checkplayer->instaWhipCharge >= INSTAWHIP_CHARGETIME;
 
-			fixed_t patch_scale = FRACUNIT;
+			// fixed_t patch_scale = FRACUNIT;
 			
-			if (is_charging && (leveltime % 2) == 0) {
-				patch_scale = FloatToFixed(1.3f);
+			// if (is_charging && (leveltime % 2) == 0) {
+			// 	patch_scale = FloatToFixed(1.3f);
+			// }
+
+			if ((checkplayer->invincibilitytimer <= 0) && (leveltime & 2) && !(cv_reducevfx.value))
+			{
+				pnum++; // white frames
 			}
 
-		if ((checkplayer->invincibilitytimer <= 0) && (leveltime & 2) && !(cv_reducevfx.value))
-		{
-			pnum++; // white frames
+			if (checkplayer->itemtype == KITEM_GROW || checkplayer->growshrinktimer > 0)
+			{
+				pnum += 4;
+			}
+			else if (checkplayer->itemtype == KITEM_INVINCIBILITY || checkplayer->invincibilitytimer)
+			{
+				pnum += 2;
+			}
+			else if ((checkplayer->instaWhipCharge) && !(cv_reducevfx.value))
+			{
+				if (leveltime & 2)
+					R_GetTranslationColormap(TC_DEFAULT, static_cast<skincolornum_t>(SKINCOLOR_WHITE), GTC_CACHE);
+				else
+					R_GetTranslationColormap(TC_DEFAULT, static_cast<skincolornum_t>(SKINCOLOR_BLACK), GTC_CACHE);
+			}
+
+			K_ObjectTracking(&result, &v, true);
+
+			if (result.onScreen == true)
+			{
+					V_DrawFixedPatch(result.x, y, FRACUNIT, V_HUDTRANS|V_SPLITSCREEN|splitflags, kp_check[pnum], colormap);
+			}
 		}
 
-		if (checkplayer->itemtype == KITEM_GROW || checkplayer->growshrinktimer > 0)
-		{
-			pnum += 4;
-		}
-		else if (checkplayer->itemtype == KITEM_INVINCIBILITY || checkplayer->invincibilitytimer)
-		{
-			pnum += 2;
-		}
-		else if ((checkplayer->instaWhipCharge) && !(cv_reducevfx.value))
-		{
-			if (leveltime & 2)
-				R_GetTranslationColormap(TC_DEFAULT, static_cast<skincolornum_t>(SKINCOLOR_WHITE), GTC_CACHE);
-			else
-				R_GetTranslationColormap(TC_DEFAULT, static_cast<skincolornum_t>(SKINCOLOR_BLACK), GTC_CACHE);
-		}
-
-		K_ObjectTracking(&result, &v, true);
-
-		if (result.onScreen == true)
-		{
-			V_DrawFixedPatch(result.x, y, FRACUNIT, V_HUDTRANS|V_SPLITSCREEN|splitflags, kp_check[pnum], colormap);
+		// RADIO: Draw *dangerous* player checks
+		if (cv_show_dangerous_player_check.value && result.onScreen == false) {
+			RR_DrawDangerousPlayerCheck(checkplayer, distance, &result);	
 		}
 
 	}

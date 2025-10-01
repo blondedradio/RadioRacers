@@ -374,7 +374,6 @@ void K_ApplyStun(player_t *player, mobj_t *inflictor, mobj_t *source, INT32 dama
 
 boolean K_CanSuperTransfer(player_t *player);
 
-fixed_t K_GetGradingFactorAdjustment(player_t *player);
 fixed_t K_GetGradingFactorMinMax(player_t *player, boolean max);
 UINT16 K_GetEXP(player_t *player);
 
