@@ -1442,6 +1442,9 @@ static void IdentifyVersion(void)
 	snprintf(configfile, sizeof configfile, "%s" PATHSEP CONFIGFILENAME, srb2waddir);
 	configfile[sizeof configfile - 1] = '\0';
 
+	snprintf(configfile_radio, sizeof configfile_radio, "%s" PATHSEP RADIOCONFIGFILENAME, srb2waddir);
+	configfile_radio[sizeof configfile_radio - 1] = '\0';
+
 	D_AddFile(startupiwads, num_startupiwads++, va(spandf,srb2waddir,"data","scripts.pk3"), ASSET_HASH_SCRIPTS_PK3);
 	D_AddFile(startupiwads, num_startupiwads++, va(spandf,srb2waddir,"data","gfx.pk3"), ASSET_HASH_GFX_PK3);
 	D_AddFile(startupiwads, num_startupiwads++, va(spandf,srb2waddir,"data","textures_general.pk3"), ASSET_HASH_TEXTURES_GENERAL_PK3);
@@ -1638,10 +1641,12 @@ void D_SRB2Main(void)
 #if ((defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)
 			I_Error("Please set $HOME to your home directory\n");
 #else
-			if (dedicated)
+			if (dedicated) {
 				snprintf(configfile, sizeof configfile, "d" CONFIGFILENAME);
-			else
+			} else {
 				snprintf(configfile, sizeof configfile, CONFIGFILENAME);
+				snprintf(configfile_radio, sizeof configfile_radio, RADIOCONFIGFILENAME);
+			}
 #endif
 		}
 		else
@@ -1649,10 +1654,12 @@ void D_SRB2Main(void)
 			// use user specific config file
 #ifdef DEFAULTDIR
 			snprintf(srb2home, sizeof srb2home, "%s" PATHSEP DEFAULTDIR, userhome);
-			if (dedicated)
+			if (dedicated) {
 				snprintf(configfile, sizeof configfile, "%s" PATHSEP "d" CONFIGFILENAME, srb2home);
-			else
+			} else {
 				snprintf(configfile, sizeof configfile, "%s" PATHSEP CONFIGFILENAME, srb2home);
+				snprintf(configfile_radio, sizeof configfile_radio, "%s" PATHSEP RADIOCONFIGFILENAME, srb2home);
+			}
 
 			// can't use sprintf since there is %u in savegamename
 			strcatbf(savegamename, srb2home, PATHSEP);
@@ -1661,10 +1668,12 @@ void D_SRB2Main(void)
 			snprintf(luafiledir, sizeof luafiledir, "%s" PATHSEP "luafiles", srb2home);
 #else // DEFAULTDIR
 			snprintf(srb2home, sizeof srb2home, "%s", userhome);
-			if (dedicated)
+			if (dedicated) {
 				snprintf(configfile, sizeof configfile, "%s" PATHSEP "d"CONFIGFILENAME, userhome);
-			else
+			} else {
 				snprintf(configfile, sizeof configfile, "%s" PATHSEP CONFIGFILENAME, userhome);
+				snprintf(configfile_radio, sizeof configfile_radio, "%s" PATHSEP RADIOCONFIGFILENAME, userhome);
+			}
 
 			// can't use sprintf since there is %u in savegamename
 			strcatbf(savegamename, userhome, PATHSEP);
@@ -1675,6 +1684,7 @@ void D_SRB2Main(void)
 		}
 
 		configfile[sizeof configfile - 1] = '\0';
+		configfile_radio[sizeof configfile_radio - 1] = '\0';
 	}
 
 	// If config isn't writable, tons of behavior will be broken.

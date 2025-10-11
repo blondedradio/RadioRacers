@@ -65,6 +65,7 @@ void M_StopMovie(void);
 
 // the file where game vars and settings are saved
 #define CONFIGFILENAME "ringconfig.cfg"
+#define RADIOCONFIGFILENAME "radioconfig.cfg"
 
 // The file where we'll save the last IPs we joined
 #define IPLOGFILE "ringsavedips.txt"
@@ -170,6 +171,9 @@ const char * M_Ftrim (double);
 FUNCMATH UINT8 M_CountBits(UINT32 num, UINT8 size);
 
 extern char configfile[MAX_WADPATH];
+
+// Radio
+extern char configfile_radio[MAX_WADPATH];
 
 #ifdef __cplusplus
 } // extern "C"
