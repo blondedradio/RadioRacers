@@ -7556,7 +7556,7 @@ static void K_drawKartStartCountdown(void)
 
 	if (leveltime >= introtime && leveltime < starttime-(3*TICRATE))
 	{
-		if (!cv_hud_hideposition.value)
+		if (cv_hud_hideposition.value)
 			return;
 		
 		if (numbulbs > 1)
@@ -7565,7 +7565,7 @@ static void K_drawKartStartCountdown(void)
 	else
 	{
 
-		if (!cv_hud_hidecountdown.value)
+		if (cv_hud_hidecountdown.value)
 			return;
 
 		if (leveltime >= starttime-(2*TICRATE)) // 2

@@ -2459,7 +2459,7 @@ void CV_SaveVariables(FILE *f)
 	consvar_t *cvar;
 
 	for (cvar = consvar_vars; cvar; cvar = cvar->next)
-		if (cvar->flags & CV_SAVE)
+		if (!cvar->is_radio_cvar && cvar->flags & CV_SAVE)
 		{
 			char stringtowrite[MAXTEXTCMD+1];
 
@@ -2502,6 +2502,62 @@ void CV_SaveVariables(FILE *f)
 			fprintf(f, "%s \"%s\"\n", cvar->name, string);
 		}
 }
+
+/**
+ * See CV_SaveVariables.
+ * Same functionality, filters cvars with the radio flag.
+ * 
+ * \param f File to save to.
+ */
+void CV_SaveRadioVariables(FILE *f)
+{
+	consvar_t *cvar;
+
+	for (cvar = consvar_vars; cvar; cvar = cvar->next)
+		if (cvar->is_radio_cvar && (cvar->flags & CV_SAVE))
+		{
+			char stringtowrite[MAXTEXTCMD+1];
+
+			const char * string;
+
+			if (cvar->revert.v.string != NULL)
+			{
+				string = cvar->revert.v.string;
+			}
+			else
+			{
+				string = cvar->string;
+			}
+
+			// Silly hack for Min/Max vars
+#define MINVAL 0
+#define MAXVAL 1
+			if (
+					cvar->PossibleValue != NULL &&
+					cvar->PossibleValue[0].strvalue &&
+					stricmp(cvar->PossibleValue[0].strvalue, "MIN") == 0
+			){ // bounded cvar
+				int which = stricmp(string, "MAX") == 0;
+
+				if (which || stricmp(string, "MIN") == 0)
+				{
+					INT32 value = cvar->PossibleValue[which].value;
+
+					if (cvar->flags & CV_FLOAT)
+						sprintf(stringtowrite, "%f", FIXED_TO_FLOAT(value));
+					else
+						sprintf(stringtowrite, "%d", value);
+
+					string = stringtowrite;
+				}
+			}
+#undef MINVAL
+#undef MAXVAL
+
+			fprintf(f, "%s \"%s\"\n", cvar->name, string);
+		}
+}
+
 
 //============================================================================
 //                            SCRIPT PARSE

@@ -549,6 +549,7 @@ void M_LoadJoinedIPs(void)
 //
 
 char configfile[MAX_WADPATH];
+char configfile_radio[MAX_WADPATH];
 
 // ==========================================================================
 //                          CONFIGURATION
@@ -688,6 +689,9 @@ void M_FirstLoadConfig(void)
 		COM_BufAddText (va("%s \"%s\"\n",cv_playercolor[i].name,cv_playercolor[i].defaultvalue));
 	}
 #endif
+
+	// Load the Radio config
+	COM_BufInsertText(va("exec \"%s\" -immediate\n", configfile_radio));
 }
 
 /** Saves the game configuration.
@@ -786,6 +790,47 @@ void M_SaveConfig(const char *filename)
 		catch (const fs::filesystem_error& ex)
 		{
 			CONS_Alert(CONS_ERROR, M_GetText("Failed to move temp config file to real destination\n"));
+		}
+	}
+
+	// Radio custom config file
+	if (!filename && !dedicated) {
+		FILE *cf;
+		char custom_tmppath[2048];
+
+		// The earlier else-conditional is triggered whenever the game quits, which is when the custom config should be saved.
+		sprintf(custom_tmppath, "%s.tmp", configfile_radio);
+
+		cf = fopen(custom_tmppath, "w");
+		if (!cf)
+		{
+			CONS_Alert(CONS_ERROR, M_GetText("Couldn't save Radio config file %s\n"), configfile_radio);
+			return;
+		}
+
+		// header message
+		fprintf(cf, "// RadioRacers configuration file.\n");
+
+		// Save the Radio-only cvars
+		CV_SaveRadioVariables(cf);
+		fclose(cf);
+
+		{
+			// Atomically replace the old config once the new one has been written.
+
+			namespace fs = std::filesystem;
+
+			fs::path custom_tmp{custom_tmppath};
+			fs::path custom_real{configfile_radio};
+
+			try
+			{
+				fs::rename(custom_tmp, custom_real);
+			}
+			catch (const fs::filesystem_error& ex)
+			{
+				CONS_Alert(CONS_ERROR, M_GetText("Failed to move temp Radio config file to real destination\n"));
+			}
 		}
 	}
 }

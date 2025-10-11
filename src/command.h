@@ -179,6 +179,9 @@ struct consvar_t //NULL, NULL, 0, NULL, NULL |, 0, NULL, NULL, 0, 0, NULL
 	char changed;         // has variable been changed by the user? 0 = no, 1 = yes
 	consvar_t *next;
 
+	// Radio only
+	boolean is_radio_cvar; // By default, this is empty/false
+
 #ifdef __cplusplus
 	struct Builder;
 
@@ -277,6 +280,9 @@ void CV_AddValue(consvar_t *var, INT32 increment);
 
 // write all CV_SAVE variables to config file
 void CV_SaveVariables(FILE *f);
+
+// write all CV_SAVE variables to RADIO config file
+void CV_SaveRadioVariables(FILE *f);
 
 // load/save gamesate (load and save option and for network join in game)
 void CV_SaveVars(UINT8 **p, boolean in_demo);
