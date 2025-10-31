@@ -7,7 +7,7 @@
 <p align="right">RadioRacers <span style="font-size: 0.8rem !important">(this is for SEO)</span></p>
 
 A [Dr. Robotnik's Ring Racers](https://www.kartkrew.org/) fork.
-<br><small>Last updated for **v2.4 RC7**.</small>
+<br><small>Last updated for **v2.4 RC8**.</small>
 
 This build &ndash; like _all_ software &ndash; is always a work in progress.</br>
 Compatible with vanilla Ring Racers; all changes made so far are client-side.
