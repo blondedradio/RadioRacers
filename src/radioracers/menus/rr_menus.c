@@ -27,6 +27,9 @@ static menuitem_t OPTIONS_RadioRacersHudRace[] =
 	{IT_STRING | IT_CVAR, "Nametags", "Toggle in-game nametags.",
 		NULL, {.cvar = &cv_toggle_nametags}, 0, 0},   
 		
+	{IT_STRING | IT_CVAR, "EXP on Split", "Show/hide EXP gained during checkpoint splits.",
+		NULL, {.cvar = &cv_showexponsplit}, 0, 0},   
+		
 	{IT_STRING | IT_CVAR, "Position Number", "Toggle position number on the bottom-right.",
 		NULL, {.cvar = &cv_toggle_position_number}, 0, 0},   
 
@@ -138,7 +141,10 @@ static menuitem_t OPTIONS_RadioRacersHudfeed[] =
 		NULL, {.cvar = &cv_hudfeed_show_grades}, 0, 0},
 
 	{IT_STRING | IT_CVAR, "Show Snipes?", "Show any snipes (SEGA!) in the feed?",
-		NULL, {.cvar = &cv_hudfeed_show_snipes}, 0, 0}
+		NULL, {.cvar = &cv_hudfeed_show_snipes}, 0, 0},
+
+	{IT_STRING | IT_CVAR, "Show Amps?", "Show amps gained in the feed?",
+		NULL, {.cvar = &cv_hudfeed_show_amps}, 0, 0}
 };
 
 void RadioHudfeedMenu_Init(void)
@@ -148,6 +154,7 @@ void RadioHudfeedMenu_Init(void)
 		OPTIONS_RadioRacersHudfeed[4].status = IT_GRAYEDOUT;
 		OPTIONS_RadioRacersHudfeed[5].status = IT_GRAYEDOUT;
 		OPTIONS_RadioRacersHudfeed[6].status = IT_GRAYEDOUT;
+		OPTIONS_RadioRacersHudfeed[7].status = IT_GRAYEDOUT;
 	}
 }
 

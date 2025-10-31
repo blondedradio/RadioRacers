@@ -334,9 +334,9 @@ typedef enum
     EVENT_GRADE
 } globalfeedevent_t;
 
-extern void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor);
+extern void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor, UINT8 amps);
 extern void RR_PushPlayerDeathToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor);
-extern void RR_PushPlayerInteractionToFeed(mobj_t *source, mobj_t *target, playerattacks_t attack);
+extern void RR_PushPlayerInteractionToFeed(mobj_t *source, mobj_t *target, playerattacks_t attack, UINT8 amps);
 extern void RR_PushGlobalEventToFeed(player_t* player, globalfeedevent_t event);
 extern void RR_PushGlobalGradeEventToFeed(player_t* player, gp_rank_e rank, boolean perfectRace);
 extern void RR_PushGlobalFaultEventToFeed(player_t* player);

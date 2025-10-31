@@ -629,7 +629,7 @@ boolean Obj_ShrinkLaserCollide(mobj_t *gun, mobj_t *victim)
 
 			// RadioRacers: .. right around here
 			if (owner != NULL) {
-				RR_PushPlayerInteractionToFeed(owner->mo, victim, ATTACK_SHRINK);
+				RR_PushPlayerInteractionToFeed(owner->mo, victim, ATTACK_SHRINK, 0);
 			}
 
 			if (prevTimer >= 0)

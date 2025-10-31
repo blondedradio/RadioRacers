@@ -8847,6 +8847,23 @@ void K_drawKartHUD(void)
 
 				// vibes offset TWO
 				row.colormap(textcolor).colorize(textcolor).x(15).text(text);
+
+				// Radio, add cvar check
+				// never supporting splitscreen
+				if (!splitscreen && cv_showexponsplit.value && stplyr->expsplit > 0) {
+					row
+                    .y(15)
+                    .scale(.9f)
+                    .colormap(R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MUSTARD, GTC_CACHE))
+                    .patch(kp_exp[1]);
+					row
+						.x(15)
+						.y(15)
+						.font(Draw::Font::kPing)
+						.colorize(SKINCOLOR_MUSTARD)
+						.flags(V_20TRANS)
+						.text(va("+%d", stplyr->expsplit));
+				}
 			}
 
 			// RADIO - 2.4 removed timestamps

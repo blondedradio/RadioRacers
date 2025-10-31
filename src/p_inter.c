@@ -460,11 +460,12 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 					player_t *owner = Obj_StoneShoeOwnerPlayer(special);
 					if (owner)
 					{
-						K_SpawnAmps(player, K_PvPAmpReward(20, owner, player), toucher);
-						K_SpawnAmps(owner, K_PvPAmpReward(20, owner, player), toucher);
+						UINT8 stoneShoeAmps = K_PvPAmpReward(20, owner, player);
+						K_SpawnAmps(player, stoneShoeAmps, toucher);
+						K_SpawnAmps(owner, stoneShoeAmps, toucher);
 
 						// Radio
-						RR_PushPlayerInteractionToFeed(owner->mo, toucher, ATTACK_STONESHOE_TRAP);
+						RR_PushPlayerInteractionToFeed(owner->mo, toucher, ATTACK_STONESHOE_TRAP, stoneShoeAmps);
 					}
 				}
 				else
@@ -713,8 +714,11 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			if (K_TryPickMeUp(special, toucher, false))
 				return;
 
+			UINT8 bubbleShieldTrapAmps = 0;
+
 			if (special->target && !P_MobjWasRemoved(special->target) && toucher->player && (toucher->player != (special->target->player))) // Last condition here is so you can't get your own amps
 			{
+				bubbleShieldTrapAmps = K_PvPAmpReward(20, special->target->player, toucher->player);
 				K_SpawnAmps(special->target->player, K_PvPAmpReward(20, special->target->player, toucher->player), toucher);
 			}
 
@@ -735,7 +739,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			S_StartSound(toucher, sfx_s1b2);
 
 			// Radio: Push to the feed, after the player hears the sound
-			RR_PushPlayerInteractionToFeed(special->target, toucher, ATTACK_BUBBLESHIELD_TRAP);
+			RR_PushPlayerInteractionToFeed(special->target, toucher, ATTACK_BUBBLESHIELD_TRAP, bubbleShieldTrapAmps);
 			return;
 
 		case MT_HYUDORO:
@@ -3716,6 +3720,9 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 da
 
 	INT32 laglength = 6;
 
+	// Radio
+	UINT8 ampsForHudfeed = 0;
+
 	if (objectplacing)
 		return false;
 
@@ -4152,6 +4159,7 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 da
 					if (!P_PlayerInPain(player) && (player->defenseLockout || player->instaWhipCharge))
 					{
 						K_SpawnAmps(source->player, 20, target);
+						ampsForHudfeed = 20;
 					}
 				}
 			}
@@ -4162,10 +4170,13 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 da
 				if (source && source != player->mo && source->player)
 				{
 					// Stone Shoe handles amps on its own, but this is also a good place to set soften tumble for it
-					if (inflictor->type == MT_STONESHOE || inflictor->type == MT_STONESHOE_CHAIN)
+					if (inflictor->type == MT_STONESHOE || inflictor->type == MT_STONESHOE_CHAIN) {
 						softenTumble = true;
-					else
-						K_SpawnAmps(source->player, K_PvPAmpReward((truewhumble) ? 30 : 20, source->player, player), target);
+					} else {
+						UINT8 whumbleAmps = K_PvPAmpReward((truewhumble) ? 30 : 20, source->player, player);
+						ampsForHudfeed = whumbleAmps;
+						K_SpawnAmps(source->player, whumbleAmps, target);
+					}
 
 
 					K_BotHitPenalty(player);
@@ -4437,7 +4448,7 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 da
 
 			// RadioRacers: .. right around here
 			if (inflictor) {
-				RR_PushPlayerDamageToFeed(source, target, inflictor);
+				RR_PushPlayerDamageToFeed(source, target, inflictor, ampsForHudfeed);
 			}
 		}
 	}

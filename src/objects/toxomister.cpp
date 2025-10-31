@@ -325,7 +325,13 @@ struct Cloud : Mobj
 
 		if (fuse < kMaxFuse && (kMaxFuse - fuse) % 20 == 0 && Mobj::valid(target()) && target()->player && follow()->player)
 		{
-			K_SpawnAmps(target()->player, K_PvPAmpReward(2, target()->player, follow()->player), this);
+			UINT8 toxicAmps = K_PvPAmpReward(2, target()->player, follow()->player);
+			K_SpawnAmps(target()->player, toxicAmps, this);
+			// Radio
+			// only push this to the feed
+			if(cv_hudfeed_show_amps.value && target()->player == stplyr) {
+				RR_PushPlayerInteractionToFeed(target(), follow(), ATTACK_TOXOMISTER_CLOUD, toxicAmps);
+			}
 		}
 
 		follow()->player->stunned = fuse; // stunned as long as cloud is here
@@ -388,7 +394,13 @@ struct Cloud : Mobj
 			P_SetTarget(&toucher->player->toxomisterCloud, this);
 
 			// Radio
-			RR_PushPlayerInteractionToFeed(target(), toucher, ATTACK_TOXOMISTER_CLOUD);
+			// unless you're the display player, don't push this to the feed
+			// the OTHER hudfeed notification will be pushed when they're actively getting amps
+			if(
+				!cv_hudfeed_show_amps.value || 
+				(cv_hudfeed_show_amps.value && Mobj::valid(target()) && target()->player && target()->player != stplyr)) {
+				RR_PushPlayerInteractionToFeed(target(), toucher, ATTACK_TOXOMISTER_CLOUD, 0);
+			}
 		}
 
 		toucher->hitlag(8);

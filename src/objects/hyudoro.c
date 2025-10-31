@@ -602,8 +602,11 @@ hyudoro_patrol_hit_player
 
 	P_SetTarget(&hyudoro_target(hyu), master);
 
-	if (master && !P_MobjWasRemoved(master))
-		K_SpawnAmps(master->player, K_PvPAmpReward(20, master->player, player), toucher);
+	UINT8 hyuAmps = 0;
+	if (master && !P_MobjWasRemoved(master)) {
+		hyuAmps = K_PvPAmpReward(20, master->player, player);
+		K_SpawnAmps(master->player, hyuAmps, toucher);
+	}
 
 	if (center)
 		P_RemoveMobj(center);
@@ -619,7 +622,7 @@ hyudoro_patrol_hit_player
 	P_SetMobjState(hyu, S_HYUDORO_RETURNING);
 
 	// Radio
-	RR_PushPlayerInteractionToFeed(master, toucher, ATTACK_HYUDORO);
+	RR_PushPlayerInteractionToFeed(master, toucher, ATTACK_HYUDORO, hyuAmps);
 
 	return true;
 }

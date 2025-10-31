@@ -721,6 +721,8 @@ void Obj_CrossCheckpoints(player_t* player, fixed_t old_x, fixed_t old_y)
 	if (player->exp > oldexp)
 	{
 		UINT16 expdiff = (player->exp - oldexp);
+		// Radio
+		player->expsplit = expdiff; 
 		K_SpawnEXP(player, expdiff, chk);
 		K_SpawnEXP(player, expdiff, chk->other());
 	}

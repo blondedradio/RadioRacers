@@ -105,6 +105,7 @@ extern consvar_t cv_toggle_trick_cool;    // Toggle the "COOL!" graphic when you
 extern consvar_t cv_show_dangerous_player_check; // Draw arrows on the side of the HUD showing any incoming danger
 extern consvar_t cv_highreshudscale; // Force a higher scaling for the HUD to be drawn at
 extern consvar_t cv_highreshudscale_temp; // Temporarily store old value of cv_highreshudscale
+extern consvar_t cv_showexponsplit; // Toggle drawing the EXPs gained during a checkpoint split
 
 // HUD -- Hudfeed
 extern consvar_t cv_hudfeed_enabled; // Self-explanatory
@@ -112,6 +113,7 @@ extern consvar_t cv_hudfeed_position; // Position of the feed in the HUD
 extern consvar_t cv_hudfeed_show_faults; // Show faults in the feed?
 extern consvar_t cv_hudfeed_show_grades; // Show grades in the feed?
 extern consvar_t cv_hudfeed_show_snipes; // Show snipes (SEGA!) in the feed?
+extern consvar_t cv_hudfeed_show_amps; // Show the amps in the feed?
 
 // HUD -- Battle
 extern consvar_t cv_battle_toggle_emerald_on_minimap; 

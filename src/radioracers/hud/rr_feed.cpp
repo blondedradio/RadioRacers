@@ -51,6 +51,8 @@ class PlayerFeedUpdate : public BaseFeedUpdate {
         std::string attacker {"Attacker"};      // Source's name
         ItemConfigForFeedUpdate item {};        // The item to blame
         boolean is_self_hit {false};            // Self-hit (how emabrassing)
+        boolean is_dplayer_attacker {false};     // Is the display player the attacker?
+        UINT8 amps {0};                         // Amps awarded
 
         // Drawer
         Draw row;
@@ -64,6 +66,8 @@ class PlayerFeedUpdate : public BaseFeedUpdate {
                         .x(-attacker_name_width)
                         .scale(FEED_UPDATE_SCALE)
                         .text(attacker.c_str());
+
+                    row = row.x(-(attacker_name_width + c.x_offset)).colormap(c.colormap);
                 }
             } else {                
                 UINT8 *item_recolormap = (c.should_flash) ? c.colormap : c.item_recolormap;
@@ -99,12 +103,42 @@ class PlayerFeedUpdate : public BaseFeedUpdate {
         }
 
         void draw_victim(boolean reverse) {
+            int victim_name_width = FeedUpdateUtils::getNameWidth(victim);
             if (reverse) {
-                int victim_name_width = FeedUpdateUtils::getNameWidth(victim);
                 row.x(-(victim_name_width)).scale(FEED_UPDATE_SCALE).text(victim.c_str());
                 row = row.x(-(victim_name_width + c.x_offset)).colormap(c.colormap);
             } else {
                 row.scale(FEED_UPDATE_SCALE).text(victim.c_str());
+                row = row.x(victim_name_width + c.x_offset).colormap(static_cast<UINT8*>(NULL));
+            }
+        }
+
+        void draw_amps(boolean reverse) {
+            if (!is_dplayer_attacker) return;
+            if (!is_self_hit && amps > 0) {
+                const float amp_hud_scale = FEED_UPDATE_SCALE - .3f;
+                const float amp_text_scale = FEED_UPDATE_SCALE - .1f;
+
+                // Amp patch is 31x31, drawing at .4f scale.
+                const float amp_patch_w = 9.3f;
+        
+                // Patch
+                row = row.x(reverse ? -amp_patch_w-2 : 1);
+                row
+                    .y(-4)
+                    .scale(amp_hud_scale)
+                    .colormap(
+                        R_GetTranslationColormap(
+                            TC_RAINBOW, 
+                            static_cast<skincolornum_t>(stplyr->skincolor),
+                             GTC_CACHE
+                        )
+                    )
+                    .patch(fmt::format("b_3AMP0{0}", leveltime%12));
+
+                // AMPS
+                row = row.x(3).y(2).scale(amp_text_scale).colormap(static_cast<UINT8*>(NULL));
+                row.text(fmt::format("+{0}", amps));
             }
         }
 
@@ -141,8 +175,10 @@ class PlayerFeedUpdate : public BaseFeedUpdate {
             const std::string &a,
             const ItemConfigForFeedUpdate &i,
             const boolean &self_hit,
-            const boolean &about_self
-        ): victim(v), attacker(a), item(i), is_self_hit(self_hit) {
+            const boolean &is_dplayer_attacker,
+            const boolean &about_self,
+            const UINT8 &amps
+        ): victim(v), attacker(a), item(i), is_self_hit(self_hit), is_dplayer_attacker(is_dplayer_attacker), amps(amps) {
             is_about_self = about_self;
         }
 
@@ -188,10 +224,12 @@ class PlayerFeedUpdate : public BaseFeedUpdate {
                 draw_victim(reverse);
                 draw_item(reverse); 
                 draw_attacker(reverse);
+                draw_amps(reverse);
             } else {
                 draw_attacker(reverse);
                 draw_item(reverse); 
                 draw_victim(reverse);
+                draw_amps(reverse);
             }
         }
 };
@@ -655,12 +693,16 @@ static boolean isFeedUpdateAboutMainPlayer(player_t *p1, player_t* p2) {
     return stplyr->spectator == false && ((p1 == stplyr) || (p2 == stplyr));
 }
 
+static boolean isDisplayPlayerAttacker(player_t* p) {
+    return stplyr->spectator == false && ((p == stplyr));
+}
+
 static boolean canUseHudfeed(void) {
     return !RR_IsBattle() && radioracers_usehudfeed && cv_hudfeed_enabled.value;
 }
 
 // Push a player interaction to the feed.
-void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor) {
+void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor, UINT8 amps) {
     if (!canUseHudfeed()) return;
 
     if (!inflictor || P_MobjWasRemoved(inflictor)) return;
@@ -668,7 +710,7 @@ void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor
     // If the inflictor type is a player, check for certain conditions
     if (inflictor->type == MT_PLAYER) {
         if (isPlayerMoValid(inflictor)) {
-            RR_PushPlayerInteractionToFeed(source, target, getPlayerAttackType(inflictor));
+            RR_PushPlayerInteractionToFeed(source, target, getPlayerAttackType(inflictor), amps);
         } else {
             return;
         }
@@ -716,6 +758,9 @@ void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor
     // Cap off player names if they're too long
     // (maybe?)
 
+    if (!cv_hudfeed_show_amps.value)
+        amps = 0;
+        
     const boolean self_hit = source_plyr == target_plyr;
 
     // Push to the feed
@@ -725,7 +770,9 @@ void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor
             attacker,
             itemConfig,
             self_hit,
-            (self_hit || isFeedUpdateAboutMainPlayer(source_plyr, target_plyr))
+            isDisplayPlayerAttacker(source_plyr),
+            (self_hit || isFeedUpdateAboutMainPlayer(source_plyr, target_plyr)),
+            amps
         )
     );
 }
@@ -755,12 +802,14 @@ void RR_PushPlayerDeathToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor)
             attacker,
             itemConfig,
             self_hit,
-            (self_hit || isFeedUpdateAboutMainPlayer(source_plyr, target_plyr))
+            isDisplayPlayerAttacker(source_plyr),
+            (self_hit || isFeedUpdateAboutMainPlayer(source_plyr, target_plyr)),
+            0
         )
     );
 }
 
-void RR_PushPlayerInteractionToFeed(mobj_t *source, mobj_t *target, playerattacks_t attack) {
+void RR_PushPlayerInteractionToFeed(mobj_t *source, mobj_t *target, playerattacks_t attack, UINT8 amps) {
     if (!canUseHudfeed()) return;
 
     if (attack == ATTACK_NONE) return;
@@ -782,6 +831,8 @@ void RR_PushPlayerInteractionToFeed(mobj_t *source, mobj_t *target, playerattack
     // (maybe?)
 
     const boolean self_hit = source_plyr == target_plyr;
+    if (!cv_hudfeed_show_amps.value)
+        amps = 0;
 
     // Push to the feed
     hudfeed.push(
@@ -790,7 +841,9 @@ void RR_PushPlayerInteractionToFeed(mobj_t *source, mobj_t *target, playerattack
             attacker,
             itemConfig,
             self_hit,
-            (self_hit || isFeedUpdateAboutMainPlayer(source_plyr, target_plyr))
+            isDisplayPlayerAttacker(source_plyr),
+            (self_hit || isFeedUpdateAboutMainPlayer(source_plyr, target_plyr)),
+            amps
         )
     );
 }

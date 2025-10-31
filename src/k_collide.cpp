@@ -115,7 +115,7 @@ boolean K_BananaBallhogCollide(mobj_t *t1, mobj_t *t2)
 		else
 		{
 			if (issnipe && t1->target) {
-				RR_PushPlayerInteractionToFeed(t1->target, t2, ATTACK_SNIPE);
+				RR_PushPlayerInteractionToFeed(t1->target, t2, ATTACK_SNIPE, 0);
 			}
 			P_DamageMobj(t2, t1, t1->target, 1, DMG_NORMAL|DMG_WOMBO);
 		}
@@ -503,7 +503,7 @@ boolean K_LandMineCollide(mobj_t *t1, mobj_t *t2)
 		{
 			// Player Damage
 			if (issnipe && t1->target) {
-				RR_PushPlayerInteractionToFeed(t1->target, t2, ATTACK_SNIPE);
+				RR_PushPlayerInteractionToFeed(t1->target, t2, ATTACK_SNIPE, 0);
 			}
 			P_DamageMobj(t2, t1, t1->target, 1, DMG_TUMBLE);
 		}
@@ -748,9 +748,10 @@ boolean K_DropTargetCollide(mobj_t *t1, mobj_t *t2)
 	}
 
 	// Radio: .. and THEN we add it to the feed
-	if (radio_originaltarget) {
-		RR_PushPlayerInteractionToFeed(radio_originaltarget, t2, hudfeed_attacktype);
-	}
+	// Just use the newtarget, keeping this here in case I want to revert
+	// if (radio_originaltarget) {
+		// RR_PushPlayerInteractionToFeed(radio_originaltarget, t2, hudfeed_attacktype);
+	// }
 
 	t1->flags &= ~MF_SHOOTABLE;
 
@@ -780,7 +781,11 @@ boolean K_DropTargetCollide(mobj_t *t1, mobj_t *t2)
 
 	if (t1->tracer && t1->tracer->player && t2->player && t2->player != t1->tracer->player)
 	{
-		K_SpawnAmps(t1->tracer->player, K_PvPAmpReward(20, t1->tracer->player, t2->player), t1);
+		UINT8 dropTargetAmps = K_PvPAmpReward(20, t1->tracer->player, t2->player);
+		K_SpawnAmps(t1->tracer->player, dropTargetAmps, t1);
+
+		// Radio
+		RR_PushPlayerInteractionToFeed(t1->tracer, t2, hudfeed_attacktype, dropTargetAmps);
 	}
 
 	if (draggeddroptarget && !P_MobjWasRemoved(draggeddroptarget) && draggeddroptarget->player)
@@ -861,8 +866,8 @@ static inline BlockItReturn_t PIT_LightningShieldAttack(mobj_t *thing)
 
 	P_DamageMobj(thing, lightningSource, lightningSource, 1, DMG_VOLTAGE|DMG_CANTHURTSELF|DMG_WOMBO);
 	
-	// Radio: Lightning shield workaround
-	RR_PushPlayerInteractionToFeed(lightningSource, thing, ATTACK_LIGHTNING_SHIELD);
+	// Radio: Lightning shield workaround (doesn't grant amps from the looks of it)
+	RR_PushPlayerInteractionToFeed(lightningSource, thing, ATTACK_LIGHTNING_SHIELD, 0);
 	return BMIT_CONTINUE;
 }
 
@@ -1176,20 +1181,14 @@ boolean K_KitchenSinkCollide(mobj_t *t1, mobj_t *t2)
 			return true;
 
 		S_StartSound(NULL, sfx_bsnipe); // let all players hear it.
-
-		// Radio
-		if (t1->target) {
-			RR_PushPlayerInteractionToFeed(t1->target, t2, ATTACK_SNIPE);
-		}
-
-		// Radio
-		if (t1->target) {
-			RR_PushPlayerInteractionToFeed(t1->target, t2, ATTACK_SNIPE);
-		}
-
 		
 		if (t1->target && !P_MobjWasRemoved(t1->target) && t1->target->player)
 			K_SpawnAmps(t1->target->player, 50, t2);
+
+		// Radio
+		if (t1->target) {
+			RR_PushPlayerInteractionToFeed(t1->target, t2, ATTACK_SNIPE, 50);
+		}
 
 		HU_SetCEchoFlags(0);
 		HU_SetCEchoDuration(5);
@@ -1352,10 +1351,11 @@ boolean K_PvPTouchDamage(mobj_t *t1, mobj_t *t2)
 	{
 		if (gametyperules & GTR_BUMPERS)
 		{
-			K_StumblePlayer(t2->player);		
-			K_SpawnAmps(t1->player, K_PvPAmpReward(20, t1->player, t2->player), t2);
+			K_StumblePlayer(t2->player);
+			UINT8 stumbleAmps = K_PvPAmpReward(20, t1->player, t2->player);
+			K_SpawnAmps(t1->player, stumbleAmps, t2);
 			// Radio: Workaround for Grow
-			RR_PushPlayerInteractionToFeed(t1, t2, ATTACK_GROW);
+			RR_PushPlayerInteractionToFeed(t1, t2, ATTACK_GROW, stumbleAmps);
 		}
 		else
 		{

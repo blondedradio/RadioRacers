@@ -1177,6 +1177,9 @@ struct player_t
 
 	tic_t darkness_start;
 	tic_t darkness_end;
+
+	// Radio only
+	UINT16 expsplit;
 };
 
 // WARNING FOR ANYONE ABOUT TO ADD SOMETHING TO THE PLAYER STRUCT, G_PlayerReborn WANTS YOU TO SUFFER

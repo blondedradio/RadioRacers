@@ -541,6 +541,7 @@ consvar_t cv_hudfeed_enabled = Player("hudfeed", "Yes").yes_no().onchange_noinit
 consvar_t cv_hudfeed_show_faults = Player("hudfeed_show_faults", "Yes").yes_no().radio();
 consvar_t cv_hudfeed_show_grades = Player("hudfeed_show_grades", "Yes").yes_no().radio();
 consvar_t cv_hudfeed_show_snipes = Player("hudfeed_show_snipes", "Yes").yes_no().radio();
+consvar_t cv_hudfeed_show_amps = Player("hudfeed_show_amps", "Yes").yes_no().radio();
 consvar_t cv_hudfeed_position = Player("hudfeedposition", "Top-Middle").values({
 	{0, "Default"},
 	{1, "Top-Middle"},
@@ -703,6 +704,7 @@ consvar_t cv_toggle_position_number = Player("positionnumbertoggle", "On").on_of
 consvar_t cv_toggle_race_minimap = Player("raceminimaptoggle", "On").on_off().radio();
 consvar_t cv_toggle_trick_cool = Player("tricktexttoggle", "On").on_off().radio();
 consvar_t cv_toggle_race_standings = Player("racestandingstoggle", "On").on_off().radio();
+consvar_t cv_showexponsplit = Player("showexponsplit", "On").on_off().radio();
 
 // Chat emotes
 consvar_t cv_chat_emotes = Player("chat_emotes", "On").on_off().onchange(RR_ChatEmotes_OnChange).radio();
