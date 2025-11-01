@@ -2759,10 +2759,12 @@ static boolean P_KillPlayer(player_t *player, mobj_t *inflictor, mobj_t *source,
 				&& (playeringame[player->pitblame]) && (!players[player->pitblame].spectator)
 				&& (players[player->pitblame].mo) && (!P_MobjWasRemoved(players[player->pitblame].mo)))
 			{
-				if (gametyperules & (GTR_BUMPERS|GTR_CHECKPOINTS))
+				if (gametyperules & (GTR_BUMPERS|GTR_CHECKPOINTS)) {
 					P_DamageMobj(player->mo, players[player->pitblame].mo, players[player->pitblame].mo, 1, DMG_KARMA);
-				else
+				} else {
 					K_SpawnAmps(&players[player->pitblame], 20, player->mo);
+					RR_PushPlayerInteractionToFeed(players[player->pitblame].mo, player->mo, ATTACK_PITFALL, 20);
+				}
 				player->pitblame = -1;
 			}
 			else if (player->mo->health > 1 || K_Cooperative())

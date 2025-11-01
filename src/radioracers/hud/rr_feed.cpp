@@ -632,6 +632,18 @@ static ItemConfigForFeedUpdate getItemConfigForFeedAttackUpdate(playerattacks_t 
             return {.patch = "RRISSHTR", .width = 30, .height = 26, .patch_scale = .4f, .y_offset = -2};
         case ATTACK_TOXOMISTER_CLOUD:
             return {"RRISTOXO", 23, 22};
+        case ATTACK_PITFALL:
+            return {
+                .patch = "RRPTFLL",
+                .width = 21,
+                .height = 15,
+                .animation_config {
+                    .animated = true,
+                    .animated_frames = 2,
+                },
+                .patch_scale = 0.5f,
+                .y_offset = -1
+            };
         default:
             break;
     }
@@ -771,7 +783,7 @@ void RR_PushPlayerDamageToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor
             itemConfig,
             self_hit,
             isDisplayPlayerAttacker(source_plyr),
-            (self_hit || isFeedUpdateAboutMainPlayer(source_plyr, target_plyr)),
+            isFeedUpdateAboutMainPlayer(source_plyr, target_plyr),
             amps
         )
     );
@@ -803,7 +815,7 @@ void RR_PushPlayerDeathToFeed(mobj_t *source, mobj_t *target, mobj_t *inflictor)
             itemConfig,
             self_hit,
             isDisplayPlayerAttacker(source_plyr),
-            (self_hit || isFeedUpdateAboutMainPlayer(source_plyr, target_plyr)),
+            isFeedUpdateAboutMainPlayer(source_plyr, target_plyr),
             0
         )
     );
@@ -842,7 +854,7 @@ void RR_PushPlayerInteractionToFeed(mobj_t *source, mobj_t *target, playerattack
             itemConfig,
             self_hit,
             isDisplayPlayerAttacker(source_plyr),
-            (self_hit || isFeedUpdateAboutMainPlayer(source_plyr, target_plyr)),
+            isFeedUpdateAboutMainPlayer(source_plyr, target_plyr),
             amps
         )
     );
