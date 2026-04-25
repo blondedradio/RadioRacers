@@ -154,17 +154,17 @@ void M_SetupDifficultyOptions(INT32 choice)
 		PLAY_RaceDifficultyDef.lastOn = drace_mapselect;	// Select map select by default.
 
 		PLAY_RaceDifficulty[drace_mritems].status = IT_PATCH|IT_SPACE;	// Item Toggles
-
-		if (M_SecretUnlocked(SECRET_ENCORE, true))
-		{
-			PLAY_RaceDifficulty[drace_encore].status = IT_PATCH|IT_SPACE;	// Encore on/off
-		}
 	}
 	else			// GP
 	{
 		PLAY_RaceDifficulty[drace_gpdifficulty].status = IT_STRING|IT_CVAR; // Difficulty
 		PLAY_RaceDifficulty[drace_cupselect].status = IT_STRING|IT_CALL;	// Level Select (GP)
 		PLAY_RaceDifficultyDef.lastOn = drace_cupselect;	// Select cup select by default.
+	}
+	
+	if (M_SecretUnlocked(SECRET_ENCORE, true))
+	{
+		PLAY_RaceDifficulty[drace_encore].status = IT_PATCH|IT_SPACE;	// Encore on/off
 	}
 }
 

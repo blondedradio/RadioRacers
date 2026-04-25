@@ -2904,6 +2904,40 @@ void M_DrawRaceDifficulty(void)
 	}
 }
 
+
+
+/**
+ * Nicking the logic from k_vote.c and putting it here
+ */
+typedef struct 
+{
+       fixed_t ruby_height;
+} ruby_mini_icon;
+
+static ruby_mini_icon ruby_mini = {0};
+
+static void M_AnimateRubyIcon(INT32 x, INT32 y)
+{
+	static angle_t rubyFloatTime = 0;
+
+	ruby_mini.ruby_height = FINESINE(rubyFloatTime >> ANGLETOFINESHIFT);
+
+	rubyFloatTime += FixedMul(ANGLE_MAX / NEWTICRATE, renderdeltatics);
+
+	const fixed_t rubyScale = FRACUNIT;
+
+	y += 8;
+	V_DrawFixedPatch(
+			((x) << FRACBITS),
+			((y) << FRACBITS) - FixedMul(ruby_mini.ruby_height << 1, rubyScale),
+			rubyScale,
+			0,
+			W_CachePatchName("RUBYICON", PU_STATIC),
+			NULL
+	);
+}
+
+
 // LEVEL SELECT
 
 static void M_DrawCupPreview(INT16 y, levelsearch_t *baselevelsearch)
@@ -2923,6 +2957,9 @@ static void M_DrawCupPreview(INT16 y, levelsearch_t *baselevelsearch)
 	UINT8 starti = i;
 
 	patch_t *staticpat = unvisitedlvl[cupgrid.previewanim % 4];
+
+	const boolean isGP = (levellist.levelsearch.grandprix && (cv_dummygpdifficulty.value >= 0 && cv_dummygpdifficulty.value < KARTGP_MAX));
+	const boolean isGPEncore = isGP && cv_dummygpencore.value;
 
 	INT32 bufferspace = 0;
 	if (IS_WEIRD_RES()) {
@@ -2960,12 +2997,15 @@ static void M_DrawCupPreview(INT16 y, levelsearch_t *baselevelsearch)
 
 			if (M_CanShowLevelInList(map, baselevelsearch))
 			{
+				UINT8 *thumbnailclr = NULL;
+				if (isGPEncore)
+					thumbnailclr = R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_PURPLE, GTC_MENUCACHE);
 				K_DrawMapThumbnail(
 					x + FRACUNIT, (y+2)<<FRACBITS,
 					80<<FRACBITS,
 					0,
 					map,
-					NULL);
+					thumbnailclr);
 			}
 			else
 			{
@@ -2994,6 +3034,9 @@ static void M_DrawCupPreview(INT16 y, levelsearch_t *baselevelsearch)
 			x += fracstep;
 		}
 	}
+
+	if (isGPEncore)
+		M_AnimateRubyIcon(BASEVIDWIDTH/2, 165);
 }
 
 static void M_DrawCupTitle(INT16 y, levelsearch_t *levelsearch)
@@ -3889,6 +3932,9 @@ void M_DrawLevelSelect(void)
 		map = M_GetNextLevelInList(map, &j, &levellist.levelsearch);
 	}
 
+	//RADIO: TODO: Reverse cup title if encore GP
+	// i don't think there's a single use case in this codebase for reversing strings
+	// so do it from scratch with pointers
 	M_DrawCupTitle(tay, &levellist.levelsearch);
 
 	t = (abs(t)/2) + BASEVIDWIDTH - 4;

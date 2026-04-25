@@ -74,15 +74,13 @@ static void M_StartCup(UINT8 entry)
 		grandprixinfo.initalize = true;
 		grandprixinfo.cup = levellist.levelsearch.cup;
 
+		// GP Encore?
+		const boolean isgpencore = (boolean)cv_dummygpencore.value;
+		grandprixinfo.encore = isgpencore;
+
 		// Populate the roundqueue
 		memset(&roundqueue, 0, sizeof(struct roundqueue));
-		G_GPCupIntoRoundQueue(levellist.levelsearch.cup, levellist.newgametype,
-#if 0 // TODO: encore GP
-			(boolean)cv_dummygpencore.value
-#else
-			false
-#endif
-		);
+		G_GPCupIntoRoundQueue(levellist.levelsearch.cup, levellist.newgametype, isgpencore);
 		roundqueue.position = roundqueue.roundnum = 1;
 		roundqueue.netcommunicate = true; // relevant for future Online GP
 	}
