@@ -96,6 +96,7 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "d_clisrv.h"
 #include "radioracers/rr_cvar.h"
 #include "radioracers/rr_hud.h"
+#include "radioracers/rr_util.h"
 
 fixed_t M_TimeFrac(tic_t tics, tic_t duration)
 {
@@ -2940,7 +2941,7 @@ static void M_AnimateRubyIcon(INT32 x, INT32 y)
 
 // LEVEL SELECT
 
-static void M_DrawCupPreview(INT16 y, levelsearch_t *baselevelsearch)
+static void M_DrawCupPreview(INT16 y, levelsearch_t *baselevelsearch, boolean isgpencore)
 {
 	levelsearch_t locklesslevelsearch = *baselevelsearch; // full copy
 	locklesslevelsearch.checklocked = false;
@@ -2956,10 +2957,7 @@ static void M_DrawCupPreview(INT16 y, levelsearch_t *baselevelsearch)
 	INT16 map, start = M_GetFirstLevelInList(&i, &locklesslevelsearch);
 	UINT8 starti = i;
 
-	patch_t *staticpat = unvisitedlvl[cupgrid.previewanim % 4];
-
-	const boolean isGP = (levellist.levelsearch.grandprix && (cv_dummygpdifficulty.value >= 0 && cv_dummygpdifficulty.value < KARTGP_MAX));
-	const boolean isGPEncore = isGP && cv_dummygpencore.value;
+	patch_t *staticpat = unvisitedlvl[cupgrid.previewanim % 4];	
 
 	INT32 bufferspace = 0;
 	if (IS_WEIRD_RES()) {
@@ -2997,15 +2995,34 @@ static void M_DrawCupPreview(INT16 y, levelsearch_t *baselevelsearch)
 
 			if (M_CanShowLevelInList(map, baselevelsearch))
 			{
-				UINT8 *thumbnailclr = NULL;
-				if (isGPEncore)
-					thumbnailclr = R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_PURPLE, GTC_MENUCACHE);
-				K_DrawMapThumbnail(
-					x + FRACUNIT, (y+2)<<FRACBITS,
-					80<<FRACBITS,
-					0,
-					map,
-					thumbnailclr);
+				if (isgpencore) {
+					UINT8 *thumbnailclr = R_GetTranslationColormap(TC_RAINBOW, SKINCOLOR_MAGENTA, GTC_MENUCACHE);;
+					const boolean showstatic = (cupgrid.previewanim % 150 < 5);
+
+					if (showstatic) {
+						V_DrawFixedPatch(
+							x + FRACUNIT, (y+2) * FRACUNIT,
+							FRACUNIT,
+							0,
+							staticpat,
+							thumbnailclr);
+					} else {
+						K_DrawMapThumbnail(
+							x + FRACUNIT, (y+2)<<FRACBITS,
+							80<<FRACBITS,
+							0,
+							map,
+							thumbnailclr);
+					}
+				} else {
+					// Vanilla behaviour
+					K_DrawMapThumbnail(
+						x + FRACUNIT, (y+2)<<FRACBITS,
+						80<<FRACBITS,
+						0,
+						map,
+						NULL);
+				}
 			}
 			else
 			{
@@ -3035,11 +3052,11 @@ static void M_DrawCupPreview(INT16 y, levelsearch_t *baselevelsearch)
 		}
 	}
 
-	if (isGPEncore)
+	if (isgpencore)
 		M_AnimateRubyIcon(BASEVIDWIDTH/2, 165);
 }
 
-static void M_DrawCupTitle(INT16 y, levelsearch_t *levelsearch)
+static void M_DrawCupTitle(INT16 y, levelsearch_t *levelsearch, boolean isgpencore)
 {
 	UINT8 temp = 0;
 
@@ -3057,7 +3074,15 @@ static void M_DrawCupTitle(INT16 y, levelsearch_t *levelsearch)
 		const char *str = (unlocked ? va("%s Cup", levelsearch->cup->realname) : "???");
 		INT16 offset = V_LSTitleLowStringWidth(str, 0) / 2;
 
-		V_DrawLSTitleLowString(BASEVIDWIDTH/2 - offset, y+6, 0, str);
+		// RADIO: Reverse cup title + cup icons, if GP Encore
+		if (isgpencore)
+		{
+			char* cuptitledup = Z_StrDup(str);
+			reverseString(cuptitledup);
+			V_DrawLSTitleLowString(BASEVIDWIDTH/2 - offset, y+6, 0, cuptitledup);
+		} else {
+			V_DrawLSTitleLowString(BASEVIDWIDTH/2 - offset, y+6, 0, str);
+		}
 
 		if (unlocked)
 		{
@@ -3394,6 +3419,7 @@ void M_DrawCupSelect(void)
 	levelsearch_t templevelsearch = levellist.levelsearch; // full copy
 	boolean isLocked;
 	const boolean isGP = (templevelsearch.grandprix && (cv_dummygpdifficulty.value >= 0 && cv_dummygpdifficulty.value < KARTGP_MAX));
+	const boolean isGPEncore = isGP && cv_dummygpencore.value;
 	const UINT8 numrows = (cupgrid.cache_secondrowlocked ? 1 : CUPMENU_ROWS);
 
 	for (i = 0; i < CUPMENU_COLUMNS; i++)
@@ -3506,9 +3532,9 @@ void M_DrawCupSelect(void)
 		V_DrawFill(-bufferspace, y-20, bufferspace, 74, 31);
 		V_DrawFill(BASEVIDWIDTH, y-20, bufferspace, 74, 31);
 	}
-	M_DrawCupPreview(y, &templevelsearch);
+	M_DrawCupPreview(y, &templevelsearch, isGPEncore);
 
-	M_DrawCupTitle(120 - ty, &templevelsearch);
+	M_DrawCupTitle(120 - ty, &templevelsearch, isGPEncore);
 	
 	const char *worktext = "Undo";
 	
@@ -3932,10 +3958,7 @@ void M_DrawLevelSelect(void)
 		map = M_GetNextLevelInList(map, &j, &levellist.levelsearch);
 	}
 
-	//RADIO: TODO: Reverse cup title if encore GP
-	// i don't think there's a single use case in this codebase for reversing strings
-	// so do it from scratch with pointers
-	M_DrawCupTitle(tay, &levellist.levelsearch);
+	M_DrawCupTitle(tay, &levellist.levelsearch, false);
 
 	t = (abs(t)/2) + BASEVIDWIDTH - 4;
 	tay += 30;
@@ -8318,7 +8341,7 @@ static const char* M_DrawChallengePreview(INT32 x, INT32 y)
 			templevelsearch.tutorial = false;
 			templevelsearch.checklocked = true;
 
-			M_DrawCupPreview(146, &templevelsearch);
+			M_DrawCupPreview(146, &templevelsearch, false);
 
 			maxid = id = (temp->id % (CUPMENU_COLUMNS * CUPMENU_ROWS));
 			offset = (temp->id - id) * 2;

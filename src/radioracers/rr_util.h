@@ -23,6 +23,7 @@ typedef enum {
 } battle_win_type_t;
 
 extern int scaleInt(int value, fixed_t scale);
+extern void reverseString(char* str);
 extern void RR_HandleBlueSphereRumble(player_t *player);
 extern void RR_AnnounceBattleWinner(player_t *player, battle_win_type_t type);
 extern void RR_PlayCountdownJingle(INT16 timer, player_t *player);

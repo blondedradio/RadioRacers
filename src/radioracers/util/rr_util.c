@@ -329,3 +329,22 @@ int scaleInt(int value, fixed_t scale)
 {
     return value - (value - (int)(round(value * FixedToFloat(scale))));
 }
+
+// strrev is non-standard, apparently
+void reverseString(char *str)
+{
+    if (!str)
+        return;
+
+    int start = 0;
+    int end = strlen(str) - 1; //skipping the terminating character, '\0'
+
+    while (start < end) {
+        char c = str[start];
+        str[start] = str[end];
+        str[end] = c;
+
+        start++;
+        end--;
+    }
+}
