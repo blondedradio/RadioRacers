@@ -9,6 +9,7 @@
 /// \file radioracers/util/rr_util.c
 /// \brief Util functions
 
+#include "../../doomdef.h"
 #include "../../doomtype.h"
 
 #include "../../fastcmp.h"
