@@ -657,7 +657,8 @@ static GLRGBAFloat shader_defaultcolor = {1.0f, 1.0f, 1.0f, 1.0f};
 		"endResolutiony = scr_resolution.y * 0.5;\n" \
 	"}\n" \
 	"float zFactor = clamp((z - 192.0) / (6144.0 - 192.0), 0.0, 1.0);\n" \
-	"int scaleFactor = int(mix(1.0, 8.0, zFactor));\n" \
+	"float scaleFactor = mix(1.0, 8.0, zFactor);\n" \
+	"scaleFactor = floor(scaleFactor);\n" \
 	"endResolutionx = endResolutionx * scaleFactor;\n" \
 	"endResolutiony = endResolutiony * scaleFactor;\n" \
 	"vec2 normalizedPosition = position * vec2(endResolutionx / scr_resolution.x, endResolutiony / scr_resolution.y);\n" \
